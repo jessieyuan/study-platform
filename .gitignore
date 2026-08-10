@@ -1,0 +1,11 @@
+# 依赖
+node_modules/
+server/data.db
+.DS_Store
+
+# IDE
+.vscode/
+.idea/
+
+# 日志
+*.log
