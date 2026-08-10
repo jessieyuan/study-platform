@@ -934,46 +934,54 @@
 
   /* ========== 千纸鹤许愿瓶 ========== */
   .crane-bottle {
-    display: flex; align-items: center; gap: 16px;
-    padding: 16px 20px;
-    background: linear-gradient(135deg, #fff9f0, #fff5e6);
-    border-radius: 16px; margin-bottom: 16px;
-    box-shadow: 0 2px 12px rgba(180,130,20,0.06);
-    border: 1px solid #f0e4c0;
+    display: flex; flex-direction: column; align-items: center;
+    margin-bottom: 16px; cursor: pointer; position: relative;
   }
-  .crane-bottle-icon {
-    font-size: 36px; flex-shrink: 0;
-    animation: craneFloat 3s ease-in-out infinite;
+  .crane-bottle:hover .crane-jar { transform: scale(1.03); }
+  .crane-jar {
+    width: 80px; height: 110px; position: relative;
+    background: linear-gradient(135deg, rgba(255,255,255,0.6), rgba(240,230,210,0.4));
+    border: 2px solid rgba(200,180,140,0.5);
+    border-radius: 6px 6px 20px 20px;
+    box-shadow: inset 0 -20px 30px -10px rgba(180,130,20,0.08), 0 4px 16px rgba(180,130,20,0.1);
+    overflow: hidden; transition: transform 0.2s;
   }
-  @keyframes craneFloat {
-    0%,100% { transform: translateY(0) rotate(0deg); }
-    50% { transform: translateY(-4px) rotate(3deg); }
+  .crane-jar::before {
+    content: ''; position: absolute; top: -8px; left: 10px; right: 10px;
+    height: 10px; background: linear-gradient(135deg, #d4c4a0, #c0a878);
+    border-radius: 4px 4px 0 0; border: 1.5px solid rgba(180,150,100,0.5);
   }
-  .crane-bottle-info { flex: 1; min-width: 0; }
-  .crane-bottle-title { font-size: 14px; font-weight: 700; color: #8a6d2e; margin-bottom: 4px; }
-  .crane-bottle-desc { font-size: 12px; color: #b8a080; margin-bottom: 6px; }
-  .crane-level-bar {
-    display: flex; align-items: center; gap: 4px;
+  .crane-jar::after {
+    content: ''; position: absolute; top: 0; left: 6px; width: 12px; height: 40px;
+    background: linear-gradient(180deg, rgba(255,255,255,0.4), transparent);
+    border-radius: 6px; transform: rotate(-8deg);
   }
-  .crane-level-dot {
-    width: 28px; height: 28px; border-radius: 50%;
+  .crane-jar-fill {
+    position: absolute; bottom: 0; left: 0; right: 0;
+    transition: height 0.6s ease, background 0.6s ease;
+    border-radius: 0 0 18px 18px;
+  }
+  .crane-jar-crane {
+    position: absolute; font-size: 16px;
+    animation: craneBob 2.5s ease-in-out infinite;
+    filter: drop-shadow(0 1px 2px rgba(0,0,0,0.15));
+  }
+  @keyframes craneBob {
+    0%,100% { transform: translateY(0) rotate(-3deg); }
+    50% { transform: translateY(-3px) rotate(3deg); }
+  }
+  .crane-label {
+    font-size: 11px; font-weight: 600; color: #8a6d2e;
+    margin-top: 4px; text-align: center; white-space: nowrap;
+  }
+  .crane-count-badge {
+    position: absolute; top: -6px; right: -6px;
+    min-width: 20px; height: 20px; border-radius: 10px;
+    background: linear-gradient(135deg, #f5a623, #ffc940);
+    color: #fff; font-size: 11px; font-weight: 700;
     display: flex; align-items: center; justify-content: center;
-    font-size: 14px; border: 2px solid #f0e4c0; background: #fff;
-    transition: 0.3s;
+    padding: 0 5px; box-shadow: 0 2px 6px rgba(240,160,32,0.3);
   }
-  .crane-level-dot.filled { border-color: currentColor; background: currentColor; }
-  .crane-level-dot.filled span { filter: brightness(0); }
-  .crane-level-dot.current { border-color: currentColor; animation: cranePulse 1.5s ease-in-out infinite; }
-  @keyframes cranePulse {
-    0%,100% { box-shadow: 0 0 0 0 rgba(240,160,32,0.3); }
-    50% { box-shadow: 0 0 0 6px rgba(240,160,32,0); }
-  }
-  .crane-count { font-size: 12px; font-weight: 600; color: #8a6d2e; white-space: nowrap; }
-  .crane-progress-wrap {
-    width: 100%; height: 6px; background: #f0e4c0; border-radius: 3px;
-    margin-top: 4px; overflow: hidden;
-  }
-  .crane-progress-fill { height: 100%; border-radius: 3px; transition: width 0.5s ease; }
 
   /* ========== 今日完成度 ========== */
   .progress-wrap { display:flex; align-items:center; gap:24px; }
@@ -1823,12 +1831,11 @@
         <div class="date" id="today-date"></div>
       </div>
     </div>
- </div>
+</div>
  <div class="card">
-  <div class="crane-bottle" id="crane-bottle" onclick="showCraneDetail()"></div>
-  <div class="card">
    <div class="progress-wrap">
-      <div class="progress-circle-wrap">
+     <div class="crane-bottle" id="crane-bottle" onclick="showCraneDetail()"></div>
+     <div class="progress-circle-wrap">
         <svg width="150" height="150" viewBox="0 0 150 150"><circle class="bg" cx="75" cy="75" r="62"/><circle class="fg" id="progress-circle" cx="75" cy="75" r="62" stroke-dasharray="389.56" stroke-dashoffset="389.56"/></svg>
         <div class="progress-center"><div class="pct" id="progress-pct">0%</div><div class="lbl">今日完成度</div></div>
       </div>
@@ -3491,44 +3498,34 @@ function renderCraneBottle() {
   if (!el) return;
   var info = getCraneInfo();
   var lvInfo = CRANE_LEVELS[info.level - 1];
-  var pct = Math.min(100, Math.round(info.current / info.needed * 100));
-  var claimed = appData.craneClaimedToday === todayStr();
-  // 今日是否可领取
+  var pct = info.level < 5 ? Math.min(100, Math.round(info.current / info.needed * 100)) : 100;
+  // 自动领取
   var todayTasks = (appData.tasks || []).filter(function(t) { return t.date === todayStr(); });
   var allDone = todayTasks.length > 0 && todayTasks.every(function(t) { return t.done; });
-  var canClaim = allDone && !claimed;
-  // 自动领取
-  if (canClaim) {
+  var claimed = appData.craneClaimedToday === todayStr();
+  if (allDone && !claimed) {
     tryClaimCrane();
     info = getCraneInfo();
     lvInfo = CRANE_LEVELS[info.level - 1];
-    pct = Math.min(100, Math.round(info.current / info.needed * 100));
-    claimed = true;
+    pct = info.level < 5 ? Math.min(100, Math.round(info.current / info.needed * 100)) : 100;
   }
-  var html = '<div class="crane-bottle-icon" style="color:' + lvInfo.color + '">' + lvInfo.emoji + '</div>';
-  html += '<div class="crane-bottle-info">';
-  html += '<div class="crane-bottle-title">千纸鹤许愿瓶</div>';
-  if (info.level < 5) {
-    html += '<div class="crane-bottle-desc">Lv.' + info.level + ' ' + lvInfo.name + '：' + info.current + '/' + info.needed + ' → 升级 Lv.' + (info.level+1) + ' ' + CRANE_LEVELS[info.level].name + '</div>';
-  } else {
-    html += '<div class="crane-bottle-desc">Lv.5 ' + lvInfo.name + '（最高级别）✨ 共 ' + info.total + ' 只千纸鹤</div>';
+  // 瓶子填充高度（根据总千纸鹤数）
+  var fillH = Math.min(85, Math.max(5, (info.total / 150) * 85));
+  // 生成瓶内千纸鹤（最多显示5只）
+  var showCount = Math.min(5, info.total);
+  var cranesHtml = '';
+  var positions = [[18,70],[50,55],[35,40],[60,75],[25,58]];
+  for (var i = 0; i < showCount; i++) {
+    var p = positions[i];
+    var delay = i * 0.4;
+    cranesHtml += '<div class="crane-jar-crane" style="left:' + p[0] + '%;top:' + p[1] + '%;animation-delay:' + delay + 's;color:' + lvInfo.color + '">🦢</div>';
   }
-  // 级别指示点
-  html += '<div class="crane-level-bar">';
-  for (var i = 0; i < 5; i++) {
-    var lv = CRANE_LEVELS[i];
-    var cls = 'crane-level-dot';
-    if (i < info.level - 1) cls += ' filled';
-    else if (i === info.level - 1) cls += ' current';
-    html += '<div class="' + cls + '" style="color:' + lv.color + ';"><span>' + lv.emoji + '</span></div>';
-  }
+  var html = '<div class="crane-jar">';
+  html += '<div class="crane-jar-fill" style="height:' + fillH + '%;background:linear-gradient(180deg,' + lvInfo.color + '22,' + lvInfo.color + '44);"></div>';
+  html += cranesHtml;
   html += '</div>';
-  // 进度条
-  if (info.level < 5) {
-    html += '<div class="crane-progress-wrap"><div class="crane-progress-fill" style="width:' + pct + '%;background:' + lvInfo.color + ';"></div></div>';
-  }
-  html += '</div>';
-  html += '<div class="crane-count" style="color:' + lvInfo.color + '">×' + info.total + '</div>';
+  html += '<div class="crane-count-badge">' + info.total + '</div>';
+  html += '<div class="crane-label">许愿瓶 Lv.' + info.level + '</div>';
   el.innerHTML = html;
 }
 
