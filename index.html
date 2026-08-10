@@ -930,7 +930,50 @@
   }
   .card-header h3 { font-size:15px; font-weight:700; color:var(--text); display:flex; align-items:center; gap:6px; }
   .card-header .card-tag { width:4px; height:16px; border-radius:2px; background:var(--purple); }
-  .card-header .count { font-size:13px; color:var(--text-secondary); font-weight:500; }
+ .card-header .count { font-size:13px; color:var(--text-secondary); font-weight:500; }
+
+  /* ========== 千纸鹤许愿瓶 ========== */
+  .crane-bottle {
+    display: flex; align-items: center; gap: 16px;
+    padding: 16px 20px;
+    background: linear-gradient(135deg, #fff9f0, #fff5e6);
+    border-radius: 16px; margin-bottom: 16px;
+    box-shadow: 0 2px 12px rgba(180,130,20,0.06);
+    border: 1px solid #f0e4c0;
+  }
+  .crane-bottle-icon {
+    font-size: 36px; flex-shrink: 0;
+    animation: craneFloat 3s ease-in-out infinite;
+  }
+  @keyframes craneFloat {
+    0%,100% { transform: translateY(0) rotate(0deg); }
+    50% { transform: translateY(-4px) rotate(3deg); }
+  }
+  .crane-bottle-info { flex: 1; min-width: 0; }
+  .crane-bottle-title { font-size: 14px; font-weight: 700; color: #8a6d2e; margin-bottom: 4px; }
+  .crane-bottle-desc { font-size: 12px; color: #b8a080; margin-bottom: 6px; }
+  .crane-level-bar {
+    display: flex; align-items: center; gap: 4px;
+  }
+  .crane-level-dot {
+    width: 28px; height: 28px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px; border: 2px solid #f0e4c0; background: #fff;
+    transition: 0.3s;
+  }
+  .crane-level-dot.filled { border-color: currentColor; background: currentColor; }
+  .crane-level-dot.filled span { filter: brightness(0); }
+  .crane-level-dot.current { border-color: currentColor; animation: cranePulse 1.5s ease-in-out infinite; }
+  @keyframes cranePulse {
+    0%,100% { box-shadow: 0 0 0 0 rgba(240,160,32,0.3); }
+    50% { box-shadow: 0 0 0 6px rgba(240,160,32,0); }
+  }
+  .crane-count { font-size: 12px; font-weight: 600; color: #8a6d2e; white-space: nowrap; }
+  .crane-progress-wrap {
+    width: 100%; height: 6px; background: #f0e4c0; border-radius: 3px;
+    margin-top: 4px; overflow: hidden;
+  }
+  .crane-progress-fill { height: 100%; border-radius: 3px; transition: width 0.5s ease; }
 
   /* ========== 今日完成度 ========== */
   .progress-wrap { display:flex; align-items:center; gap:24px; }
@@ -1754,10 +1797,6 @@
     <div class="nav-icon">🧹</div><span>劳动</span>
   </a>
   <div class="nav-divider"></div>
-  <a href="#" class="nav-item" data-page="pet" onclick="switchPage('pet',this)">
-    <div class="nav-icon">🐾</div><span>宠物</span>
-  </a>
-  <div class="nav-divider"></div>
   <a href="#" class="nav-item" data-page="leaderboard" onclick="switchPage('leaderboard',this)">
     <div class="nav-icon">🏆</div><span>排行榜</span>
   </a>
@@ -1784,9 +1823,11 @@
         <div class="date" id="today-date"></div>
       </div>
     </div>
-  </div>
+ </div>
+ <div class="card">
+  <div class="crane-bottle" id="crane-bottle" onclick="showCraneDetail()"></div>
   <div class="card">
-    <div class="progress-wrap">
+   <div class="progress-wrap">
       <div class="progress-circle-wrap">
         <svg width="150" height="150" viewBox="0 0 150 150"><circle class="bg" cx="75" cy="75" r="62"/><circle class="fg" id="progress-circle" cx="75" cy="75" r="62" stroke-dasharray="389.56" stroke-dashoffset="389.56"/></svg>
         <div class="progress-center"><div class="pct" id="progress-pct">0%</div><div class="lbl">今日完成度</div></div>
@@ -2207,7 +2248,10 @@ function ensureDataFields() {
   if (!appData.currentLessonMode) appData.currentLessonMode = 'read';
   if (typeof appData.showPinyin !== 'boolean') appData.showPinyin = true;
   if (typeof appData.showTranslation !== 'boolean') appData.showTranslation = true;
-  if (!appData.chineseView) appData.chineseView = 'backmo';
+ if (!appData.chineseView) appData.chineseView = 'backmo';
+  if (typeof appData.cranes === 'undefined') appData.cranes = 0; // 千纸鹤数量（Lv.1）
+  if (typeof appData.craneLevel === 'undefined') appData.craneLevel = 1; // 当前级别 1-5
+  if (typeof appData.craneClaimedToday === 'undefined') appData.craneClaimedToday = null; // 今日是否已领取
 }
 
 // ---- 数据保存（防抖API同步） ----
@@ -3404,6 +3448,104 @@ function hideQuoteDetail(e) {
 }
 
 // ==================== 首页渲染 ====================
+// ==================== 千纸鹤许愿瓶 ====================
+var CRANE_LEVELS = [
+  { name: '白鹤', color: '#e8e0d0', emoji: '🦢' },   // Lv.1
+  { name: '金鹤', color: '#f5a623', emoji: '🦅' },   // Lv.2
+  { name: '红鹤', color: '#e85555', emoji: '🦩' },   // Lv.3
+  { name: '蓝鹤', color: '#5ba4cf', emoji: '🦜' },   // Lv.4
+  { name: '紫鹤', color: '#8b5cf6', emoji: '🦋' },   // Lv.5
+];
+var CRANE_PER_LEVEL = 30; // 每级需要30个上一级千纸鹤
+
+function getCraneInfo() {
+  var total = appData.cranes || 0;
+  var level = 1;
+  var remaining = total;
+  // 计算实际级别和剩余数量
+  while (level < 5 && remaining >= CRANE_PER_LEVEL) {
+    remaining -= CRANE_PER_LEVEL;
+    level++;
+  }
+  return { level: level, current: remaining, total: total, needed: CRANE_PER_LEVEL };
+}
+
+function tryClaimCrane() {
+  // 今日任务全部完成才可领取
+  var todayTasks = appData.tasks.filter(function(t) { return t.date === todayStr(); });
+  if (todayTasks.length === 0) return false;
+  var allDone = todayTasks.every(function(t) { return t.done; });
+  if (!allDone) return false;
+  if (appData.craneClaimedToday === todayStr()) return false; // 今天已领
+  appData.cranes = (appData.cranes || 0) + 1;
+  appData.craneClaimedToday = todayStr();
+  // 检查升级
+  var info = getCraneInfo();
+  appData.craneLevel = info.level;
+  saveData(appData);
+  return true;
+}
+
+function renderCraneBottle() {
+  var el = document.getElementById('crane-bottle');
+  if (!el) return;
+  var info = getCraneInfo();
+  var lvInfo = CRANE_LEVELS[info.level - 1];
+  var pct = Math.min(100, Math.round(info.current / info.needed * 100));
+  var claimed = appData.craneClaimedToday === todayStr();
+  // 今日是否可领取
+  var todayTasks = (appData.tasks || []).filter(function(t) { return t.date === todayStr(); });
+  var allDone = todayTasks.length > 0 && todayTasks.every(function(t) { return t.done; });
+  var canClaim = allDone && !claimed;
+  // 自动领取
+  if (canClaim) {
+    tryClaimCrane();
+    info = getCraneInfo();
+    lvInfo = CRANE_LEVELS[info.level - 1];
+    pct = Math.min(100, Math.round(info.current / info.needed * 100));
+    claimed = true;
+  }
+  var html = '<div class="crane-bottle-icon" style="color:' + lvInfo.color + '">' + lvInfo.emoji + '</div>';
+  html += '<div class="crane-bottle-info">';
+  html += '<div class="crane-bottle-title">千纸鹤许愿瓶</div>';
+  if (info.level < 5) {
+    html += '<div class="crane-bottle-desc">Lv.' + info.level + ' ' + lvInfo.name + '：' + info.current + '/' + info.needed + ' → 升级 Lv.' + (info.level+1) + ' ' + CRANE_LEVELS[info.level].name + '</div>';
+  } else {
+    html += '<div class="crane-bottle-desc">Lv.5 ' + lvInfo.name + '（最高级别）✨ 共 ' + info.total + ' 只千纸鹤</div>';
+  }
+  // 级别指示点
+  html += '<div class="crane-level-bar">';
+  for (var i = 0; i < 5; i++) {
+    var lv = CRANE_LEVELS[i];
+    var cls = 'crane-level-dot';
+    if (i < info.level - 1) cls += ' filled';
+    else if (i === info.level - 1) cls += ' current';
+    html += '<div class="' + cls + '" style="color:' + lv.color + ';"><span>' + lv.emoji + '</span></div>';
+  }
+  html += '</div>';
+  // 进度条
+  if (info.level < 5) {
+    html += '<div class="crane-progress-wrap"><div class="crane-progress-fill" style="width:' + pct + '%;background:' + lvInfo.color + ';"></div></div>';
+  }
+  html += '</div>';
+  html += '<div class="crane-count" style="color:' + lvInfo.color + '">×' + info.total + '</div>';
+  el.innerHTML = html;
+}
+
+function showCraneDetail() {
+  var info = getCraneInfo();
+  var msg = '🦢 千纸鹤许愿瓶\n\n';
+  for (var i = 0; i < 5; i++) {
+    var lv = CRANE_LEVELS[i];
+    var status = i < info.level - 1 ? '✅ 已达成' : (i === info.level - 1 ? '🔹 当前' : '⬜ 未解锁');
+    msg += lv.emoji + ' Lv.' + (i+1) + ' ' + lv.name + '  ' + status + '\n';
+  }
+  msg += '\n累计千纸鹤：' + info.total + ' 只\n';
+  msg += '每完成当天全部任务可获得 1 只千纸鹤\n';
+  msg += '每 ' + CRANE_PER_LEVEL + ' 只可升级为下一级千纸鹤';
+  alert(msg);
+}
+
 function renderHomePage() {
   if (!appData.tasks) appData.tasks = [];
   var d = new Date();
@@ -3418,6 +3560,7 @@ function renderHomePage() {
   var c = 2 * Math.PI * 62;
   document.getElementById('progress-circle').setAttribute('stroke-dashoffset', c - (pct/100)*c);
   document.getElementById('progress-pct').textContent = pct + '%';
+  renderCraneBottle();
   renderDailyQuote();
   document.getElementById('task-count').textContent = done + '/' + todayTasks.length + ' 项';
   var list = document.getElementById('task-list');
