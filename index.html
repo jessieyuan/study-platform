@@ -3460,6 +3460,7 @@ function tryClaimCrane() {
   // 今日任务全部完成才可领取
   var todayTasks = appData.tasks.filter(function(t) { return t.date === todayStr(); });
   if (todayTasks.length === 0) return false;
+  var todayTasks = (appData.tasks || []).filter(function(t) { return t.date === todayStr(); });
   var allDone = todayTasks.every(function(t) { return t.done; });
   if (!allDone) return false;
   if (appData.craneClaimedToday === todayStr()) return false; // 今天已领
@@ -3477,6 +3478,7 @@ function renderCraneBottle() {
   if (!el) return;
   var info = getCraneInfo();
   var lvInfo = CRANE_LEVELS[info.level - 1];
+  var todayTasks = (appData.tasks || []).filter(function(t) { return t.date === todayStr(); });
   var allDone = todayTasks.length > 0 && todayTasks.every(function(t) { return t.done; });
   var claimed = appData.craneClaimedToday === todayStr();
   if (allDone && !claimed) {
