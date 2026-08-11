@@ -9,44 +9,37 @@ body {
   background: linear-gradient(180deg, #fff9e6, #fef3d0);
   font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", sans-serif;
   display: flex; flex-direction: column; align-items: center;
-  padding: 40px 20px; color: #5c4a2e;
+  padding: 40px 20px; color: #5c4a2e; min-height: 100vh;
 }
 h1 { font-size: 22px; margin-bottom: 4px; }
 .desc { font-size: 13px; color: #b8a080; margin-bottom: 30px; }
-.level-row {
-  display: flex; gap: 24px; flex-wrap: wrap; justify-content: center;
-  margin-bottom: 20px;
-}
+.level-row { display: flex; gap: 20px; flex-wrap: wrap; justify-content: center; margin-bottom: 30px; }
 .level-card {
   background: #fff; border-radius: 16px; padding: 20px;
   box-shadow: 0 4px 20px rgba(180,130,20,0.08);
-  text-align: center; width: 140px;
+  text-align: center; width: 130px;
 }
-.level-card h3 { font-size: 14px; margin-bottom: 12px; }
-.level-card .star-demo svg { display: block; margin: 0 auto; }
-.level-card .note { font-size: 12px; color: #b8a080; margin-top: 8px; }
-.level-name { font-size: 15px; font-weight: 700; margin-bottom: 4px; }
+.level-name { font-size: 15px; font-weight: 700; margin: 8px 0 2px; }
 .level-req { font-size: 11px; color: #b8a080; }
 
-/* 彩色闪光星星 */
 @keyframes rainbowShift {
   0% { filter: hue-rotate(0deg) brightness(1.1); }
   100% { filter: hue-rotate(360deg) brightness(1.1); }
 }
 @keyframes sparkle {
-  0%,100% { opacity: 0; transform: scale(0.5); }
+  0%,100% { opacity: 0; transform: scale(0.3); }
   50% { opacity: 1; transform: scale(1); }
 }
-.rainbow-star { animation: rainbowShift 3s linear infinite; }
+.rainbow-star { animation: rainbowShift 3s linear infinite; transform-origin: center; }
 .sparkle-1 { animation: sparkle 1.5s ease-in-out infinite; }
 .sparkle-2 { animation: sparkle 1.5s ease-in-out 0.5s infinite; }
 .sparkle-3 { animation: sparkle 1.5s ease-in-out 1s infinite; }
 
-/* 瓶子样式 */
-.bottle-demo { margin-top: 30px; }
-.bottle-row { display: flex; gap: 30px; flex-wrap: wrap; justify-content: center; }
+.bottle-row { display: flex; gap: 20px; flex-wrap: wrap; justify-content: center; }
 .bottle-card { text-align: center; }
-.bottle-card .bottle-name { font-size: 13px; margin-top: 8px; color: #8a6d2e; }
+.bottle-card .bottle-count { display: flex; align-items: center; justify-content: center; gap: 4px; margin-top: 6px; }
+.bottle-card .bottle-count svg { width: 16px; height: 16px; }
+.bottle-card .bottle-count span { font-size: 13px; font-weight: 600; color: #8a6d2e; }
 </style>
 </head>
 <body>
@@ -57,9 +50,9 @@ h1 { font-size: 22px; margin-bottom: 4px; }
 <div class="level-row" id="levels"></div>
 
 <h1 style="margin-top:20px;">瓶子效果预览</h1>
-<div class="bottle-demo">
-  <div class="bottle-row" id="bottles"></div>
-</div>
+<div class="desc">瓶内星星数量与显示一致</div>
+
+<div class="bottle-row" id="bottles"></div>
 
 <script>
 var STAR_LEVELS = [
@@ -70,52 +63,94 @@ var STAR_LEVELS = [
   { name: '粉紫星', color: '#c77fd0' },
   { name: '彩虹星', color: 'rainbow' },
 ];
-var STAR_PATH = 'M0,-10 L2.4,-3.3 L9.5,-3.1 L3.8,1.2 L5.9,8.1 L0,4 L-5.9,8.1 L-3.8,1.2 L-9.5,-3.1 L-2.4,-3.3 Z';
+var STAR_PATH = 'M0,-12 L2.9,-4 L11.4,-3.7 L4.6,1.4 L7.1,9.7 L0,4.8 L-7.1,9.7 L-4.6,1.4 L-11.4,-3.7 L-2.9,-4 Z';
 
 function makeStar(color, size) {
-  size = size || 40;
+  size = size || 56;
   var isRainbow = color === 'rainbow';
   var fill = isRainbow ? 'url(#rainbow-grad)' : color;
   var cls = isRainbow ? 'rainbow-star' : '';
-  var sparkles = isRainbow ? 
-    '<text class="sparkle-1" x="-6" y="-8" font-size="8">✨</text>' +
-    '<text class="sparkle-2" x="5" y="6" font-size="6">✨</text>' +
-    '<text class="sparkle-3" x="-3" y="8" font-size="5">✨</text>' : '';
+  var stroke = isRainbow ? '#fff' : color;
+  var sparkles = isRainbow ?
+    '<text class="sparkle-1" x="-8" y="-10" font-size="10">✨</text>' +
+    '<text class="sparkle-2" x="6" y="8" font-size="8">✨</text>' +
+    '<text class="sparkle-3" x="-4" y="10" font-size="6">✨</text>' : '';
   var defs = isRainbow ?
     '<defs><linearGradient id="rainbow-grad" x1="0" y1="0" x2="1" y2="1">' +
-    '<stop offset="0%" stop-color="#ff6b6b"/><stop offset="25%" stop-color="#f5a623"/>' +
-    '<stop offset="50%" stop-color="#7bc043"/><stop offset="75%" stop-color="#5ba4cf"/>' +
-    '<stop offset="100%" stop-color="#c77fd0"/></linearGradient></defs>' : '';
-  return '<svg viewBox="-12 -12 24 24" width="' + size + '" height="' + size + '">' +
-    defs + '<g class="' + cls + '">' +
-    '<path d="' + STAR_PATH + '" fill="' + fill + '" fill-opacity="0.8" stroke="' + (isRainbow ? '#fff' : color) + '" stroke-width="1.5" stroke-linejoin="round"/>' +
-    '<path d="M0,-7 L1.5,-2.5 L3.5,-2.5" fill="none" stroke="rgba(255,255,255,0.6)" stroke-width="1.5" stroke-linecap="round"/>' +
+    '<stop offset="0%" stop-color="#ff6b6b"/><stop offset="20%" stop-color="#f5a623"/>' +
+    '<stop offset="40%" stop-color="#7bc043"/><stop offset="60%" stop-color="#5ba4cf"/>' +
+    '<stop offset="80%" stop-color="#c77fd0"/><stop offset="100%" stop-color="#ff6b6b"/></linearGradient></defs>' : '';
+  // 立体效果：主面 + 左下暗面 + 高光
+  return '<svg viewBox="-13 -13 26 26" width="' + size + '" height="' + size + '">' + defs +
+    '<g class="' + cls + '">' +
+    // 暗面（左下偏移）
+    '<path d="' + STAR_PATH + '" fill="' + (isRainbow ? 'url(#rainbow-grad)' : color) + '" fill-opacity="0.4" transform="translate(0.8,0.8)"/>' +
+    // 主面
+    '<path d="' + STAR_PATH + '" fill="' + fill + '" fill-opacity="0.85" stroke="' + stroke + '" stroke-width="1.5" stroke-linejoin="round"/>' +
+    // 高光面（右上）
+    '<path d="M0,-12 L2.9,-4 L11.4,-3.7 L4.6,1.4" fill="rgba(255,255,255,0.35)" stroke="none"/>' +
     '</g>' + sparkles + '</svg>';
+}
+
+function makeSmallStar(color) {
+  var isRainbow = color === 'rainbow';
+  var fill = isRainbow ? 'url(#rb-small)' : color;
+  var defs = isRainbow ?
+    '<defs><linearGradient id="rb-small" x1="0" y1="0" x2="1" y2="1">' +
+    '<stop offset="0%" stop-color="#ff6b6b"/><stop offset="50%" stop-color="#7bc043"/>' +
+    '<stop offset="100%" stop-color="#c77fd0"/></linearGradient></defs>' : '';
+  return '<svg viewBox="-13 -13 26 26" width="16" height="16">' + defs +
+    '<path d="' + STAR_PATH + '" fill="' + fill + '" fill-opacity="0.85" stroke="' + (isRainbow ? '#fff' : color) + '" stroke-width="1.5" stroke-linejoin="round"/>' +
+    '<path d="M0,-12 L2.9,-4 L11.4,-3.7 L4.6,1.4" fill="rgba(255,255,255,0.3)" stroke="none"/>' +
+    '</svg>';
 }
 
 function makeBottle(color, count) {
   var isRainbow = color === 'rainbow';
-  var showCount = Math.min(count, 6);
-  var positions = [[30,100],[55,95],[40,80],[25,85],[60,75],[45,95]];
+  var showCount = count; // 有多少显示多少
+  // 计算堆叠位置
+  var positions = [];
+  var maxPerRow = 3;
+  var startY = 118;
+  var stepY = 16;
+  var stepX = 20;
+  var startRow = 0;
+  for (var r = 0; r < 10; r++) {
+    var inThisRow = Math.min(maxPerRow, showCount - r * maxPerRow);
+    if (inThisRow <= 0) break;
+    var rowWidth = (inThisRow - 1) * stepX;
+    var sX = 50 - rowWidth / 2;
+    for (var c = 0; c < inThisRow; c++) {
+      positions.push([sX + c * stepX, startY - r * stepY]);
+    }
+  }
   var stars = '';
-  for (var i = 0; i < showCount; i++) {
+  for (var i = 0; i < showCount && i < positions.length; i++) {
     var p = positions[i];
-    stars += '<g transform="translate(' + p[0] + ',' + p[1] + ') scale(0.4)">' +
-      '<path d="' + STAR_PATH + '" fill="' + (isRainbow ? 'url(#rb' + count + ')' : color) + '" fill-opacity="0.7" stroke="' + (isRainbow ? '#fff' : color) + '" stroke-width="1.5" stroke-linejoin="round"/>' +
+    var gid = 'st' + i + '_' + count;
+    var sFill = isRainbow ? 'url(#' + gid + ')' : color;
+    var sDefs = isRainbow ?
+      '<defs><linearGradient id="' + gid + '" x1="0" y1="0" x2="1" y2="1">' +
+      '<stop offset="0%" stop-color="#ff6b6b"/><stop offset="50%" stop-color="#7bc043"/>' +
+      '<stop offset="100%" stop-color="#c77fd0"/></linearGradient></defs>' : '';
+    stars += '<g' + (isRainbow ? ' class="rainbow-star" style="transform-origin:center;transform-box:fill-box"' : '') + ' transform="translate(' + p[0] + ',' + p[1] + ') scale(0.38)">' +
+      '<path d="' + STAR_PATH + '" fill="' + sFill + '" fill-opacity="0.35" transform="translate(0.8,0.8)"/>' +
+      '<path d="' + STAR_PATH + '" fill="' + sFill + '" fill-opacity="0.85" stroke="' + (isRainbow ? '#fff' : color) + '" stroke-width="1.5" stroke-linejoin="round"/>' +
+      '<path d="M0,-12 L2.9,-4 L11.4,-3.7 L4.6,1.4" fill="rgba(255,255,255,0.3)" stroke="none"/>' +
       '</g>';
   }
-  var defs = isRainbow ?
-    '<defs><linearGradient id="rb' + count + '" x1="0" y1="0" x2="1" y2="1">' +
-    '<stop offset="0%" stop-color="#ff6b6b"/><stop offset="50%" stop-color="#7bc043"/>' +
-    '<stop offset="100%" stop-color="#c77fd0"/></linearGradient></defs>' : '';
-  var fillColor = isRainbow ? 'rgba(199,127,208,0.12)' : color;
-  return '<svg viewBox="0 0 100 145" width="80" height="116">' + defs +
-    '<defs><clipPath id="bc' + count + '"><path d="M30,30 C30,30 28,32 28,35 C16,42 6,58 6,78 C6,105 22,125 50,125 C78,125 94,105 94,78 C94,58 84,42 72,35 C72,32 70,30 70,30 Z"/></clipPath></defs>' +
-    '<rect x="0" y="80" width="100" height="145" fill="' + fillColor + '" fill-opacity="0.12" clip-path="url(#bc' + count + ')"/>' +
-    '<g clip-path="url(#bc' + count + ')">' + stars + '</g>' +
-    '<path d="M30,30 C30,30 28,32 28,35 C16,42 6,58 6,78 C6,105 22,125 50,125 C78,125 94,105 94,78 C94,58 84,42 72,35 C72,32 70,30 70,30 Z" fill="rgba(255,255,255,0.12)" stroke="rgba(180,160,120,0.7)" stroke-width="2.5"/>' +
+  var uid = 'bc' + count + '_' + Math.floor(Math.random()*10000);
+  return '<svg viewBox="0 0 100 145" width="80" height="116">' +
+    '<defs><clipPath id="' + uid + '"><path d="M30,30 C30,30 28,32 28,35 C16,42 6,58 6,78 C6,105 22,125 50,125 C78,125 94,105 94,78 C94,58 84,42 72,35 C72,32 70,30 70,30 Z"/></clipPath>' +
+    '<linearGradient id="glass' + uid + '" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="rgba(255,255,255,0.3)"/><stop offset="100%" stop-color="rgba(240,235,220,0.12)"/></linearGradient></defs>' +
+    '<g clip-path="url(#' + uid + ')">' + stars + '</g>' +
+    '<path d="M30,30 C30,30 28,32 28,35 C16,42 6,58 6,78 C6,105 22,125 50,125 C78,125 94,105 94,78 C94,58 84,42 72,35 C72,32 70,30 70,30 Z" fill="url(#glass' + uid + ')" stroke="rgba(180,160,120,0.7)" stroke-width="2.5"/>' +
+    '<path d="M22,42 C22,42 16,57 14,77 C12,92 16,110 22,118" fill="none" stroke="rgba(255,255,255,0.5)" stroke-width="4" stroke-linecap="round"/>' +
     '<rect x="28" y="24" width="44" height="8" rx="4" fill="rgba(255,255,255,0.2)" stroke="rgba(180,160,120,0.6)" stroke-width="1.5"/>' +
     '<rect x="33" y="10" width="34" height="16" rx="4" fill="#c49a6c" stroke="rgba(140,100,50,0.5)" stroke-width="1.2"/>' +
+    '<line x1="40" y1="14" x2="40" y2="22" stroke="rgba(140,100,50,0.3)" stroke-width="0.8"/>' +
+    '<line x1="50" y1="12" x2="50" y2="24" stroke="rgba(140,100,50,0.3)" stroke-width="0.8"/>' +
+    '<line x1="60" y1="14" x2="60" y2="22" stroke="rgba(140,100,50,0.3)" stroke-width="0.8"/>' +
     '</svg>';
 }
 
@@ -125,21 +160,29 @@ var reqs = [0, 30, 60, 90, 120, 150];
 for (var i = 0; i < STAR_LEVELS.length; i++) {
   var lv = STAR_LEVELS[i];
   lvHtml += '<div class="level-card">' +
-    '<div class="star-demo">' + makeStar(lv.color, 44) + '</div>' +
+    makeStar(lv.color, 56) +
     '<div class="level-name" style="color:' + (lv.color === 'rainbow' ? '#c77fd0' : lv.color) + '">' + lv.name + '</div>' +
     '<div class="level-req">Lv.' + (i+1) + (i === 0 ? ' · 初始' : ' · 累计' + reqs[i] + '颗') + '</div>' +
     '</div>';
 }
 document.getElementById('levels').innerHTML = lvHtml;
 
-// Render bottles
+// Render bottles - show different counts
+var demos = [
+  { color: STAR_LEVELS[0].color, count: 3 },
+  { color: STAR_LEVELS[0].color, count: 8 },
+  { color: STAR_LEVELS[1].color, count: 5 },
+  { color: STAR_LEVELS[2].color, count: 6 },
+  { color: STAR_LEVELS[3].color, count: 4 },
+  { color: STAR_LEVELS[4].color, count: 3 },
+  { color: STAR_LEVELS[5].color, count: 2 },
+];
 var bHtml = '';
-for (var i = 0; i < STAR_LEVELS.length; i++) {
-  var lv = STAR_LEVELS[i];
-  var demoCount = [5, 15, 8, 12, 6, 3][i];
+for (var i = 0; i < demos.length; i++) {
+  var d = demos[i];
   bHtml += '<div class="bottle-card">' +
-    makeBottle(lv.color, i) +
-    '<div class="bottle-name">' + lv.name + ' ×' + demoCount + '</div>' +
+    makeBottle(d.color, i) +
+    '<div class="bottle-count">' + makeSmallStar(d.color) + '<span>×' + d.count + '</span></div>' +
     '</div>';
 }
 document.getElementById('bottles').innerHTML = bHtml;

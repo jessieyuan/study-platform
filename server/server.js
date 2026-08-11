@@ -558,7 +558,21 @@ async function handleAdminStats(req, res) {
 
 // ==================== 静态文件服务 ====================
 function serveStaticFile(req, res) {
-  // 根路径 → 学习工作台.html
+  // 其他 HTML 文件（预览页等）
+  if (req.url.endsWith('.html') && !req.url.includes('..')) {
+    const filePath = path.join(PROJECT_DIR, req.url);
+    try {
+      const html = fs.readFileSync(filePath, 'utf-8');
+      res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
+      res.end(html);
+    } catch (e) {
+      res.writeHead(404, { 'Content-Type': 'text/plain; charset=utf-8' });
+      res.end('404 Not Found');
+    }
+    return true;
+  }
+
+  // 根路径 → index.html
   if (req.url === '/' || req.url === '/index.html') {
     try {
       const html = fs.readFileSync(HTML_FILE, 'utf-8');
