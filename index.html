@@ -937,50 +937,8 @@
     display: flex; flex-direction: column; align-items: center;
     margin-bottom: 16px; cursor: pointer; position: relative;
   }
-  .crane-bottle:hover .crane-jar-body { box-shadow: 0 6px 24px rgba(180,130,20,0.18); }
-  .crane-jar-wrap { position: relative; }
-  .crane-cork {
-    width: 28px; height: 14px; margin: 0 auto;
-    background: linear-gradient(180deg, #c49a6c, #a87840);
-    border-radius: 3px 3px 1px 1px; position: relative; z-index: 2;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.15);
-    border: 1px solid rgba(160,120,60,0.4);
-  }
-  .crane-cork::after {
-    content: ''; position: absolute; top: 2px; left: 4px; right: 4px; height: 2px;
-    background: rgba(255,255,255,0.2); border-radius: 1px;
-  }
-  .crane-jar-neck {
-    width: 32px; height: 14px; margin: 0 auto;
-    background: linear-gradient(135deg, rgba(255,255,255,0.55), rgba(240,235,220,0.35));
-    border: 2px solid rgba(200,180,140,0.4); border-bottom: none;
-    border-radius: 3px 3px 0 0;
-  }
-  .crane-jar-body {
-    width: 82px; height: 105px; position: relative;
-    background: linear-gradient(135deg, rgba(255,255,255,0.45), rgba(240,235,220,0.25));
-    border: 2px solid rgba(200,180,140,0.4);
-    border-radius: 0;
-    clip-path: url(#vase-clip);
-    box-shadow: inset 0 -15px 25px -8px rgba(180,130,20,0.08), 0 4px 16px rgba(180,130,20,0.1);
-    overflow: hidden; transition: box-shadow 0.2s;
-  }
-  .crane-jar-body::after {
-    content: ''; position: absolute; top: 8px; left: 8px; width: 10px; height: 35px;
-    background: linear-gradient(180deg, rgba(255,255,255,0.5), transparent);
-    border-radius: 5px; transform: rotate(-5deg);
-  }
-  .crane-jar-fill {
-    position: absolute; bottom: 0; left: 0; right: 0;
-    transition: height 0.6s ease, background 0.6s ease;
-    border-radius: 0;
-  }
-  .crane-jar-crane {
-    position: absolute; z-index: 1;
-    animation: craneBob 2.5s ease-in-out infinite;
-    filter: drop-shadow(0 1px 2px rgba(0,0,0,0.12));
-  }
-  .crane-jar-crane svg { width: 18px; height: 18px; }
+  .crane-bottle:hover .crane-vase { filter: brightness(1.05); }
+  .crane-vase { transition: filter 0.2s; }
   @keyframes craneBob {
     0%,100% { transform: translateY(0) rotate(-2deg); }
     50% { transform: translateY(-3px) rotate(2deg); }
@@ -3515,19 +3473,10 @@ function tryClaimCrane() {
 }
 
 function renderCraneBottle() {
-  // 插入花瓶 SVG clip-path（只插一次）
-  if (!document.getElementById('vase-clip-svg')) {
-    var svgDef = document.createElementNS('http://www.w3.org/2000/svg','svg');
-    svgDef.id = 'vase-clip-svg';
-    svgDef.setAttribute('style','position:absolute;width:0;height:0');
-    svgDef.innerHTML = '<defs><clipPath id="vase-clip" clipPathUnits="objectBoundingBox"><path d="M0.35,0 C0.35,0 0.3,0.08 0.3,0.12 C0.3,0.18 0.22,0.2 0.15,0.35 C0.05,0.55 0.02,0.75 0.1,0.9 C0.18,1 0.82,1 0.9,0.9 C0.98,0.75 0.95,0.55 0.85,0.35 C0.78,0.2 0.7,0.18 0.7,0.12 C0.7,0.08 0.65,0 0.65,0 Z"/></clipPath></defs>';
-    document.body.appendChild(svgDef);
-  }
   var el = document.getElementById('crane-bottle');
   if (!el) return;
   var info = getCraneInfo();
   var lvInfo = CRANE_LEVELS[info.level - 1];
-  // 自动领取
   var todayTasks = (appData.tasks || []).filter(function(t) { return t.date === todayStr(); });
   var allDone = todayTasks.length > 0 && todayTasks.every(function(t) { return t.done; });
   var claimed = appData.craneClaimedToday === todayStr();
@@ -3537,23 +3486,44 @@ function renderCraneBottle() {
     lvInfo = CRANE_LEVELS[info.level - 1];
   }
   var fillH = Math.min(80, Math.max(5, (info.total / 150) * 80));
-  // 折纸千纸鹤 SVG
-  var craneSvg = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L8 8L2 6L8 12L5 22L12 16L19 22L16 12L22 6L16 8Z"/></svg>';
+  var fillY = 125 - fillH;
+  // 折纸千纸鹤
   var showCount = Math.min(5, info.total);
   var cranesHtml = '';
-  var positions = [[16,68],[50,52],[30,38],[62,72],[22,55]];
+  var positions = [[30,95],[55,80],[40,65],[65,100],[25,110]];
   for (var i = 0; i < showCount; i++) {
     var p = positions[i];
     var delay = i * 0.4;
-    cranesHtml += '<div class="crane-jar-crane" style="left:' + p[0] + '%;top:' + p[1] + '%;animation-delay:' + delay + 's;color:' + lvInfo.color + '">' + craneSvg + '</div>';
+    cranesHtml += '<g transform="translate(' + p[0] + ',' + p[1] + ') scale(0.5)" style="animation:craneBob 2.5s ease-in-out ' + delay + 's infinite;transform-origin:center;transform-box:fill-box">' +
+      '<path d="M12 2L8 8L2 6L8 12L5 22L12 16L19 22L16 12L22 6L16 8Z" fill="' + lvInfo.color + '" fill-opacity="0.5" stroke="' + lvInfo.color + '" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>' +
+      '</g>';
   }
-  var html = '<div class="crane-jar-wrap">';
-  html += '<div class="crane-cork"></div>';
-  html += '<div class="crane-jar-neck"></div>';
-  html += '<div class="crane-jar-body">';
-  html += '<div class="crane-jar-fill" style="height:' + fillH + '%;background:linear-gradient(180deg,' + lvInfo.color + '22,' + lvInfo.color + '44);"></div>';
+  var html = '<svg class="crane-vase" viewBox="0 0 100 145" width="80" height="116">';
+  html += '<defs>';
+  // 瓶身裁剪区
+  html += '<clipPath id="jb-clip"><path d="M30,30 C30,30 28,32 28,35 L28,35 C16,42 6,58 6,78 C6,105 22,125 50,125 C78,125 94,105 94,78 C94,58 84,42 72,35 L72,35 C72,32 70,30 70,30 Z"/></clipPath>';
+  // 木塞渐变
+  html += '<linearGradient id="cork-g" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#d4a870"/><stop offset="100%" stop-color="#a87840"/></linearGradient>';
+  // 玻璃渐变
+  html += '<linearGradient id="glass-g" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="rgba(255,255,255,0.35)"/><stop offset="100%" stop-color="rgba(240,235,220,0.15)"/></linearGradient>';
+  html += '</defs>';
+  // 瓶内液体填充
+  html += '<rect x="0" y="' + fillY + '" width="100" height="145" fill="' + lvInfo.color + '" fill-opacity="0.2" clip-path="url(#jb-clip)"/>';
+  // 千纸鹤
   html += cranesHtml;
-  html += '</div></div>';
+  // 瓶身（圆滚滚的广口瓶）
+  html += '<path d="M30,30 C30,30 28,32 28,35 L28,35 C16,42 6,58 6,78 C6,105 22,125 50,125 C78,125 94,105 94,78 C94,58 84,42 72,35 L72,35 C72,32 70,30 70,30 Z" fill="url(#glass-g)" stroke="rgba(180,160,120,0.65)" stroke-width="2.5"/>';
+  // 玻璃高光
+  html += '<path d="M22,40 C22,40 16,55 14,75 C12,90 16,108 22,118" fill="none" stroke="rgba(255,255,255,0.6)" stroke-width="4" stroke-linecap="round"/>';
+  // 瓶口边沿
+  html += '<rect x="28" y="24" width="44" height="8" rx="4" fill="rgba(255,255,255,0.25)" stroke="rgba(180,160,120,0.6)" stroke-width="1.5"/>';
+  // 木塞
+  html += '<rect x="33" y="10" width="34" height="16" rx="4" fill="url(#cork-g)" stroke="rgba(140,100,50,0.5)" stroke-width="1.2"/>';
+  // 木塞纹理
+  html += '<line x1="38" y1="14" x2="38" y2="22" stroke="rgba(140,100,50,0.3)" stroke-width="0.8"/>';
+  html += '<line x1="50" y1="12" x2="50" y2="24" stroke="rgba(140,100,50,0.3)" stroke-width="0.8"/>';
+  html += '<line x1="62" y1="14" x2="62" y2="22" stroke="rgba(140,100,50,0.3)" stroke-width="0.8"/>';
+  html += '</svg>';
   html += '<div class="crane-count-badge">' + info.total + '</div>';
   html += '<div class="crane-label">许愿瓶 Lv.' + info.level + '</div>';
   el.innerHTML = html;
