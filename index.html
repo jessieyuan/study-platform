@@ -965,14 +965,6 @@
   100% { transform: translate(0,0); }
 }
 .crane-vase.shaking { animation: bottleShake 0.5s ease-in-out; }
-.crane-vase.shaking .star-jiggle { animation: starJiggle var(--dur,0.4s) ease-in-out infinite; }
-@keyframes starJiggle {
-  0% { transform: translate(0,0) rotate(0deg); }
-  25% { transform: translate(var(--dx,2px),var(--dy,-2px)) rotate(var(--dr,3deg)); }
-  50% { transform: translate(calc(var(--dx,2px)*-1),var(--dy,1px)) rotate(calc(var(--dr,3deg)*-1)); }
-  75% { transform: translate(var(--dx,2px),calc(var(--dy,-2px)*-1)) rotate(var(--dr,3deg)); }
-  100% { transform: translate(0,0) rotate(0deg); }
-}
 .crane-label { cursor: pointer; }
 
 .crane-label {
@@ -3559,19 +3551,15 @@ function renderCraneBottle() {
       '<stop offset="0%" stop-color="#ff6b6b"/><stop offset="20%" stop-color="#f5a623"/>' +
       '<stop offset="40%" stop-color="#7bc043"/><stop offset="60%" stop-color="#5ba4cf"/>' +
       '<stop offset="80%" stop-color="#c77fd0"/><stop offset="100%" stop-color="#ff6b6b"/></linearGradient></defs>' : '';
-    var dx = (Math.random()*4-2).toFixed(1);
-    var dy = (Math.random()*4-2).toFixed(1);
-    var dr = (Math.random()*8-4).toFixed(1);
-    var dur = (0.3+Math.random()*0.3).toFixed(2);
-    var delay = (Math.random()*0.3).toFixed(2);
-    starsHtml += '<g' + (isRainbow ? ' class="rainbow-star"' : '') +
-      ' transform="translate(' + p[0].toFixed(1) + ',' + p[1].toFixed(1) + ') scale(0.4)">' +
-      '<g class="star-jiggle" style="--dx:' + dx + 'px;--dy:' + dy + 'px;--dr:' + dr + 'deg;--dur:' + dur + 's;animation-delay:' + delay + 's;">' +
+    starsHtml += '<g class="bottle-star"' + (isRainbow ? ' rainbow="1"' : '') +
+      ' data-x="' + p[0].toFixed(1) + '" data-y="' + p[1].toFixed(1) + '"' +
+      ' transform="translate(' + p[0].toFixed(1) + ',' + p[1].toFixed(1) + ') scale(0.4)"' +
+      (isRainbow ? ' style="filter:hue-rotate(' + (i*60) + 'deg);"' : '') + '>' +
       sDefs +
       '<path d="' + STAR_PATH + '" fill="' + sFill + '" fill-opacity="0.35" transform="translate(0.8,0.8)"/>' +
       '<path d="' + STAR_PATH + '" fill="' + sFill + '" fill-opacity="0.85" stroke="' + (isRainbow ? 'rgba(255,255,255,0.8)' : color) + '" stroke-width="1.5" stroke-linejoin="round"/>' +
       '<path d="M0,-12 L2.9,-4 L11.4,-3.7 L4.6,1.4" fill="rgba(255,255,255,0.3)" stroke="none"/>' +
-      '</g></g>';
+      '</g>';
   }
   var uid = 'hb_' + Math.floor(Math.random()*100000);
   var html = '<svg class="crane-vase" viewBox="0 0 100 145" width="80" height="116">';
@@ -3624,6 +3612,7 @@ function renderCraneBottle() {
   el.innerHTML = html;
 }
 
+var shakeRAF = null;
 function shakeBottle() {
   var vase = document.querySelector(".crane-vase");
   if (!vase) return;
@@ -3631,6 +3620,45 @@ function shakeBottle() {
   void vase.offsetWidth;
   vase.classList.add("shaking");
   setTimeout(function() { vase.classList.remove("shaking"); }, 600);
+  // JS驱动星星零散晃动
+  var stars = document.querySelectorAll(".bottle-star");
+  if (shakeRAF) cancelAnimationFrame(shakeRAF);
+  var startTime = performance.now();
+  var dur = 800;
+  var offsets = [];
+  for (var i = 0; i < stars.length; i++) {
+    offsets.push({
+      dx: (Math.random() - 0.5) * 6,
+      dy: (Math.random() - 0.5) * 6,
+      dr: (Math.random() - 0.5) * 10,
+      phase: Math.random() * Math.PI * 2,
+      speed: 0.008 + Math.random() * 0.012
+    });
+  }
+  function animate(now) {
+    var elapsed = now - startTime;
+    if (elapsed > dur) {
+      stars.forEach(function(s) {
+        var bx = parseFloat(s.getAttribute("data-x"));
+        var by = parseFloat(s.getAttribute("data-y"));
+        s.setAttribute("transform", "translate(" + bx + "," + by + ") scale(0.4)");
+      });
+      return;
+    }
+    var t = elapsed / dur;
+    var fade = Math.sin(t * Math.PI); // 淡入淡出
+    stars.forEach(function(s, i) {
+      var o = offsets[i];
+      var bx = parseFloat(s.getAttribute("data-x"));
+      var by = parseFloat(s.getAttribute("data-y"));
+      var ox = bx + Math.sin(now * o.speed + o.phase) * o.dx * fade;
+      var oy = by + Math.cos(now * o.speed * 1.3 + o.phase) * o.dy * fade;
+      var or = Math.sin(now * o.speed * 0.7 + o.phase) * o.dr * fade;
+      s.setAttribute("transform", "translate(" + ox.toFixed(2) + "," + oy.toFixed(2) + ") scale(0.4) rotate(" + or.toFixed(2) + ")");
+    });
+    shakeRAF = requestAnimationFrame(animate);
+  }
+  shakeRAF = requestAnimationFrame(animate);
 }
 
 function showCraneDetail() {
