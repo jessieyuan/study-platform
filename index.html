@@ -935,7 +935,7 @@
   /* ========== 许愿星许愿瓶 ========== */
   .crane-bottle {
     display: flex; flex-direction: column; align-items: center;
-    margin-bottom: 16px; cursor: pointer; position: relative;
+    cursor: pointer; position: relative; flex-shrink: 0;
   }
   .crane-bottle:hover .crane-vase { filter: brightness(1.05); }
   .crane-vase { transition: filter 0.2s; }
@@ -981,16 +981,21 @@
   }
 
   /* ========== 今日完成度 ========== */
-  .progress-wrap { display:flex; align-items:center; gap:24px; }
+  .progress-wrap { display:flex; flex-direction:column; align-items:center; gap:16px; }
+  .hero-row { display:flex; flex-direction:row; align-items:center; justify-content:center; gap:24px; flex-wrap:nowrap; }
   .progress-circle-wrap { position:relative; width:150px; height:150px; flex-shrink:0; }
   .progress-circle-wrap svg { transform:rotate(-90deg); }
-  .progress-circle-wrap .bg { fill:none; stroke:#f0e4c0; stroke-width:12; }
-  .progress-circle-wrap .fg { fill:none; stroke:#f0a020; stroke-width:12; stroke-linecap:round; transition:stroke-dashoffset 0.6s ease; }
+  .progress-circle-wrap .bg { fill:none; stroke:#f5e8b0; stroke-width:12; }
+  .progress-circle-wrap .fg { fill:none; stroke:url(#goldGrad); stroke-width:12; stroke-linecap:round; transition:stroke-dashoffset 0.6s ease; filter:drop-shadow(0 0 4px rgba(245,200,66,0.6)); animation:goldSparkle 2s ease-in-out infinite; }
+  @keyframes goldSparkle {
+    0%,100% { filter:drop-shadow(0 0 3px rgba(245,200,66,0.4)); }
+    50% { filter:drop-shadow(0 0 8px rgba(255,215,0,0.8)); }
+  }
   .progress-center { position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; }
-  .progress-center .pct { font-size:34px; font-weight:800; color:var(--text); line-height:1; }
+  .progress-center .pct { font-size:34px; font-weight:800; color:#b8860b; line-height:1; }
   .progress-center .lbl { font-size:12px; color:var(--text-secondary); margin-top:4px; font-weight:500; }
 
-  .today-stats-h { flex:1; display:flex; gap:12px; justify-content:center; align-items:center; }
+  .today-stats-h { width:100%; display:flex; gap:12px; justify-content:center; align-items:center; flex-wrap:wrap; }
   .tsh-item {
     display:flex; flex-direction:column; align-items:center;
     justify-content:center; gap:4px; width:100px; height:100px;
@@ -1513,8 +1518,8 @@
     .nav-settings-btn { width:46px; font-size:8px; }
     .main { margin-left:56px; padding:14px 12px; max-width:none; }
     .task-list { grid-template-columns:repeat(3,1fr); gap:8px; }
-    .progress-wrap { flex-direction:column; align-items:center; gap:14px; }
-    .progress-circle-wrap { margin:0 auto; }
+    .hero-row { gap:14px; }
+    .crane-bottle { margin-bottom:0; }
     .dash-summary-row { grid-template-columns:repeat(2,1fr); }
     .dash-charts-row { grid-template-columns:1fr; }
     .modal { max-width:100%; border-radius:20px 20px 0 0; }
@@ -1831,11 +1836,13 @@
 </div>
  <div class="card">
    <div class="progress-wrap">
-     <div class="crane-bottle" id="crane-bottle" onclick="shakeBottle()"></div>
-     <div class="progress-circle-wrap">
-        <svg width="150" height="150" viewBox="0 0 150 150"><circle class="bg" cx="75" cy="75" r="62"/><circle class="fg" id="progress-circle" cx="75" cy="75" r="62" stroke-dasharray="389.56" stroke-dashoffset="389.56"/></svg>
-        <div class="progress-center"><div class="pct" id="progress-pct">0%</div><div class="lbl">今日完成度</div></div>
-      </div>
+     <div class="hero-row">
+       <div class="crane-bottle" id="crane-bottle" onclick="shakeBottle()"></div>
+       <div class="progress-circle-wrap">
+         <svg width="150" height="150" viewBox="0 0 150 150"><defs><linearGradient id="goldGrad" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#f5c842"/><stop offset="30%" stop-color="#ffd700"/><stop offset="60%" stop-color="#ffed4e"/><stop offset="100%" stop-color="#f5c842"/></linearGradient></defs><circle class="bg" cx="75" cy="75" r="62"/><circle class="fg" id="progress-circle" cx="75" cy="75" r="62" stroke-dasharray="389.56" stroke-dashoffset="389.56"/></svg>
+         <div class="progress-center"><div class="pct" id="progress-pct">0%</div><div class="lbl">今日完成度</div></div>
+       </div>
+     </div>
       <div class="today-stats-h">
         <div class="tsh-item checkin" onclick="switchPage('home', document.querySelector('[data-page=home]'));renderHomePage();"><div class="tsh-icon">✅</div><div class="tsh-num" id="stat-checkin-inline">0/0</div><div class="tsh-label">今日完成</div></div>
         <div class="tsh-item points"><div class="tsh-icon">⭐</div><div class="tsh-num" id="stat-points-inline">0</div><div class="tsh-label">积分</div></div>
