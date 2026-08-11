@@ -3514,7 +3514,7 @@ function renderCraneBottle() {
   for (var i = 0; i < showCount; i++) {
     var p = positions[i];
     var delay = (i * 0.3) % 2;
-    cranesHtml += '<g transform="translate(' + p[0] + ',' + p[1] + ') scale(0.7)" style="animation:craneBob 2.5s ease-in-out ' + delay + 's infinite;transform-origin:center;transform-box:fill-box">' +
+    cranesHtml += '<g transform="translate(' + p[0] + ',' + p[1] + ') scale(0.7)" >' +
       '<path d="' + cranePath + '" fill="' + lvInfo.color + '" fill-opacity="0.7" stroke="' + lvInfo.color + '" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>' +
       '</g>';
   }
