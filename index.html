@@ -937,45 +937,59 @@
     display: flex; flex-direction: column; align-items: center;
     margin-bottom: 16px; cursor: pointer; position: relative;
   }
-  .crane-bottle:hover .crane-jar { transform: scale(1.03); }
-  .crane-jar {
-    width: 80px; height: 110px; position: relative;
-    background: linear-gradient(135deg, rgba(255,255,255,0.6), rgba(240,230,210,0.4));
-    border: 2px solid rgba(200,180,140,0.5);
-    border-radius: 6px 6px 20px 20px;
-    box-shadow: inset 0 -20px 30px -10px rgba(180,130,20,0.08), 0 4px 16px rgba(180,130,20,0.1);
-    overflow: hidden; transition: transform 0.2s;
+  .crane-bottle:hover .crane-jar-body { box-shadow: 0 6px 24px rgba(180,130,20,0.18); }
+  .crane-jar-wrap { position: relative; }
+  .crane-cork {
+    width: 28px; height: 14px; margin: 0 auto;
+    background: linear-gradient(180deg, #c49a6c, #a87840);
+    border-radius: 3px 3px 1px 1px; position: relative; z-index: 2;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.15);
+    border: 1px solid rgba(160,120,60,0.4);
   }
-  .crane-jar::before {
-    content: ''; position: absolute; top: -8px; left: 10px; right: 10px;
-    height: 10px; background: linear-gradient(135deg, #d4c4a0, #c0a878);
-    border-radius: 4px 4px 0 0; border: 1.5px solid rgba(180,150,100,0.5);
+  .crane-cork::after {
+    content: ''; position: absolute; top: 2px; left: 4px; right: 4px; height: 2px;
+    background: rgba(255,255,255,0.2); border-radius: 1px;
   }
-  .crane-jar::after {
-    content: ''; position: absolute; top: 0; left: 6px; width: 12px; height: 40px;
-    background: linear-gradient(180deg, rgba(255,255,255,0.4), transparent);
-    border-radius: 6px; transform: rotate(-8deg);
+  .crane-jar-neck {
+    width: 36px; height: 10px; margin: 0 auto;
+    background: linear-gradient(135deg, rgba(255,255,255,0.5), rgba(240,235,220,0.3));
+    border: 2px solid rgba(200,180,140,0.4); border-bottom: none;
+    border-radius: 2px 2px 0 0;
+  }
+  .crane-jar-body {
+    width: 76px; height: 96px; position: relative;
+    background: linear-gradient(135deg, rgba(255,255,255,0.45), rgba(240,235,220,0.25));
+    border: 2px solid rgba(200,180,140,0.4);
+    border-radius: 4px 4px 24px 24px;
+    box-shadow: inset 0 -15px 25px -8px rgba(180,130,20,0.08), 0 4px 16px rgba(180,130,20,0.1);
+    overflow: hidden; transition: box-shadow 0.2s;
+  }
+  .crane-jar-body::after {
+    content: ''; position: absolute; top: 8px; left: 8px; width: 10px; height: 35px;
+    background: linear-gradient(180deg, rgba(255,255,255,0.5), transparent);
+    border-radius: 5px; transform: rotate(-5deg);
   }
   .crane-jar-fill {
     position: absolute; bottom: 0; left: 0; right: 0;
     transition: height 0.6s ease, background 0.6s ease;
-    border-radius: 0 0 18px 18px;
+    border-radius: 0 0 22px 22px;
   }
   .crane-jar-crane {
-    position: absolute; font-size: 16px;
+    position: absolute; z-index: 1;
     animation: craneBob 2.5s ease-in-out infinite;
-    filter: drop-shadow(0 1px 2px rgba(0,0,0,0.15));
+    filter: drop-shadow(0 1px 2px rgba(0,0,0,0.12));
   }
+  .crane-jar-crane svg { width: 18px; height: 18px; }
   @keyframes craneBob {
-    0%,100% { transform: translateY(0) rotate(-3deg); }
-    50% { transform: translateY(-3px) rotate(3deg); }
+    0%,100% { transform: translateY(0) rotate(-2deg); }
+    50% { transform: translateY(-3px) rotate(2deg); }
   }
   .crane-label {
     font-size: 11px; font-weight: 600; color: #8a6d2e;
-    margin-top: 4px; text-align: center; white-space: nowrap;
+    margin-top: 6px; text-align: center; white-space: nowrap;
   }
   .crane-count-badge {
-    position: absolute; top: -6px; right: -6px;
+    position: absolute; top: -4px; right: -8px;
     min-width: 20px; height: 20px; border-radius: 10px;
     background: linear-gradient(135deg, #f5a623, #ffc940);
     color: #fff; font-size: 11px; font-weight: 700;
@@ -3504,7 +3518,6 @@ function renderCraneBottle() {
   if (!el) return;
   var info = getCraneInfo();
   var lvInfo = CRANE_LEVELS[info.level - 1];
-  var pct = info.level < 5 ? Math.min(100, Math.round(info.current / info.needed * 100)) : 100;
   // 自动领取
   var todayTasks = (appData.tasks || []).filter(function(t) { return t.date === todayStr(); });
   var allDone = todayTasks.length > 0 && todayTasks.every(function(t) { return t.done; });
@@ -3513,23 +3526,25 @@ function renderCraneBottle() {
     tryClaimCrane();
     info = getCraneInfo();
     lvInfo = CRANE_LEVELS[info.level - 1];
-    pct = info.level < 5 ? Math.min(100, Math.round(info.current / info.needed * 100)) : 100;
   }
-  // 瓶子填充高度（根据总千纸鹤数）
-  var fillH = Math.min(85, Math.max(5, (info.total / 150) * 85));
-  // 生成瓶内千纸鹤（最多显示5只）
+  var fillH = Math.min(80, Math.max(5, (info.total / 150) * 80));
+  // 折纸千纸鹤 SVG
+  var craneSvg = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L8 8L2 6L8 12L5 22L12 16L19 22L16 12L22 6L16 8Z"/></svg>';
   var showCount = Math.min(5, info.total);
   var cranesHtml = '';
-  var positions = [[18,70],[50,55],[35,40],[60,75],[25,58]];
+  var positions = [[16,68],[50,52],[30,38],[62,72],[22,55]];
   for (var i = 0; i < showCount; i++) {
     var p = positions[i];
     var delay = i * 0.4;
-    cranesHtml += '<div class="crane-jar-crane" style="left:' + p[0] + '%;top:' + p[1] + '%;animation-delay:' + delay + 's;color:' + lvInfo.color + '">🦢</div>';
+    cranesHtml += '<div class="crane-jar-crane" style="left:' + p[0] + '%;top:' + p[1] + '%;animation-delay:' + delay + 's;color:' + lvInfo.color + '">' + craneSvg + '</div>';
   }
-  var html = '<div class="crane-jar">';
+  var html = '<div class="crane-jar-wrap">';
+  html += '<div class="crane-cork"></div>';
+  html += '<div class="crane-jar-neck"></div>';
+  html += '<div class="crane-jar-body">';
   html += '<div class="crane-jar-fill" style="height:' + fillH + '%;background:linear-gradient(180deg,' + lvInfo.color + '22,' + lvInfo.color + '44);"></div>';
   html += cranesHtml;
-  html += '</div>';
+  html += '</div></div>';
   html += '<div class="crane-count-badge">' + info.total + '</div>';
   html += '<div class="crane-label">许愿瓶 Lv.' + info.level + '</div>';
   el.innerHTML = html;
