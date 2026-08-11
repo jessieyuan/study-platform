@@ -97,40 +97,47 @@ function makeSmallStar(color) {
   var fill = isRainbow ? 'url(#rb-small)' : color;
   var defs = isRainbow ?
     '<defs><linearGradient id="rb-small" x1="0" y1="0" x2="1" y2="1">' +
-    '<stop offset="0%" stop-color="#ff6b6b"/><stop offset="50%" stop-color="#7bc043"/>' +
-    '<stop offset="100%" stop-color="#c77fd0"/></linearGradient></defs>' : '';
+    '<stop offset="0%" stop-color="#ff6b6b"/><stop offset="20%" stop-color="#f5a623"/>' +
+    '<stop offset="40%" stop-color="#7bc043"/><stop offset="60%" stop-color="#5ba4cf"/>' +
+    '<stop offset="80%" stop-color="#c77fd0"/><stop offset="100%" stop-color="#ff6b6b"/></linearGradient></defs>' : '';
   return '<svg viewBox="-13 -13 26 26" width="16" height="16">' + defs +
-    '<path d="' + STAR_PATH + '" fill="' + fill + '" fill-opacity="0.85" stroke="' + (isRainbow ? '#fff' : color) + '" stroke-width="1.5" stroke-linejoin="round"/>' +
+    '<path d="' + STAR_PATH + '" fill="' + fill + '" fill-opacity="0.35" transform="translate(0.8,0.8)"/>' +
+    '<path d="' + STAR_PATH + '" fill="' + fill + '" fill-opacity="0.85" stroke="' + (isRainbow ? 'rgba(255,255,255,0.8)' : color) + '" stroke-width="1.5" stroke-linejoin="round"/>' +
     '<path d="M0,-12 L2.9,-4 L11.4,-3.7 L4.6,1.4" fill="rgba(255,255,255,0.3)" stroke="none"/>' +
     '</svg>';
 }
 
 function makeBottle(color, count) {
   var isRainbow = color === 'rainbow';
-  var showCount = count;
-  // 错落叠放位置 - 随机但有规律的堆叠
+  // 瓶子内部范围：底部Y约115，最宽处Y约78（x:8-92），底部窄（x:22-78）
+  // 错落叠放位置，确保在瓶内可见
   var positions = [];
-  var baseY = 120;
-  for (var i = 0; i < showCount; i++) {
-    // 从底部往上堆，每颗有随机偏移
-    var layer = Math.floor(i / 4); // 每层约4颗
+  for (var i = 0; i < count; i++) {
+    var layer = Math.floor(i / 4);
     var inLayer = i % 4;
-    var px = 22 + inLayer * 18 + (Math.sin(i * 2.3) * 4); // 水平错落
-    var py = baseY - layer * 13 - (Math.cos(i * 1.7) * 3); // 垂直错落
+    // 水平：在25-75范围内错落
+    var px = 28 + inLayer * 15 + (Math.sin(i * 2.3) * 3);
+    // 垂直：从底部108往上堆，每层11
+    var py = 108 - layer * 12 - (Math.cos(i * 1.7) * 2);
+    // 确保不超出瓶底
+    if (py < 40) py = 40;
     positions.push([px, py]);
   }
   var stars = '';
-  for (var i = 0; i < showCount; i++) {
+  for (var i = 0; i < count; i++) {
     var p = positions[i];
     var gid = 'st' + i + 'b' + count;
     var sFill = isRainbow ? 'url(#' + gid + ')' : color;
     var sDefs = isRainbow ?
       '<defs><linearGradient id="' + gid + '" x1="0" y1="0" x2="1" y2="1">' +
-      '<stop offset="0%" stop-color="#ff6b6b"/><stop offset="50%" stop-color="#7bc043"/>' +
-      '<stop offset="100%" stop-color="#c77fd0"/></linearGradient></defs>' : '';
-    stars += '<g' + (isRainbow ? ' class="rainbow-star" style="transform-origin:center;transform-box:fill-box"' : '') + ' transform="translate(' + p[0].toFixed(1) + ',' + p[1].toFixed(1) + ') scale(0.42)"' + '>' +
+      '<stop offset="0%" stop-color="#ff6b6b"/><stop offset="20%" stop-color="#f5a623"/>' +
+      '<stop offset="40%" stop-color="#7bc043"/><stop offset="60%" stop-color="#5ba4cf"/>' +
+      '<stop offset="80%" stop-color="#c77fd0"/><stop offset="100%" stop-color="#ff6b6b"/></linearGradient></defs>' : '';
+    stars += '<g' + (isRainbow ? ' class="rainbow-star" style="transform-origin:center;transform-box:fill-box"' : '') +
+      ' transform="translate(' + p[0].toFixed(1) + ',' + p[1].toFixed(1) + ') scale(0.4)">' +
+      sDefs +
       '<path d="' + STAR_PATH + '" fill="' + sFill + '" fill-opacity="0.35" transform="translate(0.8,0.8)"/>' +
-      '<path d="' + STAR_PATH + '" fill="' + sFill + '" fill-opacity="0.85" stroke="' + (isRainbow ? '#fff' : color) + '" stroke-width="1.5" stroke-linejoin="round"/>' +
+      '<path d="' + STAR_PATH + '" fill="' + sFill + '" fill-opacity="0.85" stroke="' + (isRainbow ? 'rgba(255,255,255,0.8)' : color) + '" stroke-width="1.5" stroke-linejoin="round"/>' +
       '<path d="M0,-12 L2.9,-4 L11.4,-3.7 L4.6,1.4" fill="rgba(255,255,255,0.3)" stroke="none"/>' +
       '</g>';
   }
