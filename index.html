@@ -3461,13 +3461,20 @@ var STAR_PER_LEVEL = 30;
 
 function getStarInfo() {
   var total = appData.cranes || 0;
-  var level = 1;
+  // 逐级合并：30颗Lv1→1颗Lv2，30颗Lv2→1颗Lv3...
+  var counts = [0, 0, 0, 0, 0, 0]; // Lv1-Lv6
   var remaining = total;
-  while (level < 6 && remaining >= STAR_PER_LEVEL) {
-    remaining -= STAR_PER_LEVEL;
-    level++;
+  for (var lv = 0; lv < 5; lv++) {
+    counts[lv] = remaining % STAR_PER_LEVEL;
+    remaining = Math.floor(remaining / STAR_PER_LEVEL);
   }
-  return { level: level, current: remaining, total: total, needed: STAR_PER_LEVEL };
+  counts[5] = remaining; // 最高级不限
+  // 最高有星星的级别
+  var maxLevel = 1;
+  for (var lv = 5; lv >= 0; lv--) {
+    if (counts[lv] > 0) { maxLevel = lv + 1; break; }
+  }
+  return { total: total, counts: counts, maxLevel: maxLevel };
 }
 
 function tryClaimStar() {
@@ -3478,8 +3485,6 @@ function tryClaimStar() {
   if (appData.craneClaimedToday === todayStr()) return false;
   appData.cranes = (appData.cranes || 0) + 1;
   appData.craneClaimedToday = todayStr();
-  var info = getStarInfo();
-  appData.craneLevel = info.level;
   saveData(appData);
   return true;
 }
@@ -3491,22 +3496,25 @@ function renderCraneBottle() {
   var el = document.getElementById('crane-bottle');
   if (!el) return;
   var info = getStarInfo();
-  var lvInfo = STAR_LEVELS[info.level - 1];
   var todayTasks = (appData.tasks || []).filter(function(t) { return t.date === todayStr(); });
   var allDone = todayTasks.length > 0 && todayTasks.every(function(t) { return t.done; });
   var claimed = appData.craneClaimedToday === todayStr();
   if (allDone && !claimed) {
     tryClaimStar();
     info = getStarInfo();
-    lvInfo = STAR_LEVELS[info.level - 1];
   }
   var total = info.total;
-  var color = lvInfo.color;
-  var isRainbow = color === 'rainbow';
-
+  // 生成所有级别的星星（从低到高排列在瓶中）
+  var allStars = [];
+  for (var lv = 5; lv >= 0; lv--) {
+    for (var i = 0; i < info.counts[lv]; i++) {
+      allStars.push(lv);
+    }
+  }
+  var showCount = Math.min(allStars.length, 30); // 最多显示30颗
   // 错落叠放位置
   var positions = [];
-  for (var i = 0; i < total; i++) {
+  for (var i = 0; i < showCount; i++) {
     var layer = Math.floor(i / 4);
     var inLayer = i % 4;
     var px = 28 + inLayer * 15 + (Math.sin(i * 2.3) * 3);
@@ -3515,9 +3523,13 @@ function renderCraneBottle() {
     positions.push([px, py]);
   }
   var starsHtml = '';
-  for (var i = 0; i < total && i < positions.length; i++) {
+  for (var i = 0; i < showCount; i++) {
     var p = positions[i];
-    var gid = 'hstar' + i;
+    var lv = allStars[i];
+    var lvInfo = STAR_LEVELS[lv];
+    var color = lvInfo.color;
+    var isRainbow = color === 'rainbow';
+    var gid = 'hstar' + i + 'lv' + lv;
     var sFill = isRainbow ? 'url(#' + gid + ')' : color;
     var sDefs = isRainbow ?
       '<defs><linearGradient id="' + gid + '" x1="0" y1="0" x2="1" y2="1">' +
@@ -3532,31 +3544,33 @@ function renderCraneBottle() {
       '<path d="M0,-12 L2.9,-4 L11.4,-3.7 L4.6,1.4" fill="rgba(255,255,255,0.3)" stroke="none"/>' +
       '</g>';
   }
-
   var uid = 'hb_' + Math.floor(Math.random()*100000);
   var html = '<svg class="crane-vase" viewBox="0 0 100 145" width="80" height="116">';
   html += '<defs><clipPath id="' + uid + '"><path d="M30,30 C30,30 28,32 28,35 C16,42 6,58 6,78 C6,105 22,125 50,125 C78,125 94,105 94,78 C94,58 84,42 72,35 C72,32 70,30 70,30 Z"/></clipPath>';
-  html += '<linearGradient id="glass' + uid + '" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="rgba(255,255,255,0.3)"/><stop offset="100%" stop-color="rgba(240,235,220,0.12)"/></linearGradient></defs>';
+  html += '<linearGradient id="glass' + uid + '" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="rgba(255,255,255,0.3)"/><stop offset="100%" stop-color="rgba(240,235,220,0.12)"/></linearGradient>';
+  html += '<linearGradient id="cork' + uid + '" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#d4a870"/><stop offset="100%" stop-color="#a87840"/></linearGradient></defs>';
   html += '<g clip-path="url(#' + uid + ')">' + starsHtml + '</g>';
   html += '<path d="M30,30 C30,30 28,32 28,35 C16,42 6,58 6,78 C6,105 22,125 50,125 C78,125 94,105 94,78 C94,58 84,42 72,35 C72,32 70,30 70,30 Z" fill="url(#glass' + uid + ')" stroke="rgba(180,160,120,0.7)" stroke-width="2.5"/>';
   html += '<path d="M22,42 C22,42 16,57 14,77 C12,92 16,110 22,118" fill="none" stroke="rgba(255,255,255,0.5)" stroke-width="4" stroke-linecap="round"/>';
   html += '<rect x="28" y="24" width="44" height="8" rx="4" fill="rgba(255,255,255,0.2)" stroke="rgba(180,160,120,0.6)" stroke-width="1.5"/>';
-  html += '<rect x="33" y="10" width="34" height="16" rx="4" fill="url(#cork-g2)" stroke="rgba(140,100,50,0.5)" stroke-width="1.2"/>';
-  html += '<defs><linearGradient id="cork-g2" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#d4a870"/><stop offset="100%" stop-color="#a87840"/></linearGradient></defs>';
+  html += '<rect x="33" y="10" width="34" height="16" rx="4" fill="url(#cork' + uid + ')" stroke="rgba(140,100,50,0.5)" stroke-width="1.2"/>';
   html += '<line x1="40" y1="14" x2="40" y2="22" stroke="rgba(140,100,50,0.3)" stroke-width="0.8"/>';
   html += '<line x1="50" y1="12" x2="50" y2="24" stroke="rgba(140,100,50,0.3)" stroke-width="0.8"/>';
   html += '<line x1="60" y1="14" x2="60" y2="22" stroke="rgba(140,100,50,0.3)" stroke-width="0.8"/>';
   html += '</svg>';
-  // 底部小星星 × 数量
-  var sFill2 = isRainbow ? 'url(#hb-small)' : color;
-  var sDefs2 = isRainbow ?
+  // 底部用当前最高级别颜色的星星 × 总数
+  var maxLv = info.maxLevel - 1;
+  var mainColor = STAR_LEVELS[maxLv].color;
+  var isRb = mainColor === 'rainbow';
+  var sFill2 = isRb ? 'url(#hb-small)' : mainColor;
+  var sDefs2 = isRb ?
     '<defs><linearGradient id="hb-small" x1="0" y1="0" x2="1" y2="1">' +
     '<stop offset="0%" stop-color="#ff6b6b"/><stop offset="20%" stop-color="#f5a623"/>' +
     '<stop offset="40%" stop-color="#7bc043"/><stop offset="60%" stop-color="#5ba4cf"/>' +
     '<stop offset="80%" stop-color="#c77fd0"/><stop offset="100%" stop-color="#ff6b6b"/></linearGradient></defs>' : '';
   var smallStar = '<svg viewBox="-13 -13 26 26" width="16" height="16">' + sDefs2 +
     '<path d="' + STAR_PATH + '" fill="' + sFill2 + '" fill-opacity="0.35" transform="translate(0.8,0.8)"/>' +
-    '<path d="' + STAR_PATH + '" fill="' + sFill2 + '" fill-opacity="0.85" stroke="' + (isRainbow ? 'rgba(255,255,255,0.8)' : color) + '" stroke-width="1.5" stroke-linejoin="round"/>' +
+    '<path d="' + STAR_PATH + '" fill="' + sFill2 + '" fill-opacity="0.85" stroke="' + (isRb ? 'rgba(255,255,255,0.8)' : mainColor) + '" stroke-width="1.5" stroke-linejoin="round"/>' +
     '<path d="M0,-12 L2.9,-4 L11.4,-3.7 L4.6,1.4" fill="rgba(255,255,255,0.3)" stroke="none"/>' +
     '</svg>';
   html += '<div class="crane-count-badge">' + total + '</div>';
@@ -3566,51 +3580,42 @@ function renderCraneBottle() {
 
 function showCraneDetail() {
   var info = getStarInfo();
-  var cur = STAR_LEVELS[info.level - 1];
   var html = '';
-  // 当前状态
-  html += '<div class="qd-en">当前等级</div>';
-  html += '<div class="qd-from" style="font-size:16px;color:' + (cur.color === 'rainbow' ? '#c77fd0' : cur.color) + ';font-weight:700;">Lv.' + info.level + ' ' + cur.name + '  累计 ' + info.total + ' 颗</div>';
-  if (info.level < 6) {
-    var need = info.needed - info.current;
-    html += '<div class="qd-from">再获得 ' + need + ' 颗可升级为 ' + STAR_LEVELS[info.level].name + '</div>';
-  } else {
-    html += '<div class="qd-from">已达最高级别！</div>';
-  }
-  // 规则说明
-  html += '<div class="qd-detail">每完成当天全部任务获得 1 颗许愿星，每 ' + STAR_PER_LEVEL + ' 颗自动合并升级为下一级颜色。</div>';
-  // 所有等级星星展示
-  html += '<div style="margin-top:14px;display:flex;gap:8px;flex-wrap:wrap;justify-content:center;">';
+  // 合并规则说明
+  html += '<div class="qd-detail">每完成当天全部任务获得 1 颗金星，每 ' + STAR_PER_LEVEL + ' 颗低级星星自动合并为 1 颗高级星星。</div>';
+  // 各级星星数量展示
+  html += '<div style="margin-top:16px;display:flex;flex-direction:column;gap:8px;">';
   for (var i = 0; i < STAR_LEVELS.length; i++) {
     var lv = STAR_LEVELS[i];
+    var cnt = info.counts[i];
     var isRainbow = lv.color === 'rainbow';
-    var sFill = isRainbow ? 'url(#sd-grad' + i + ')' : lv.color;
+    var gid = 'sd-grad' + i;
+    var sFill = isRainbow ? 'url(#' + gid + ')' : lv.color;
     var sDefs = isRainbow ?
-      '<defs><linearGradient id="sd-grad' + i + '" x1="0" y1="0" x2="1" y2="1">' +
+      '<defs><linearGradient id="' + gid + '" x1="0" y1="0" x2="1" y2="1">' +
       '<stop offset="0%" stop-color="#ff6b6b"/><stop offset="20%" stop-color="#f5a623"/>' +
       '<stop offset="40%" stop-color="#7bc043"/><stop offset="60%" stop-color="#5ba4cf"/>' +
       '<stop offset="80%" stop-color="#c77fd0"/><stop offset="100%" stop-color="#ff6b6b"/></linearGradient></defs>' : '';
     var cls = isRainbow ? 'rainbow-star' : '';
-    var isCurrent = (i === info.level - 1);
-    var isUnlocked = (i < info.level - 1);
-    var opacity = isUnlocked ? '0.4' : '1';
-    var border = isCurrent ? 'border:2px solid ' + (isRainbow ? '#c77fd0' : lv.color) + ';' : '';
-    html += '<div style="text-align:center;opacity:' + opacity + ';">';
-    html += '<div style="' + border + 'border-radius:10px;padding:6px 8px;' + (isCurrent ? 'background:#fffde6;' : '') + '">';
-    html += '<svg viewBox="-13 -13 26 26" width="32" height="32">' + sDefs +
+    var opacity = cnt > 0 ? '1' : '0.35';
+    html += '<div style="display:flex;align-items:center;gap:10px;opacity:' + opacity + ';">';
+    html += '<svg viewBox="-13 -13 26 26" width="28" height="28">' + sDefs +
       '<g class="' + cls + '" style="transform-origin:center;transform-box:fill-box">' +
       '<path d="' + STAR_PATH + '" fill="' + sFill + '" fill-opacity="0.35" transform="translate(0.8,0.8)"/>' +
       '<path d="' + STAR_PATH + '" fill="' + sFill + '" fill-opacity="0.85" stroke="' + (isRainbow ? 'rgba(255,255,255,0.8)' : lv.color) + '" stroke-width="1.5" stroke-linejoin="round"/>' +
       '<path d="M0,-12 L2.9,-4 L11.4,-3.7 L4.6,1.4" fill="rgba(255,255,255,0.3)" stroke="none"/>' +
       '</g></svg>';
-    html += '</div>';
-    html += '<div style="font-size:10px;color:#8d6e63;margin-top:4px;">Lv.' + (i+1) + ' ' + lv.name + '</div>';
-    if (isCurrent) html += '<div style="font-size:9px;color:#7bc043;font-weight:700;">当前</div>';
-    else if (isUnlocked) html += '<div style="font-size:9px;color:#ccc;">已达成</div>';
-    else html += '<div style="font-size:9px;color:#ccc;">未解锁</div>';
-    html += '</div>';
+    html += '<div style="flex:1;">';
+    html += '<span style="font-size:15px;font-weight:700;color:' + (isRainbow ? '#c77fd0' : lv.color) + ';">' + lv.name + '</span>';
+    if (cnt > 0) html += '<span style="font-size:13px;color:#8d6e63;margin-left:8px;">×' + cnt + '</span>';
+    else html += '<span style="font-size:12px;color:#ccc;margin-left:8px;">0</span>';
+    if (i < 5) {
+      html += '<div style="font-size:11px;color:#b8a080;">' + STAR_PER_LEVEL + '颗合并 → 1颗' + STAR_LEVELS[i+1].name + '</div>';
+    }
+    html += '</div></div>';
   }
   html += '</div>';
+  html += '<div style="margin-top:12px;text-align:center;font-size:13px;color:#8d6e63;">累计许愿星：' + info.total + ' 颗</div>';
   document.getElementById('sd-content').innerHTML = html;
   document.getElementById('star-overlay').classList.add('show');
 }
