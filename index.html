@@ -3436,7 +3436,7 @@ function hideQuoteDetail(e) {
 // ==================== 首页渲染 ====================
 // ==================== 千纸鹤许愿瓶 ====================
 var CRANE_LEVELS = [
-  { name: '白鹤', color: '#e8e0d0', emoji: '🦢' },   // Lv.1
+  { name: '白鹤', color: '#c4b89c', emoji: '🦢' },   // Lv.1
   { name: '金鹤', color: '#f5a623', emoji: '🦅' },   // Lv.2
   { name: '红鹤', color: '#e85555', emoji: '🦩' },   // Lv.3
   { name: '蓝鹤', color: '#5ba4cf', emoji: '🦜' },   // Lv.4
@@ -3515,7 +3515,7 @@ function renderCraneBottle() {
     var p = positions[i];
     var delay = (i * 0.3) % 2;
     cranesHtml += '<g transform="translate(' + p[0] + ',' + p[1] + ') scale(0.7)" style="animation:craneBob 2.5s ease-in-out ' + delay + 's infinite;transform-origin:center;transform-box:fill-box">' +
-      '<path d="' + cranePath + '" fill="' + lvInfo.color + '" fill-opacity="0.45" stroke="' + lvInfo.color + '" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>' +
+      '<path d="' + cranePath + '" fill="' + lvInfo.color + '" fill-opacity="0.7" stroke="' + lvInfo.color + '" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>' +
       '</g>';
   }
   var fillH = Math.min(85, Math.max(3, (total / 150) * 85));
