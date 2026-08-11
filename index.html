@@ -939,7 +939,13 @@
   }
   .crane-bottle:hover .crane-vase { filter: brightness(1.05); }
   .crane-vase { transition: filter 0.2s; }
-  @keyframes craneBob {
+  @keyframes rainbowShift {
+  0% { filter: hue-rotate(0deg) brightness(1.1); }
+  100% { filter: hue-rotate(360deg) brightness(1.1); }
+}
+.rainbow-star { animation: rainbowShift 3s linear infinite; }
+
+@keyframes craneBob {
     0%,100% { transform: translateY(0) rotate(-2deg); }
     50% { transform: translateY(-3px) rotate(2deg); }
   }
@@ -3471,7 +3477,7 @@ function tryClaimStar() {
 }
 
 // 立体许愿星 SVG 路径（五角星，带高光面）
-var STAR_PATH = 'M0,-10 L2.4,-3.3 L9.5,-3.1 L3.8,1.2 L5.9,8.1 L0,4 L-5.9,8.1 L-3.8,1.2 L-9.5,-3.1 L-2.4,-3.3 Z';
+var STAR_PATH = 'M0,-12 L2.9,-4 L11.4,-3.7 L4.6,1.4 L7.1,9.7 L0,4.8 L-7.1,9.7 L-4.6,1.4 L-11.4,-3.7 L-2.9,-4 Z';
 
 function renderCraneBottle() {
   var el = document.getElementById('crane-bottle');
@@ -3487,58 +3493,66 @@ function renderCraneBottle() {
     lvInfo = STAR_LEVELS[info.level - 1];
   }
   var total = info.total;
-  // 显示星星数量：当前级别的星星 + 已合并的高级星星
-  var stars = [];
-  // 高级星星（已合并的）
-  for (var lv = info.level - 1; lv >= 1; lv--) {
-    var cnt = Math.floor(total / Math.pow(STAR_PER_LEVEL, lv));
-    cnt = cnt % STAR_PER_LEVEL;
-    // 不对，逻辑不对。简化：只显示当前级别的颜色
-  }
-  // 简化：所有星星用当前级别颜色，最多显示15颗
-  var showCount = Math.min(total, 15);
+  var color = lvInfo.color;
+  var isRainbow = color === 'rainbow';
+
+  // 错落叠放位置
   var positions = [];
-  var cols = 3;
-  var rows = Math.ceil(showCount / cols);
-  var startY = 115;
-  var stepY = 14;
-  var stepX = 22;
-  for (var r = 0; r < rows; r++) {
-    var inThisRow = Math.min(cols, showCount - r * cols);
-    var rowWidth = (inThisRow - 1) * stepX;
-    var startX = 50 - rowWidth / 2;
-    for (var c = 0; c < inThisRow; c++) {
-      positions.push([startX + c * stepX, startY - r * stepY]);
-    }
+  for (var i = 0; i < total; i++) {
+    var layer = Math.floor(i / 4);
+    var inLayer = i % 4;
+    var px = 28 + inLayer * 15 + (Math.sin(i * 2.3) * 3);
+    var py = 108 - layer * 12 - (Math.cos(i * 1.7) * 2);
+    if (py < 40) py = 40;
+    positions.push([px, py]);
   }
   var starsHtml = '';
-  for (var i = 0; i < showCount; i++) {
+  for (var i = 0; i < total && i < positions.length; i++) {
     var p = positions[i];
-    starsHtml += '<g transform="translate(' + p[0] + ',' + p[1] + ') scale(0.45)">' +
-      '<path d="' + STAR_PATH + '" fill="' + lvInfo.color + '" fill-opacity="0.7" stroke="' + lvInfo.color + '" stroke-width="1.5" stroke-linejoin="round"/>' +
-      '<path d="M0,-7 L1.5,-2.5 L3.5,-2.5" fill="none" stroke="rgba(255,255,255,0.5)" stroke-width="1.5" stroke-linecap="round"/>' +
+    var gid = 'hstar' + i;
+    var sFill = isRainbow ? 'url(#' + gid + ')' : color;
+    var sDefs = isRainbow ?
+      '<defs><linearGradient id="' + gid + '" x1="0" y1="0" x2="1" y2="1">' +
+      '<stop offset="0%" stop-color="#ff6b6b"/><stop offset="20%" stop-color="#f5a623"/>' +
+      '<stop offset="40%" stop-color="#7bc043"/><stop offset="60%" stop-color="#5ba4cf"/>' +
+      '<stop offset="80%" stop-color="#c77fd0"/><stop offset="100%" stop-color="#ff6b6b"/></linearGradient></defs>' : '';
+    starsHtml += '<g' + (isRainbow ? ' class="rainbow-star" style="transform-origin:center;transform-box:fill-box"' : '') +
+      ' transform="translate(' + p[0].toFixed(1) + ',' + p[1].toFixed(1) + ') scale(0.4)">' +
+      sDefs +
+      '<path d="' + STAR_PATH + '" fill="' + sFill + '" fill-opacity="0.35" transform="translate(0.8,0.8)"/>' +
+      '<path d="' + STAR_PATH + '" fill="' + sFill + '" fill-opacity="0.85" stroke="' + (isRainbow ? 'rgba(255,255,255,0.8)' : color) + '" stroke-width="1.5" stroke-linejoin="round"/>' +
+      '<path d="M0,-12 L2.9,-4 L11.4,-3.7 L4.6,1.4" fill="rgba(255,255,255,0.3)" stroke="none"/>' +
       '</g>';
   }
-  var fillH = Math.min(85, Math.max(3, (total / 150) * 85));
-  var fillY = 125 - fillH;
+
+  var uid = 'hb_' + Math.floor(Math.random()*100000);
   var html = '<svg class="crane-vase" viewBox="0 0 100 145" width="80" height="116">';
-  html += '<defs>';
-  html += '<clipPath id="jb-clip"><path d="M30,30 C30,30 28,32 28,35 L28,35 C16,42 6,58 6,78 C6,105 22,125 50,125 C78,125 94,105 94,78 C94,58 84,42 72,35 L72,35 C72,32 70,30 70,30 Z"/></clipPath>';
-  html += '<linearGradient id="cork-g" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#d4a870"/><stop offset="100%" stop-color="#a87840"/></linearGradient>';
-  html += '<linearGradient id="glass-g" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="rgba(255,255,255,0.3)"/><stop offset="100%" stop-color="rgba(240,235,220,0.12)"/></linearGradient>';
-  html += '</defs>';
-  html += '<rect x="0" y="' + fillY + '" width="100" height="145" fill="' + lvInfo.color + '" fill-opacity="0.12" clip-path="url(#jb-clip)"/>';
-  html += '<g clip-path="url(#jb-clip)">' + starsHtml + '</g>';
-  html += '<path d="M30,30 C30,30 28,32 28,35 L28,35 C16,42 6,58 6,78 C6,105 22,125 50,125 C78,125 94,105 94,78 C94,58 84,42 72,35 L72,35 C72,32 70,30 70,30 Z" fill="url(#glass-g)" stroke="rgba(180,160,120,0.7)" stroke-width="2.5"/>';
+  html += '<defs><clipPath id="' + uid + '"><path d="M30,30 C30,30 28,32 28,35 C16,42 6,58 6,78 C6,105 22,125 50,125 C78,125 94,105 94,78 C94,58 84,42 72,35 C72,32 70,30 70,30 Z"/></clipPath>';
+  html += '<linearGradient id="glass' + uid + '" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="rgba(255,255,255,0.3)"/><stop offset="100%" stop-color="rgba(240,235,220,0.12)"/></linearGradient></defs>';
+  html += '<g clip-path="url(#' + uid + ')">' + starsHtml + '</g>';
+  html += '<path d="M30,30 C30,30 28,32 28,35 C16,42 6,58 6,78 C6,105 22,125 50,125 C78,125 94,105 94,78 C94,58 84,42 72,35 C72,32 70,30 70,30 Z" fill="url(#glass' + uid + ')" stroke="rgba(180,160,120,0.7)" stroke-width="2.5"/>';
   html += '<path d="M22,42 C22,42 16,57 14,77 C12,92 16,110 22,118" fill="none" stroke="rgba(255,255,255,0.5)" stroke-width="4" stroke-linecap="round"/>';
   html += '<rect x="28" y="24" width="44" height="8" rx="4" fill="rgba(255,255,255,0.2)" stroke="rgba(180,160,120,0.6)" stroke-width="1.5"/>';
-  html += '<rect x="33" y="10" width="34" height="16" rx="4" fill="url(#cork-g)" stroke="rgba(140,100,50,0.5)" stroke-width="1.2"/>';
+  html += '<rect x="33" y="10" width="34" height="16" rx="4" fill="url(#cork-g2)" stroke="rgba(140,100,50,0.5)" stroke-width="1.2"/>';
+  html += '<defs><linearGradient id="cork-g2" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#d4a870"/><stop offset="100%" stop-color="#a87840"/></linearGradient></defs>';
   html += '<line x1="40" y1="14" x2="40" y2="22" stroke="rgba(140,100,50,0.3)" stroke-width="0.8"/>';
   html += '<line x1="50" y1="12" x2="50" y2="24" stroke="rgba(140,100,50,0.3)" stroke-width="0.8"/>';
   html += '<line x1="60" y1="14" x2="60" y2="22" stroke="rgba(140,100,50,0.3)" stroke-width="0.8"/>';
   html += '</svg>';
+  // 底部小星星 × 数量
+  var sFill2 = isRainbow ? 'url(#hb-small)' : color;
+  var sDefs2 = isRainbow ?
+    '<defs><linearGradient id="hb-small" x1="0" y1="0" x2="1" y2="1">' +
+    '<stop offset="0%" stop-color="#ff6b6b"/><stop offset="20%" stop-color="#f5a623"/>' +
+    '<stop offset="40%" stop-color="#7bc043"/><stop offset="60%" stop-color="#5ba4cf"/>' +
+    '<stop offset="80%" stop-color="#c77fd0"/><stop offset="100%" stop-color="#ff6b6b"/></linearGradient></defs>' : '';
+  var smallStar = '<svg viewBox="-13 -13 26 26" width="16" height="16">' + sDefs2 +
+    '<path d="' + STAR_PATH + '" fill="' + sFill2 + '" fill-opacity="0.35" transform="translate(0.8,0.8)"/>' +
+    '<path d="' + STAR_PATH + '" fill="' + sFill2 + '" fill-opacity="0.85" stroke="' + (isRainbow ? 'rgba(255,255,255,0.8)' : color) + '" stroke-width="1.5" stroke-linejoin="round"/>' +
+    '<path d="M0,-12 L2.9,-4 L11.4,-3.7 L4.6,1.4" fill="rgba(255,255,255,0.3)" stroke="none"/>' +
+    '</svg>';
   html += '<div class="crane-count-badge">' + total + '</div>';
-  html += '<div class="crane-label">许愿星 ×' + total + '</div>';
+  html += '<div class="crane-label" style="display:flex;align-items:center;justify-content:center;gap:4px;">' + smallStar + '<span>×' + total + '</span></div>';
   el.innerHTML = html;
 }
 
