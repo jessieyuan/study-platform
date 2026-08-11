@@ -965,7 +965,14 @@
   100% { transform: translate(0,0); }
 }
 .crane-vase.shaking { animation: bottleShake 0.5s ease-in-out; }
-.crane-vase.shaking .star-group-inner { animation: starShake 0.5s ease-in-out; }
+.crane-vase.shaking .star-jiggle { animation: starJiggle var(--dur,0.4s) ease-in-out infinite; }
+@keyframes starJiggle {
+  0% { transform: translate(0,0) rotate(0deg); }
+  25% { transform: translate(var(--dx,2px),var(--dy,-2px)) rotate(var(--dr,3deg)); }
+  50% { transform: translate(calc(var(--dx,2px)*-1),var(--dy,1px)) rotate(calc(var(--dr,3deg)*-1)); }
+  75% { transform: translate(var(--dx,2px),calc(var(--dy,-2px)*-1)) rotate(var(--dr,3deg)); }
+  100% { transform: translate(0,0) rotate(0deg); }
+}
 .crane-label { cursor: pointer; }
 
 .crane-label {
@@ -3552,20 +3559,26 @@ function renderCraneBottle() {
       '<stop offset="0%" stop-color="#ff6b6b"/><stop offset="20%" stop-color="#f5a623"/>' +
       '<stop offset="40%" stop-color="#7bc043"/><stop offset="60%" stop-color="#5ba4cf"/>' +
       '<stop offset="80%" stop-color="#c77fd0"/><stop offset="100%" stop-color="#ff6b6b"/></linearGradient></defs>' : '';
-    starsHtml += '<g' + (isRainbow ? ' class="rainbow-star" style="transform-origin:center;transform-box:fill-box"' : '') +
+    var dx = (Math.random()*4-2).toFixed(1);
+    var dy = (Math.random()*4-2).toFixed(1);
+    var dr = (Math.random()*8-4).toFixed(1);
+    var dur = (0.3+Math.random()*0.3).toFixed(2);
+    var delay = (Math.random()*0.3).toFixed(2);
+    starsHtml += '<g' + (isRainbow ? ' class="rainbow-star"' : '') +
       ' transform="translate(' + p[0].toFixed(1) + ',' + p[1].toFixed(1) + ') scale(0.4)">' +
+      '<g class="star-jiggle" style="--dx:' + dx + 'px;--dy:' + dy + 'px;--dr:' + dr + 'deg;--dur:' + dur + 's;animation-delay:' + delay + 's;">' +
       sDefs +
       '<path d="' + STAR_PATH + '" fill="' + sFill + '" fill-opacity="0.35" transform="translate(0.8,0.8)"/>' +
       '<path d="' + STAR_PATH + '" fill="' + sFill + '" fill-opacity="0.85" stroke="' + (isRainbow ? 'rgba(255,255,255,0.8)' : color) + '" stroke-width="1.5" stroke-linejoin="round"/>' +
       '<path d="M0,-12 L2.9,-4 L11.4,-3.7 L4.6,1.4" fill="rgba(255,255,255,0.3)" stroke="none"/>' +
-      '</g>';
+      '</g></g>';
   }
   var uid = 'hb_' + Math.floor(Math.random()*100000);
   var html = '<svg class="crane-vase" viewBox="0 0 100 145" width="80" height="116">';
   html += '<defs><clipPath id="' + uid + '"><path d="M30,30 C30,30 28,32 28,35 C16,42 6,58 6,78 C6,105 22,125 50,125 C78,125 94,105 94,78 C94,58 84,42 72,35 C72,32 70,30 70,30 Z"/></clipPath>';
   html += '<linearGradient id="glass' + uid + '" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="rgba(255,255,255,0.3)"/><stop offset="100%" stop-color="rgba(240,235,220,0.12)"/></linearGradient>';
   html += '<linearGradient id="cork' + uid + '" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#d4a870"/><stop offset="100%" stop-color="#a87840"/></linearGradient></defs>';
-  html += '<g clip-path="url(#' + uid + ')"><g class="star-group-inner">' + starsHtml + '</g></g>';
+  html += '<g clip-path="url(#' + uid + ')">' + starsHtml + '</g>';
   html += '<path d="M30,30 C30,30 28,32 28,35 C16,42 6,58 6,78 C6,105 22,125 50,125 C78,125 94,105 94,78 C94,58 84,42 72,35 C72,32 70,30 70,30 Z" fill="url(#glass' + uid + ')" stroke="rgba(180,160,120,0.7)" stroke-width="2.5"/>';
   html += '<path d="M22,42 C22,42 16,57 14,77 C12,92 16,110 22,118" fill="none" stroke="rgba(255,255,255,0.5)" stroke-width="4" stroke-linecap="round"/>';
   html += '<rect x="28" y="24" width="44" height="8" rx="4" fill="rgba(255,255,255,0.2)" stroke="rgba(180,160,120,0.6)" stroke-width="1.5"/>';
