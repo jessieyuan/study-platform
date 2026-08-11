@@ -4487,6 +4487,7 @@ function startMentalMath(mode) {
   document.getElementById('math-home').style.display = 'none';
   document.getElementById('math-result').style.display = 'none';
   document.getElementById('math-practice').style.display = '';
+  document.getElementById('mp-score').style.display = 'none';
   mathQuiz.startTime = Date.now();
   startMathTimer();
   showMathQuestion();
@@ -4536,7 +4537,6 @@ function showMathQuestion() {
   mathQuiz.answered = false;
   mathQuiz.input = '';
   document.getElementById('mp-progress').textContent = (mathQuiz.idx + 1) + ' / 50';
-  document.getElementById('mp-score').textContent = '得分: ' + mathQuiz.score;
   document.getElementById('mp-question').innerHTML =
     '<div class="q-text">' + q.a + ' <span class="q-equal">' + q.op + '</span> ' + q.b + ' <span class="q-equal">=</span><span class="q-mark">?</span></div>';
   var el = document.getElementById('mp-answers');
