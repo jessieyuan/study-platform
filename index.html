@@ -3589,7 +3589,25 @@ function renderCraneBottle() {
     '<path d="' + STAR_PATH + '" fill="' + sFill2 + '" fill-opacity="0.85" stroke="' + (isRb ? 'rgba(255,255,255,0.8)' : mainColor) + '" stroke-width="1.5" stroke-linejoin="round"/>' +
     '<path d="M0,-12 L2.9,-4 L11.4,-3.7 L4.6,1.4" fill="rgba(255,255,255,0.3)" stroke="none"/>' +
     '</svg>';
-  html += '<div class="crane-label" style="display:flex;align-items:center;justify-content:center;gap:4px;cursor:pointer;" onclick="showCraneDetail()">' + smallStar + '<span>×' + total + '</span></div>';
+  // 底部显示每种颜色星星的数量
+  var labelParts = '';
+  for (var li = 0; li < STAR_LEVELS.length; li++) {
+    if (info.counts[li] === 0) continue;
+    var lc = STAR_LEVELS[li].color;
+    var lIsRb = lc === 'rainbow';
+    var lGid = 'lbl-star' + li;
+    var lFill = lIsRb ? 'url(#' + lGid + ')' : lc;
+    var lDefs = lIsRb ?
+      '<defs><linearGradient id="' + lGid + '" x1="0" y1="0" x2="1" y2="1">' +
+      '<stop offset="0%" stop-color="#ff6b6b"/><stop offset="20%" stop-color="#f5a623"/>' +
+      '<stop offset="40%" stop-color="#7bc043"/><stop offset="60%" stop-color="#5ba4cf"/>' +
+      '<stop offset="80%" stop-color="#c77fd0"/><stop offset="100%" stop-color="#ff6b6b"/></linearGradient></defs>' : '';
+    var lStar = '<svg viewBox="-13 -13 26 26" width="14" height="14">' + lDefs +
+      '<path d="' + STAR_PATH + '" fill="' + lFill + '" fill-opacity="0.85" stroke="' + (lIsRb ? 'rgba(255,255,255,0.8)' : lc) + '" stroke-width="1.5" stroke-linejoin="round"/>' +
+      '<path d="M0,-12 L2.9,-4 L11.4,-3.7 L4.6,1.4" fill="rgba(255,255,255,0.3)" stroke="none"/></svg>';
+    labelParts += '<div style="display:flex;align-items:center;gap:2px;">' + lStar + '<span style="font-size:12px;color:#8a6d2e;">' + info.counts[li] + '</span></div>';
+  }
+  html += '<div class="crane-label" style="display:flex;align-items:center;justify-content:center;gap:8px;cursor:pointer;flex-wrap:wrap;" onclick="showCraneDetail()">' + labelParts + '</div>';
   el.innerHTML = html;
 }
 
