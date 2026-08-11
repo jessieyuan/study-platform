@@ -949,7 +949,26 @@
     0%,100% { transform: translateY(0) rotate(-2deg); }
     50% { transform: translateY(-3px) rotate(2deg); }
   }
-  .crane-label {
+  @keyframes bottleShake {
+  0% { transform: rotate(0); }
+  20% { transform: rotate(-6deg); }
+  40% { transform: rotate(5deg); }
+  60% { transform: rotate(-3deg); }
+  80% { transform: rotate(2deg); }
+  100% { transform: rotate(0); }
+}
+@keyframes starShake {
+  0% { transform: translate(0,0); }
+  25% { transform: translate(2px,-2px); }
+  50% { transform: translate(-2px,1px); }
+  75% { transform: translate(1px,-1px); }
+  100% { transform: translate(0,0); }
+}
+.crane-vase.shaking { animation: bottleShake 0.5s ease-in-out; }
+.crane-vase.shaking g { animation: starShake 0.5s ease-in-out; }
+.crane-label { cursor: pointer; }
+
+.crane-label {
     font-size: 11px; font-weight: 600; color: #8a6d2e;
     margin-top: 6px; text-align: center; white-space: nowrap;
   }
@@ -1813,7 +1832,7 @@
 </div>
  <div class="card">
    <div class="progress-wrap">
-     <div class="crane-bottle" id="crane-bottle" onclick="showCraneDetail()"></div>
+     <div class="crane-bottle" id="crane-bottle" onclick="shakeBottle()"></div>
      <div class="progress-circle-wrap">
         <svg width="150" height="150" viewBox="0 0 150 150"><circle class="bg" cx="75" cy="75" r="62"/><circle class="fg" id="progress-circle" cx="75" cy="75" r="62" stroke-dasharray="389.56" stroke-dashoffset="389.56"/></svg>
         <div class="progress-center"><div class="pct" id="progress-pct">0%</div><div class="lbl">今日完成度</div></div>
@@ -3573,8 +3592,17 @@ function renderCraneBottle() {
     '<path d="' + STAR_PATH + '" fill="' + sFill2 + '" fill-opacity="0.85" stroke="' + (isRb ? 'rgba(255,255,255,0.8)' : mainColor) + '" stroke-width="1.5" stroke-linejoin="round"/>' +
     '<path d="M0,-12 L2.9,-4 L11.4,-3.7 L4.6,1.4" fill="rgba(255,255,255,0.3)" stroke="none"/>' +
     '</svg>';
-  html += '<div class="crane-label" style="display:flex;align-items:center;justify-content:center;gap:4px;">' + smallStar + '<span>×' + total + '</span></div>';
+  html += '<div class="crane-label" style="display:flex;align-items:center;justify-content:center;gap:4px;cursor:pointer;" onclick="showCraneDetail()">' + smallStar + '<span>×' + total + '</span></div>';
   el.innerHTML = html;
+}
+
+function shakeBottle() {
+  var vase = document.querySelector(".crane-vase");
+  if (!vase) return;
+  vase.classList.remove("shaking");
+  void vase.offsetWidth;
+  vase.classList.add("shaking");
+  setTimeout(function() { vase.classList.remove("shaking"); }, 600);
 }
 
 function showCraneDetail() {
