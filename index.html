@@ -1756,7 +1756,7 @@
   .user-empty { text-align: center; color: #b8a080; padding: 20px; font-size: 13px; }
 
   /* ========== 数学思维速算 ========== */
-  .math-modes { display:grid; grid-template-columns:repeat(3,1fr); gap:14px; margin-bottom:16px; }
+  .math-modes { display:grid; grid-template-columns:repeat(2,1fr); gap:14px; margin-bottom:16px; }
   .math-mode-card {
     background:var(--card-bg); border-radius:18px; padding:18px 12px; text-align:center;
     cursor:pointer; transition:transform 0.2s, box-shadow 0.2s; border:2px solid transparent;
@@ -1964,6 +1964,12 @@
         <div class="mmc-title">除法口诀表</div>
         <div class="mmc-info">50题 · 满分100分</div>
         <div class="mmc-best">🏆 最高分: <span id="math-best-div">0</span></div>
+      </div>
+      <div class="math-mode-card" onclick="startMentalMath('mixed')">
+        <div class="mmc-icon">🧮</div>
+        <div class="mmc-title">混合计算</div>
+        <div class="mmc-info">加减乘除 · 求结果或求未知数</div>
+        <div class="mmc-best">🏆 最高分: <span id="math-best-mixed">0</span></div>
       </div>
     </div>
   </div>
@@ -2361,7 +2367,7 @@ function ensureDataFields() {
   if (typeof appData.cranes === 'undefined') appData.cranes = 0; // 许愿星数量
   if (typeof appData.craneLevel === 'undefined') appData.craneLevel = 1; // 许愿星级别 1-5
   if (typeof appData.craneClaimedToday === 'undefined') appData.craneClaimedToday = null; // 今日是否已领取
-  if (!appData.mathBest) appData.mathBest = { addsub: 0, mul: 0, div: 0 }; // 速算最高分
+  if (!appData.mathBest) appData.mathBest = { addsub: 0, mul: 0, div: 0, mixed: 0 }; // 速算最高分
 }
 
 // ---- 数据保存（防抖API同步） ----
@@ -4466,7 +4472,7 @@ function renderMathPage() {
   if (home) home.style.display = '';
   if (practice) practice.style.display = 'none';
   if (result) result.style.display = 'none';
-  var modes = ['addsub','mul','div'];
+  var modes = ['addsub','mul','div','mixed'];
   modes.forEach(function(m) {
     var el = document.getElementById('math-best-' + m);
     if (el) el.textContent = (appData.mathBest[m] || 0);
@@ -4522,6 +4528,8 @@ function generateMathQuestion(mode) {
     b = Math.floor(Math.random() * 9) + 1;
     op = '×';
     answer = a * b;
+  } else if (mode === 'mixed') {
+    return generateMixedQuestion();
   } else {
     b = Math.floor(Math.random() * 9) + 1;
     var c = Math.floor(Math.random() * 9) + 1;
@@ -4532,13 +4540,67 @@ function generateMathQuestion(mode) {
   return { a: a, b: b, op: op, answer: answer };
 }
 
+function generateMixedQuestion() {
+  var r = Math.random();
+  var op;
+  if (r < 0.30) op = '+';
+  else if (r < 0.60) op = '-';
+  else if (r < 0.85) op = '×';
+  else op = '÷';
+  var hideOperand = Math.random() < 0.5;
+  var a, b, c, answer, display;
+  if (op === '+') {
+    a = Math.floor(Math.random() * 40) + 10;
+    b = Math.floor(Math.random() * (95 - a)) + 5;
+    c = a + b;
+    if (!hideOperand) { answer = c; display = [a, '+', b, '=', '?']; }
+    else if (Math.random() < 0.5) { answer = a; display = ['?', '+', b, '=', c]; }
+    else { answer = b; display = [a, '+', '?', '=', c]; }
+  } else if (op === '-') {
+    a = Math.floor(Math.random() * 70) + 25;
+    b = Math.floor(Math.random() * (a - 5)) + 5;
+    c = a - b;
+    if (!hideOperand) { answer = c; display = [a, '-', b, '=', '?']; }
+    else if (Math.random() < 0.5) { answer = a; display = ['?', '-', b, '=', c]; }
+    else { answer = b; display = [a, '-', '?', '=', c]; }
+  } else if (op === '×') {
+    a = Math.floor(Math.random() * 9) + 1;
+    b = Math.floor(Math.random() * 9) + 1;
+    c = a * b;
+    if (!hideOperand) { answer = c; display = [a, '×', b, '=', '?']; }
+    else if (Math.random() < 0.5) { answer = a; display = ['?', '×', b, '=', c]; }
+    else { answer = b; display = [a, '×', '?', '=', c]; }
+  } else {
+    b = Math.floor(Math.random() * 9) + 1;
+    var cc = Math.floor(Math.random() * 9) + 1;
+    a = b * cc;
+    c = cc;
+    if (!hideOperand) { answer = c; display = [a, '÷', b, '=', '?']; }
+    else if (Math.random() < 0.5) { answer = b; display = [a, '÷', '?', '=', c]; }
+    else { answer = a; display = ['?', '÷', b, '=', c]; }
+  }
+  return { display: display, answer: answer };
+}
+
+function renderMathDisplay(parts) {
+  var html = '';
+  for (var i = 0; i < parts.length; i++) {
+    if (i > 0) html += ' ';
+    var p = parts[i];
+    if (p === '?') html += '<span class="q-mark">?</span>';
+    else if (p === '+' || p === '-' || p === '×' || p === '÷' || p === '=') html += '<span class="q-equal">' + p + '</span>';
+    else html += p;
+  }
+  return html;
+}
+
 function showMathQuestion() {
   var q = mathQuiz.questions[mathQuiz.idx];
   mathQuiz.answered = false;
   mathQuiz.input = '';
   document.getElementById('mp-progress').textContent = (mathQuiz.idx + 1) + ' / 50';
   document.getElementById('mp-question').innerHTML =
-    '<div class="q-text">' + q.a + ' <span class="q-equal">' + q.op + '</span> ' + q.b + ' <span class="q-equal">=</span><span class="q-mark">?</span></div>';
+    '<div class="q-text">' + (q.display ? renderMathDisplay(q.display) : (q.a + ' <span class="q-equal">' + q.op + '</span> ' + q.b + ' <span class="q-equal">=</span><span class="q-mark">?</span>')) + '</div>';
   var el = document.getElementById('mp-answers');
   el.innerHTML =
     '<div class="mp-input-display" id="mp-input-display"></div>' +
@@ -4579,7 +4641,7 @@ function confirmMathAnswer() {
   var userAnswer = parseInt(mathQuiz.input);
   var correct = (userAnswer === q.answer);
   if (correct) mathQuiz.score += 2;
-  mathQuiz.results.push({ q: q.a + ' ' + q.op + ' ' + q.b, answer: q.answer, user: userAnswer, correct: correct });
+  mathQuiz.results.push({ q: q.display ? q.display.join(' ') : (q.a + ' ' + q.op + ' ' + q.b), answer: q.answer, user: userAnswer, correct: correct });
   setTimeout(function() {
     mathQuiz.idx++;
     if (mathQuiz.idx >= 50) {
@@ -4601,7 +4663,7 @@ function finishMathQuiz() {
     appData.mathBest[mode] = mathQuiz.score;
     saveData(appData);
   }
-  var modeNames = { addsub: '100以内加减法', mul: '乘法口诀表', div: '除法口诀表' };
+  var modeNames = { addsub: '100以内加减法', mul: '乘法口诀表', div: '除法口诀表', mixed: '混合计算' };
   document.getElementById('math-practice').style.display = 'none';
   var resultEl = document.getElementById('math-result');
   resultEl.style.display = '';
