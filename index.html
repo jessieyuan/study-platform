@@ -3436,11 +3436,12 @@ function hideQuoteDetail(e) {
 // ==================== 首页渲染 ====================
 // ==================== 许愿星 ====================
 var STAR_LEVELS = [
-  { name: '白色', color: '#c8c8c0' },   // Lv.1
-  { name: '金色', color: '#f5a623' },   // Lv.2
-  { name: '红色', color: '#e85555' },   // Lv.3
-  { name: '蓝色', color: '#5ba4cf' },   // Lv.4
-  { name: '紫色', color: '#8b5cf6' },   // Lv.5
+  { name: '金星', color: '#f5c842' },           // Lv.1 金黄色
+  { name: '红星', color: '#e85555' },           // Lv.2 红色
+  { name: '蓝星', color: '#5ba4cf' },           // Lv.3 蓝色
+  { name: '绿星', color: '#7bc043' },           // Lv.4 草绿色
+  { name: '粉紫星', color: '#c77fd0' },         // Lv.5 粉紫色
+  { name: '彩虹星', color: 'rainbow' },          // Lv.6 彩色带闪光
 ];
 var STAR_PER_LEVEL = 30;
 
@@ -3448,7 +3449,7 @@ function getStarInfo() {
   var total = appData.cranes || 0;
   var level = 1;
   var remaining = total;
-  while (level < 5 && remaining >= STAR_PER_LEVEL) {
+  while (level < 6 && remaining >= STAR_PER_LEVEL) {
     remaining -= STAR_PER_LEVEL;
     level++;
   }
@@ -3546,7 +3547,7 @@ function showCraneDetail() {
   var msg = 'star 许愿星许愿瓶\n\n';
   msg += '当前：' + STAR_LEVELS[info.level-1].name + '许愿星\n';
   msg += '累计：' + info.total + ' 颗\n';
-  if (info.level < 5) {
+  if (info.level < 6) {
     msg += '再获得 ' + (info.needed - info.current) + ' 颗可升级为' + STAR_LEVELS[info.level].name + '许愿星\n';
   } else {
     msg += '已达最高级别！\n';
