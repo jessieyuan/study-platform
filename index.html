@@ -983,15 +983,16 @@
   /* ========== 今日完成度 ========== */
   .progress-wrap { display:flex; flex-direction:column; align-items:center; gap:16px; }
   .hero-row { display:flex; flex-direction:row; align-items:center; justify-content:center; gap:24px; flex-wrap:nowrap; }
-  .progress-circle-wrap { position:relative; width:120px; height:120px; flex-shrink:0; display:flex; flex-direction:column; align-items:center; }
-  .progress-circle-wrap svg { transform:rotate(-90deg); }
+  .progress-circle-wrap { flex-shrink:0; display:flex; flex-direction:column; align-items:center; }
+  .progress-ring-box { position:relative; width:120px; height:120px; }
+  .progress-ring-box svg { transform:rotate(-90deg); }
   .progress-circle-wrap .bg { fill:none; stroke:#f0d890; stroke-width:14; }
   .progress-circle-wrap .fg { fill:none; stroke:url(#goldGrad); stroke-width:14; stroke-linecap:round; transition:stroke-dashoffset 0.6s ease; filter:drop-shadow(0 0 4px rgba(245,200,66,0.6)); animation:goldSparkle 2s ease-in-out infinite; }
   @keyframes goldSparkle {
     0%,100% { filter:drop-shadow(0 0 3px rgba(245,200,66,0.4)); }
     50% { filter:drop-shadow(0 0 8px rgba(255,215,0,0.8)); }
   }
-  .progress-center { position:absolute; top:0; left:0; width:120px; height:120px; display:flex; flex-direction:column; align-items:center; justify-content:center; }
+  .progress-center { position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; }
   .progress-center .pct { font-size:22px; font-weight:800; color:#b8860b; line-height:1; }
   .progress-label-below { font-size:11px; color:var(--text-secondary); margin-top:4px; font-weight:500; text-align:center; }
 
@@ -1007,11 +1008,11 @@
     content:''; position:absolute; top:-20px; right:-20px;
     width:40px; height:40px; border-radius:50%; opacity:0.15; pointer-events:none;
   }
-  .tsh-item.checkin { background:linear-gradient(135deg,#fff0f0,#ffe5e5); }
+  .tsh-item.checkin { background:linear-gradient(135deg,#fff8f5,#ffeee8); }
   .tsh-item.checkin::before { background:#e85555; }
-  .tsh-item.points { background:linear-gradient(135deg,#f8fff0,#eef7e8); }
+  .tsh-item.points { background:linear-gradient(135deg,#f9fff7,#eef6ea); }
   .tsh-item.points::before { background:#7bc043; }
-  .tsh-item.streak { background:linear-gradient(135deg,#fff8f0,#ffeedd); }
+  .tsh-item.streak { background:linear-gradient(135deg,#fffcf5,#fff5e6); }
   .tsh-item.streak::before { background:#f5a623; }
   .tsh-item:hover { transform:translateY(-2px); box-shadow:0 6px 16px rgba(0,0,0,0.08); }
   .tsh-item:active { transform:scale(0.96); }
@@ -1022,11 +1023,11 @@
   .tsh-item .tsh-num { font-size:17px; font-weight:800; color:#5c4a2e; line-height:1; letter-spacing:-0.5px; }
   .tsh-item .tsh-label { font-size:10px; font-weight:600; white-space:nowrap; padding:2px 8px; border-radius:8px; letter-spacing:0.5px; }
   .tsh-item.checkin .tsh-num { color:#e85555; }
-  .tsh-item.checkin .tsh-label { background:#ffe5e5; color:#e85555; }
+  .tsh-item.checkin .tsh-label { background:#fde8e4; color:#d44545; }
   .tsh-item.points .tsh-num { color:#5a9e3a; }
-  .tsh-item.points .tsh-label { background:#eef7e8; color:#5a9e3a; }
+  .tsh-item.points .tsh-label { background:#e8f4e2; color:#4a8e2a; }
   .tsh-item.streak .tsh-num { color:#d09020; }
-  .tsh-item.streak .tsh-label { background:#ffeedd; color:#d09020; }
+  .tsh-item.streak .tsh-label { background:#fbedd8; color:#c08010; }
 
   /* 每日名言 */
   .daily-quote {
@@ -1839,8 +1840,10 @@
      <div class="hero-row">
        <div class="crane-bottle" id="crane-bottle" onclick="shakeBottle()"></div>
        <div class="progress-circle-wrap">
-         <svg width="120" height="120" viewBox="0 0 150 150"><defs><linearGradient id="goldGrad" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#f5c842"/><stop offset="30%" stop-color="#ffd700"/><stop offset="60%" stop-color="#ffed4e"/><stop offset="100%" stop-color="#f5c842"/></linearGradient></defs><circle class="bg" cx="75" cy="75" r="62"/><circle class="fg" id="progress-circle" cx="75" cy="75" r="62" stroke-dasharray="389.56" stroke-dashoffset="389.56"/></svg>
-         <div class="progress-center"><div class="pct" id="progress-pct">0%</div></div>
+         <div class="progress-ring-box">
+           <svg width="120" height="120" viewBox="0 0 150 150"><defs><linearGradient id="goldGrad" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#f5c842"/><stop offset="30%" stop-color="#ffd700"/><stop offset="60%" stop-color="#ffed4e"/><stop offset="100%" stop-color="#f5c842"/></linearGradient></defs><circle class="bg" cx="75" cy="75" r="62"/><circle class="fg" id="progress-circle" cx="75" cy="75" r="62" stroke-dasharray="389.56" stroke-dashoffset="389.56"/></svg>
+           <div class="progress-center"><div class="pct" id="progress-pct">0%</div></div>
+         </div>
          <div class="progress-label-below">今日完成度</div>
        </div>
      </div>
