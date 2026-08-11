@@ -4578,17 +4578,8 @@ function confirmMathAnswer() {
   var q = mathQuiz.questions[mathQuiz.idx];
   var userAnswer = parseInt(mathQuiz.input);
   var correct = (userAnswer === q.answer);
+  if (correct) mathQuiz.score += 2;
   mathQuiz.results.push({ q: q.a + ' ' + q.op + ' ' + q.b, answer: q.answer, user: userAnswer, correct: correct });
-  var displayEl = document.getElementById('mp-input-display');
-  if (correct) {
-    displayEl.style.color = '#5a9e3a';
-    displayEl.textContent = userAnswer + ' ✓';
-    mathQuiz.score += 2;
-  } else {
-    displayEl.style.color = '#d44545';
-    displayEl.textContent = userAnswer + ' ✗';
-  }
-  document.getElementById('mp-score').textContent = '得分: ' + mathQuiz.score;
   setTimeout(function() {
     mathQuiz.idx++;
     if (mathQuiz.idx >= 50) {
@@ -4596,7 +4587,7 @@ function confirmMathAnswer() {
     } else {
       showMathQuestion();
     }
-  }, correct ? 500 : 800);
+  }, 200);
 }
 
 function finishMathQuiz() {
