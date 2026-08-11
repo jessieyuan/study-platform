@@ -2346,6 +2346,7 @@ function ensureDataFields() {
   if (typeof appData.cranes === 'undefined') appData.cranes = 0; // 许愿星数量
   if (typeof appData.craneLevel === 'undefined') appData.craneLevel = 1; // 许愿星级别 1-5
   if (typeof appData.craneClaimedToday === 'undefined') appData.craneClaimedToday = null; // 今日是否已领取
+  if (!appData.mathBest) appData.mathBest = { addsub: 0, mul: 0, div: 0 }; // 速算最高分
 }
 
 // ---- 数据保存（防抖API同步） ----
@@ -4439,11 +4440,11 @@ document.querySelectorAll('.nav-item').forEach(function(n){n.addEventListener('c
 
 
 // ==================== 数学思维速算 ====================
-if (!appData.mathBest) appData.mathBest = { addsub: 0, mul: 0, div: 0 };
 
 var mathQuiz = { mode: null, questions: [], idx: 0, score: 0, startTime: 0, timerId: null, answered: false };
 
 function renderMathPage() {
+  if (!appData.mathBest) appData.mathBest = { addsub: 0, mul: 0, div: 0 };
   var home = document.getElementById('math-home');
   var practice = document.getElementById('math-practice');
   var result = document.getElementById('math-result');
