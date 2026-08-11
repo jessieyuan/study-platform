@@ -3478,17 +3478,18 @@ var STAR_LEVELS = [
 var STAR_PER_LEVEL = 30;
 
 function getStarInfo() {
-  // TEMP PREVIEW: hardcoded counts for visual test
-  var total = 52;
-  var counts = [35, 5, 3, 2, 1, 1]; // Lv1-Lv6: lots of yellow, some others
-  // 逐级合并：30颗Lv1→1颗Lv2，30颗Lv2→1颗Lv3...
-  // var remaining = total;
-  // for (var lv = 0; lv < 5; lv++) {
-  //   counts[lv] = remaining % STAR_PER_LEVEL;
-  //   remaining = Math.floor(remaining / STAR_PER_LEVEL);
-  // }
-  // counts[5] = remaining;
-  var maxLevel = 6;
+  var total = appData.cranes || 0;
+  var counts = [0, 0, 0, 0, 0, 0];
+  var remaining = total;
+  for (var lv = 0; lv < 5; lv++) {
+    counts[lv] = remaining % STAR_PER_LEVEL;
+    remaining = Math.floor(remaining / STAR_PER_LEVEL);
+  }
+  counts[5] = remaining;
+  var maxLevel = 1;
+  for (var lv = 5; lv >= 0; lv--) {
+    if (counts[lv] > 0) { maxLevel = lv + 1; break; }
+  }
   return { total: total, counts: counts, maxLevel: maxLevel };
 }
 
