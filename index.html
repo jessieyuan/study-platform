@@ -1776,17 +1776,22 @@
   .mp-question .q-text { font-size:48px; font-weight:800; color:var(--text); letter-spacing:2px; }
   .mp-question .q-equal { color:var(--text-secondary); margin:0 8px; }
   .mp-question .q-mark { color:#f0a020; margin-left:8px; }
-  .mp-answers { display:grid; grid-template-columns:repeat(2,1fr); gap:12px; max-width:320px; margin:0 auto; }
-  .mp-answer-btn {
-    padding:16px; border-radius:14px; border:2px solid #e0d8c8; background:var(--card-bg);
-    font-size:28px; font-weight:800; color:var(--text); cursor:pointer; text-align:center;
-    transition:all 0.15s; user-select:none;
+  .mp-input-display {
+    text-align:center; margin:0 auto 16px; min-height:56px; padding:8px 20px;
+    display:flex; align-items:center; justify-content:center;
+    font-size:40px; font-weight:800; color:var(--text); border-bottom:3px solid #f0a020; min-width:80px; max-width:200px;
   }
-  .mp-answer-btn:hover { border-color:#f0a020; background:#fff8e0; transform:scale(1.03); }
-  .mp-answer-btn:active { transform:scale(0.96); }
-  .mp-answer-btn.correct { border-color:#7bc043; background:#eef7e8; color:#5a9e3a; }
-  .mp-answer-btn.wrong { border-color:#e85555; background:#ffe5e5; color:#d44545; }
-  .mp-answer-btn:disabled { cursor:default; opacity:0.7; }
+  .mp-numpad { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; max-width:280px; margin:0 auto; }
+  .mp-key {
+    padding:14px 0; border-radius:14px; border:2px solid #e0d8c8; background:var(--card-bg);
+    font-size:26px; font-weight:800; color:var(--text); cursor:pointer; text-align:center;
+    transition:all 0.12s; user-select:none;
+  }
+  .mp-key:hover { border-color:#f0a020; background:#fff8e0; }
+  .mp-key:active { transform:scale(0.93); }
+  .mp-key.del { background:#fff0f0; border-color:#f0d0d0; font-size:22px; }
+  .mp-key.confirm { background:linear-gradient(135deg,#f5c842,#f0a020); border-color:#f0a020; color:#fff; font-size:22px; }
+  .mp-key.confirm:active { transform:scale(0.93); }
   .mp-result-card { text-align:center; padding:24px; }
   .mp-result-card .mp-result-score { font-size:48px; font-weight:800; color:#f0a020; margin:8px 0; }
   .mp-result-card .mp-result-label { font-size:14px; color:var(--text-secondary); margin-bottom:16px; }
@@ -4441,7 +4446,7 @@ document.querySelectorAll('.nav-item').forEach(function(n){n.addEventListener('c
 
 // ==================== 数学思维速算 ====================
 
-var mathQuiz = { mode: null, questions: [], idx: 0, score: 0, startTime: 0, timerId: null, answered: false };
+var mathQuiz = { mode: null, questions: [], idx: 0, score: 0, startTime: 0, timerId: null, answered: false, input: '' };
 
 function renderMathPage() {
   if (!appData.mathBest) appData.mathBest = { addsub: 0, mul: 0, div: 0 };
@@ -4464,6 +4469,7 @@ function startMentalMath(mode) {
   mathQuiz.idx = 0;
   mathQuiz.score = 0;
   mathQuiz.answered = false;
+  mathQuiz.input = '';
   for (var i = 0; i < 50; i++) {
     mathQuiz.questions.push(generateMathQuestion(mode));
   }
@@ -4511,51 +4517,64 @@ function generateMathQuestion(mode) {
     op = '÷';
     answer = c;
   }
-  var options = [answer];
-  while (options.length < 4) {
-    var delta = Math.floor(Math.random() * 5) + 1;
-    if (Math.random() < 0.5) delta = -delta;
-    var wrong = answer + delta;
-    if (wrong < 0) wrong = answer + Math.abs(delta);
-    if (options.indexOf(wrong) === -1) options.push(wrong);
-  }
-  options.sort(function() { return Math.random() - 0.5; });
-  return { a: a, b: b, op: op, answer: answer, options: options };
+  return { a: a, b: b, op: op, answer: answer };
 }
 
 function showMathQuestion() {
   var q = mathQuiz.questions[mathQuiz.idx];
   mathQuiz.answered = false;
+  mathQuiz.input = '';
   document.getElementById('mp-progress').textContent = (mathQuiz.idx + 1) + ' / 50';
   document.getElementById('mp-score').textContent = '得分: ' + mathQuiz.score;
   document.getElementById('mp-question').innerHTML =
     '<div class="q-text">' + q.a + ' <span class="q-equal">' + q.op + '</span> ' + q.b + ' <span class="q-equal">=</span><span class="q-mark">?</span></div>';
-  var answersEl = document.getElementById('mp-answers');
-  answersEl.innerHTML = '';
-  q.options.forEach(function(opt) {
-    var btn = document.createElement('div');
-    btn.className = 'mp-answer-btn';
-    btn.textContent = opt;
-    btn.onclick = function() { selectMathAnswer(opt, btn); };
-    answersEl.appendChild(btn);
-  });
+  var el = document.getElementById('mp-answers');
+  el.innerHTML =
+    '<div class="mp-input-display" id="mp-input-display"></div>' +
+    '<div class="mp-numpad">' +
+    '<div class="mp-key" onclick="inputMathDigit(1)">1</div>' +
+    '<div class="mp-key" onclick="inputMathDigit(2)">2</div>' +
+    '<div class="mp-key" onclick="inputMathDigit(3)">3</div>' +
+    '<div class="mp-key" onclick="inputMathDigit(4)">4</div>' +
+    '<div class="mp-key" onclick="inputMathDigit(5)">5</div>' +
+    '<div class="mp-key" onclick="inputMathDigit(6)">6</div>' +
+    '<div class="mp-key" onclick="inputMathDigit(7)">7</div>' +
+    '<div class="mp-key" onclick="inputMathDigit(8)">8</div>' +
+    '<div class="mp-key" onclick="inputMathDigit(9)">9</div>' +
+    '<div class="mp-key del" onclick="deleteMathDigit()">⌫</div>' +
+    '<div class="mp-key" onclick="inputMathDigit(0)">0</div>' +
+    '<div class="mp-key confirm" onclick="confirmMathAnswer()">✓</div>' +
+    '</div>';
 }
 
-function selectMathAnswer(answer, btn) {
+function inputMathDigit(d) {
   if (mathQuiz.answered) return;
+  if (mathQuiz.input.length >= 3) return;
+  mathQuiz.input += d;
+  document.getElementById('mp-input-display').textContent = mathQuiz.input;
+}
+
+function deleteMathDigit() {
+  if (mathQuiz.answered) return;
+  mathQuiz.input = mathQuiz.input.slice(0, -1);
+  document.getElementById('mp-input-display').textContent = mathQuiz.input;
+}
+
+function confirmMathAnswer() {
+  if (mathQuiz.answered) return;
+  if (mathQuiz.input === '') return;
   mathQuiz.answered = true;
   var q = mathQuiz.questions[mathQuiz.idx];
-  var correct = (answer === q.answer);
+  var userAnswer = parseInt(mathQuiz.input);
+  var correct = (userAnswer === q.answer);
+  var displayEl = document.getElementById('mp-input-display');
   if (correct) {
-    btn.classList.add('correct');
+    displayEl.style.color = '#5a9e3a';
+    displayEl.textContent = mathQuiz.input + ' ✓';
     mathQuiz.score += 2;
   } else {
-    btn.classList.add('wrong');
-    var btns = document.querySelectorAll('.mp-answer-btn');
-    btns.forEach(function(b) {
-      if (parseInt(b.textContent) === q.answer) b.classList.add('correct');
-      b.disabled = true;
-    });
+    displayEl.style.color = '#d44545';
+    displayEl.textContent = mathQuiz.input + ' ✗ (正确: ' + q.answer + ')';
   }
   document.getElementById('mp-score').textContent = '得分: ' + mathQuiz.score;
   setTimeout(function() {
@@ -4565,7 +4584,7 @@ function selectMathAnswer(answer, btn) {
     } else {
       showMathQuestion();
     }
-  }, correct ? 400 : 900);
+  }, correct ? 600 : 1200);
 }
 
 function finishMathQuiz() {
