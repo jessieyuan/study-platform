@@ -932,7 +932,7 @@
   .card-header .card-tag { width:4px; height:16px; border-radius:2px; background:var(--purple); }
  .card-header .count { font-size:13px; color:var(--text-secondary); font-weight:500; }
 
-  /* ========== 千纸鹤许愿瓶 ========== */
+  /* ========== 许愿星许愿瓶 ========== */
   .crane-bottle {
     display: flex; flex-direction: column; align-items: center;
     margin-bottom: 16px; cursor: pointer; position: relative;
@@ -2229,8 +2229,8 @@ function ensureDataFields() {
   if (typeof appData.showPinyin !== 'boolean') appData.showPinyin = true;
   if (typeof appData.showTranslation !== 'boolean') appData.showTranslation = true;
  if (!appData.chineseView) appData.chineseView = 'backmo';
-  if (typeof appData.cranes === 'undefined') appData.cranes = 0; // 千纸鹤数量（Lv.1）
-  if (typeof appData.craneLevel === 'undefined') appData.craneLevel = 1; // 当前级别 1-5
+  if (typeof appData.cranes === 'undefined') appData.cranes = 0; // 许愿星数量
+  if (typeof appData.craneLevel === 'undefined') appData.craneLevel = 1; // 许愿星级别 1-5
   if (typeof appData.craneClaimedToday === 'undefined') appData.craneClaimedToday = null; // 今日是否已领取
 }
 
@@ -3434,90 +3434,88 @@ function hideQuoteDetail(e) {
 }
 
 // ==================== 首页渲染 ====================
-// ==================== 千纸鹤许愿瓶 ====================
-var CRANE_LEVELS = [
-  { name: '白鹤', color: '#c4b89c', emoji: '🦢' },   // Lv.1
-  { name: '金鹤', color: '#f5a623', emoji: '🦅' },   // Lv.2
-  { name: '红鹤', color: '#e85555', emoji: '🦩' },   // Lv.3
-  { name: '蓝鹤', color: '#5ba4cf', emoji: '🦜' },   // Lv.4
-  { name: '紫鹤', color: '#8b5cf6', emoji: '🦋' },   // Lv.5
+// ==================== 许愿星 ====================
+var STAR_LEVELS = [
+  { name: '白色', color: '#c8c8c0' },   // Lv.1
+  { name: '金色', color: '#f5a623' },   // Lv.2
+  { name: '红色', color: '#e85555' },   // Lv.3
+  { name: '蓝色', color: '#5ba4cf' },   // Lv.4
+  { name: '紫色', color: '#8b5cf6' },   // Lv.5
 ];
-var CRANE_PER_LEVEL = 30; // 每级需要30个上一级千纸鹤
+var STAR_PER_LEVEL = 30;
 
-function getCraneInfo() {
+function getStarInfo() {
   var total = appData.cranes || 0;
   var level = 1;
   var remaining = total;
-  // 计算实际级别和剩余数量
-  while (level < 5 && remaining >= CRANE_PER_LEVEL) {
-    remaining -= CRANE_PER_LEVEL;
+  while (level < 5 && remaining >= STAR_PER_LEVEL) {
+    remaining -= STAR_PER_LEVEL;
     level++;
   }
-  return { level: level, current: remaining, total: total, needed: CRANE_PER_LEVEL };
+  return { level: level, current: remaining, total: total, needed: STAR_PER_LEVEL };
 }
 
-function tryClaimCrane() {
-  // 今日任务全部完成才可领取
-  var todayTasks = appData.tasks.filter(function(t) { return t.date === todayStr(); });
-  if (todayTasks.length === 0) return false;
+function tryClaimStar() {
   var todayTasks = (appData.tasks || []).filter(function(t) { return t.date === todayStr(); });
+  if (todayTasks.length === 0) return false;
   var allDone = todayTasks.every(function(t) { return t.done; });
   if (!allDone) return false;
-  if (appData.craneClaimedToday === todayStr()) return false; // 今天已领
+  if (appData.craneClaimedToday === todayStr()) return false;
   appData.cranes = (appData.cranes || 0) + 1;
   appData.craneClaimedToday = todayStr();
-  // 检查升级
-  var info = getCraneInfo();
+  var info = getStarInfo();
   appData.craneLevel = info.level;
   saveData(appData);
   return true;
 }
 
+// 立体许愿星 SVG 路径（五角星，带高光面）
+var STAR_PATH = 'M0,-10 L2.4,-3.3 L9.5,-3.1 L3.8,1.2 L5.9,8.1 L0,4 L-5.9,8.1 L-3.8,1.2 L-9.5,-3.1 L-2.4,-3.3 Z';
+
 function renderCraneBottle() {
   var el = document.getElementById('crane-bottle');
   if (!el) return;
-  var info = getCraneInfo();
-  var lvInfo = CRANE_LEVELS[info.level - 1];
+  var info = getStarInfo();
+  var lvInfo = STAR_LEVELS[info.level - 1];
   var todayTasks = (appData.tasks || []).filter(function(t) { return t.date === todayStr(); });
   var allDone = todayTasks.length > 0 && todayTasks.every(function(t) { return t.done; });
   var claimed = appData.craneClaimedToday === todayStr();
   if (allDone && !claimed) {
-    tryClaimCrane();
-    info = getCraneInfo();
-    lvInfo = CRANE_LEVELS[info.level - 1];
+    tryClaimStar();
+    info = getStarInfo();
+    lvInfo = STAR_LEVELS[info.level - 1];
   }
   var total = info.total;
-  // 计算瓶子内显示多少只纸鹤
-  var showCount = Math.min(total, 15); // 最多显示15只
-  // 生成纸鹤位置（从底部往上堆叠）
-  var cranesHtml = '';
-  // 折纸千纸鹤路径 - 模拟折纸鹤的正面视角
-  var cranePath = 'M-14,-1 L-5,-3 L-1,-3 L0,-11 L3,-3 L8,-1 L14,2 L6,3 L0,2 L-8,3 Z';
-  // 堆叠位置
+  // 显示星星数量：当前级别的星星 + 已合并的高级星星
+  var stars = [];
+  // 高级星星（已合并的）
+  for (var lv = info.level - 1; lv >= 1; lv--) {
+    var cnt = Math.floor(total / Math.pow(STAR_PER_LEVEL, lv));
+    cnt = cnt % STAR_PER_LEVEL;
+    // 不对，逻辑不对。简化：只显示当前级别的颜色
+  }
+  // 简化：所有星星用当前级别颜色，最多显示15颗
+  var showCount = Math.min(total, 15);
   var positions = [];
   var cols = 3;
   var rows = Math.ceil(showCount / cols);
   var startY = 115;
   var stepY = 14;
   var stepX = 22;
-  var offsetX = 28;
   for (var r = 0; r < rows; r++) {
     var inThisRow = Math.min(cols, showCount - r * cols);
     var rowWidth = (inThisRow - 1) * stepX;
     var startX = 50 - rowWidth / 2;
     for (var c = 0; c < inThisRow; c++) {
-      var px = startX + c * stepX;
-      var py = startY - r * stepY;
-      positions.push([px, py]);
+      positions.push([startX + c * stepX, startY - r * stepY]);
     }
   }
+  var starsHtml = '';
   for (var i = 0; i < showCount; i++) {
     var p = positions[i];
-    var delay = (i * 0.3) % 2;
-    cranesHtml += '<g transform="translate(' + p[0] + ',' + p[1] + ') scale(0.55)">' +
-      '<path d="' + cranePath + '" fill="' + lvInfo.color + '" fill-opacity="0.6" stroke="' + lvInfo.color + '" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>' +
-      '<path d="M-1,-3 L0,-11 L3,-3" fill="none" stroke="' + lvInfo.color + '" stroke-width="1" stroke-linecap="round"/>' +
-      '<path d="M-5,-3 L8,-1" fill="none" stroke="' + lvInfo.color + '" stroke-width="0.8" opacity="0.5"/>' +
+    starsHtml += '<g transform="translate(' + p[0] + ',' + p[1] + ') scale(0.45)">' +
+      '<path d="' + STAR_PATH + '" fill="' + lvInfo.color + '" fill-opacity="0.7" stroke="' + lvInfo.color + '" stroke-width="1.5" stroke-linejoin="round"/>' +
+      '<path d="M0,-7 L1.5,-2.5 L3.5,-2.5" fill="none" stroke="rgba(255,255,255,0.5)" stroke-width="1.5" stroke-linecap="round"/>' +
       '</g>';
   }
   var fillH = Math.min(85, Math.max(3, (total / 150) * 85));
@@ -3528,38 +3526,32 @@ function renderCraneBottle() {
   html += '<linearGradient id="cork-g" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#d4a870"/><stop offset="100%" stop-color="#a87840"/></linearGradient>';
   html += '<linearGradient id="glass-g" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="rgba(255,255,255,0.3)"/><stop offset="100%" stop-color="rgba(240,235,220,0.12)"/></linearGradient>';
   html += '</defs>';
-  // 瓶内液体填充
-  html += '<rect x="0" y="' + fillY + '" width="100" height="145" fill="' + lvInfo.color + '" fill-opacity="0.15" clip-path="url(#jb-clip)"/>';
-  // 千纸鹤（在瓶内）
-  html += '<g clip-path="url(#jb-clip)">' + cranesHtml + '</g>';
-  // 瓶身轮廓
+  html += '<rect x="0" y="' + fillY + '" width="100" height="145" fill="' + lvInfo.color + '" fill-opacity="0.12" clip-path="url(#jb-clip)"/>';
+  html += '<g clip-path="url(#jb-clip)">' + starsHtml + '</g>';
   html += '<path d="M30,30 C30,30 28,32 28,35 L28,35 C16,42 6,58 6,78 C6,105 22,125 50,125 C78,125 94,105 94,78 C94,58 84,42 72,35 L72,35 C72,32 70,30 70,30 Z" fill="url(#glass-g)" stroke="rgba(180,160,120,0.7)" stroke-width="2.5"/>';
-  // 玻璃高光
   html += '<path d="M22,42 C22,42 16,57 14,77 C12,92 16,110 22,118" fill="none" stroke="rgba(255,255,255,0.5)" stroke-width="4" stroke-linecap="round"/>';
-  // 瓶口边沿
   html += '<rect x="28" y="24" width="44" height="8" rx="4" fill="rgba(255,255,255,0.2)" stroke="rgba(180,160,120,0.6)" stroke-width="1.5"/>';
-  // 木塞
   html += '<rect x="33" y="10" width="34" height="16" rx="4" fill="url(#cork-g)" stroke="rgba(140,100,50,0.5)" stroke-width="1.2"/>';
   html += '<line x1="40" y1="14" x2="40" y2="22" stroke="rgba(140,100,50,0.3)" stroke-width="0.8"/>';
   html += '<line x1="50" y1="12" x2="50" y2="24" stroke="rgba(140,100,50,0.3)" stroke-width="0.8"/>';
   html += '<line x1="60" y1="14" x2="60" y2="22" stroke="rgba(140,100,50,0.3)" stroke-width="0.8"/>';
   html += '</svg>';
   html += '<div class="crane-count-badge">' + total + '</div>';
-  html += '<div class="crane-label">许愿瓶 Lv.' + info.level + '</div>';
+  html += '<div class="crane-label">许愿星 ×' + total + '</div>';
   el.innerHTML = html;
 }
 
 function showCraneDetail() {
-  var info = getCraneInfo();
-  var msg = '🦢 千纸鹤许愿瓶\n\n';
-  for (var i = 0; i < 5; i++) {
-    var lv = CRANE_LEVELS[i];
-    var status = i < info.level - 1 ? '✅ 已达成' : (i === info.level - 1 ? '🔹 当前' : '⬜ 未解锁');
-    msg += lv.emoji + ' Lv.' + (i+1) + ' ' + lv.name + '  ' + status + '\n';
+  var info = getStarInfo();
+  var msg = 'star 许愿星许愿瓶\n\n';
+  msg += '当前：' + STAR_LEVELS[info.level-1].name + '许愿星\n';
+  msg += '累计：' + info.total + ' 颗\n';
+  if (info.level < 5) {
+    msg += '再获得 ' + (info.needed - info.current) + ' 颗可升级为' + STAR_LEVELS[info.level].name + '许愿星\n';
+  } else {
+    msg += '已达最高级别！\n';
   }
-  msg += '\n累计千纸鹤：' + info.total + ' 只\n';
-  msg += '每完成当天全部任务可获得 1 只千纸鹤\n';
-  msg += '每 ' + CRANE_PER_LEVEL + ' 只可升级为下一级千纸鹤';
+  msg += '\n每完成当天全部任务获得 1 颗许愿星\n每 ' + STAR_PER_LEVEL + ' 颗自动合并升级';
   alert(msg);
 }
 
