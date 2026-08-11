@@ -2275,6 +2275,12 @@ function recalcStreak() {
   if (!appData.tasks || !Array.isArray(appData.tasks)) return;
   var streak = 0;
   var d = new Date();
+  // 先检查今天是否全部完成
+  var todayStr2 = d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+  var todayTasks = appData.tasks.filter(function(t) { return t.date === todayStr2; });
+  if (todayTasks.length > 0 && todayTasks.every(function(t) { return t.done; })) {
+    streak++;
+  }
   d.setDate(d.getDate() - 1);
   while (true) {
     var ds = d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
