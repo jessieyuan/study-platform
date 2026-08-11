@@ -3573,7 +3573,6 @@ function renderCraneBottle() {
     '<path d="' + STAR_PATH + '" fill="' + sFill2 + '" fill-opacity="0.85" stroke="' + (isRb ? 'rgba(255,255,255,0.8)' : mainColor) + '" stroke-width="1.5" stroke-linejoin="round"/>' +
     '<path d="M0,-12 L2.9,-4 L11.4,-3.7 L4.6,1.4" fill="rgba(255,255,255,0.3)" stroke="none"/>' +
     '</svg>';
-  html += '<div class="crane-count-badge">' + total + '</div>';
   html += '<div class="crane-label" style="display:flex;align-items:center;justify-content:center;gap:4px;">' + smallStar + '<span>×' + total + '</span></div>';
   el.innerHTML = html;
 }
