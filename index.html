@@ -957,10 +957,11 @@
     border-radius: 3px 3px 0 0;
   }
   .crane-jar-body {
-    width: 82px; height: 100px; position: relative;
+    width: 82px; height: 105px; position: relative;
     background: linear-gradient(135deg, rgba(255,255,255,0.45), rgba(240,235,220,0.25));
     border: 2px solid rgba(200,180,140,0.4);
-    border-radius: 4px 4px 42% 42% / 4px 4px 40% 40%;
+    border-radius: 0;
+    clip-path: url(#vase-clip);
     box-shadow: inset 0 -15px 25px -8px rgba(180,130,20,0.08), 0 4px 16px rgba(180,130,20,0.1);
     overflow: hidden; transition: box-shadow 0.2s;
   }
@@ -972,7 +973,7 @@
   .crane-jar-fill {
     position: absolute; bottom: 0; left: 0; right: 0;
     transition: height 0.6s ease, background 0.6s ease;
-    border-radius: 0 0 42% 42% / 0 0 40% 40%;
+    border-radius: 0;
   }
   .crane-jar-crane {
     position: absolute; z-index: 1;
@@ -3514,6 +3515,14 @@ function tryClaimCrane() {
 }
 
 function renderCraneBottle() {
+  // 插入花瓶 SVG clip-path（只插一次）
+  if (!document.getElementById('vase-clip-svg')) {
+    var svgDef = document.createElementNS('http://www.w3.org/2000/svg','svg');
+    svgDef.id = 'vase-clip-svg';
+    svgDef.setAttribute('style','position:absolute;width:0;height:0');
+    svgDef.innerHTML = '<defs><clipPath id="vase-clip" clipPathUnits="objectBoundingBox"><path d="M0.35,0 C0.35,0 0.3,0.08 0.3,0.12 C0.3,0.18 0.22,0.2 0.15,0.35 C0.05,0.55 0.02,0.75 0.1,0.9 C0.18,1 0.82,1 0.9,0.9 C0.98,0.75 0.95,0.55 0.85,0.35 C0.78,0.2 0.7,0.18 0.7,0.12 C0.7,0.08 0.65,0 0.65,0 Z"/></clipPath></defs>';
+    document.body.appendChild(svgDef);
+  }
   var el = document.getElementById('crane-bottle');
   if (!el) return;
   var info = getCraneInfo();
