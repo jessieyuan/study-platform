@@ -1754,6 +1754,50 @@
   .user-status-tag.approved { background: #e0f5d0; color: #5a9e3a; }
   .user-status-tag.rejected { background: #ffe0e0; color: #e85555; }
   .user-empty { text-align: center; color: #b8a080; padding: 20px; font-size: 13px; }
+
+  /* ========== 数学思维速算 ========== */
+  .math-modes { display:grid; grid-template-columns:repeat(3,1fr); gap:14px; margin-bottom:16px; }
+  .math-mode-card {
+    background:var(--card-bg); border-radius:18px; padding:18px 12px; text-align:center;
+    cursor:pointer; transition:transform 0.2s, box-shadow 0.2s; border:2px solid transparent;
+    display:flex; flex-direction:column; align-items:center; gap:6px;
+  }
+  .math-mode-card:hover { transform:translateY(-3px); box-shadow:0 8px 24px rgba(91,164,207,0.15); border-color:#5ba4cf; }
+  .math-mode-card:active { transform:scale(0.97); }
+  .mmc-icon { font-size:36px; line-height:1; }
+  .mmc-title { font-size:14px; font-weight:700; color:var(--text); }
+  .mmc-info { font-size:11px; color:var(--text-secondary); }
+  .mmc-best { font-size:12px; color:#b08020; font-weight:600; margin-top:4px; }
+  .mp-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; padding:12px 16px; background:linear-gradient(135deg,#f0f6ff,#e8f0fe); border-radius:14px; }
+  .mp-timer { font-size:16px; font-weight:700; color:#5ba4cf; }
+  .mp-progress { font-size:14px; font-weight:600; color:var(--text); }
+  .mp-score { font-size:14px; font-weight:700; color:#f0a020; }
+  .mp-question { text-align:center; padding:30px 20px 24px; }
+  .mp-question .q-text { font-size:48px; font-weight:800; color:var(--text); letter-spacing:2px; }
+  .mp-question .q-equal { color:var(--text-secondary); margin:0 8px; }
+  .mp-question .q-mark { color:#f0a020; margin-left:8px; }
+  .mp-answers { display:grid; grid-template-columns:repeat(2,1fr); gap:12px; max-width:320px; margin:0 auto; }
+  .mp-answer-btn {
+    padding:16px; border-radius:14px; border:2px solid #e0d8c8; background:var(--card-bg);
+    font-size:28px; font-weight:800; color:var(--text); cursor:pointer; text-align:center;
+    transition:all 0.15s; user-select:none;
+  }
+  .mp-answer-btn:hover { border-color:#f0a020; background:#fff8e0; transform:scale(1.03); }
+  .mp-answer-btn:active { transform:scale(0.96); }
+  .mp-answer-btn.correct { border-color:#7bc043; background:#eef7e8; color:#5a9e3a; }
+  .mp-answer-btn.wrong { border-color:#e85555; background:#ffe5e5; color:#d44545; }
+  .mp-answer-btn:disabled { cursor:default; opacity:0.7; }
+  .mp-result-card { text-align:center; padding:24px; }
+  .mp-result-card .mp-result-score { font-size:48px; font-weight:800; color:#f0a020; margin:8px 0; }
+  .mp-result-card .mp-result-label { font-size:14px; color:var(--text-secondary); margin-bottom:16px; }
+  .mp-result-card .mp-result-best { font-size:13px; color:#b08020; font-weight:600; margin-bottom:20px; }
+  .mp-result-card .mp-result-btns { display:flex; gap:10px; justify-content:center; }
+  .mp-result-card .mp-btn { padding:10px 24px; border-radius:12px; border:none; font-size:14px; font-weight:700; cursor:pointer; }
+  .mp-btn.primary { background:linear-gradient(135deg,#f5c842,#f0a020); color:#fff; }
+  .mp-btn.secondary { background:var(--card-bg); color:var(--text); border:2px solid #e0d8c8; }
+  @media (max-width:767px) {
+    .math-modes { grid-template-columns:1fr; }
+  }
 </style>
 </head>
 <body>
@@ -1793,7 +1837,7 @@
     <div class="nav-icon">📖</div><span>语文</span>
   </a>
   <a href="#" class="nav-item" data-page="math" onclick="switchPage('math',this)">
-    <div class="nav-icon">🔢</div><span>数学</span>
+    <div class="nav-icon">🔢</div><span>数学思维</span>
   </a>
   <a href="#" class="nav-item" data-page="english" onclick="switchPage('english',this)">
     <div class="nav-icon">🔤</div><span>英语</span>
@@ -1885,12 +1929,39 @@
 <!-- 数学 -->
 <div class="page" id="page-math">
 <main class="main">
-  <div class="subject-page-header"><div class="sph-icon">🔢</div><div class="sph-title">数学</div></div>
-  <div class="subject-tabs">
-    <button class="st-tab active" onclick="switchSubjectTab('math','daily',this)">📅 每日任务</button>
-    <button class="st-tab" onclick="switchSubjectTab('math','weekly',this)">📆 本周任务</button>
+  <div class="subject-page-header"><div class="sph-icon">🔢</div><div class="sph-title">数学思维</div></div>
+  <div id="math-home">
+    <div class="math-modes">
+      <div class="math-mode-card" onclick="startMentalMath('addsub')">
+        <div class="mmc-icon">➕</div>
+        <div class="mmc-title">100以内加减法</div>
+        <div class="mmc-info">50题 · 满分100分</div>
+        <div class="mmc-best">🏆 最高分: <span id="math-best-addsub">0</span></div>
+      </div>
+      <div class="math-mode-card" onclick="startMentalMath('mul')">
+        <div class="mmc-icon">✖️</div>
+        <div class="mmc-title">乘法口诀表</div>
+        <div class="mmc-info">50题 · 满分100分</div>
+        <div class="mmc-best">🏆 最高分: <span id="math-best-mul">0</span></div>
+      </div>
+      <div class="math-mode-card" onclick="startMentalMath('div')">
+        <div class="mmc-icon">➗</div>
+        <div class="mmc-title">除法口诀表</div>
+        <div class="mmc-info">50题 · 满分100分</div>
+        <div class="mmc-best">🏆 最高分: <span id="math-best-div">0</span></div>
+      </div>
+    </div>
   </div>
-  <div id="math-tasks"><div class="task-empty">加载中...</div></div>
+  <div id="math-practice" style="display:none;">
+    <div class="mp-header">
+      <div class="mp-timer" id="mp-timer">⏱ 00:00</div>
+      <div class="mp-progress" id="mp-progress">1 / 50</div>
+      <div class="mp-score" id="mp-score">得分: 0</div>
+    </div>
+    <div class="mp-question" id="mp-question"></div>
+    <div class="mp-answers" id="mp-answers"></div>
+  </div>
+  <div id="math-result" style="display:none;"></div>
 </main></div>
 
 <!-- 英语 -->
@@ -3424,6 +3495,8 @@ function switchPage(pageName, el) {
     else renderChinesePage();
     document.getElementById('cm-filters').style.display = appData.chineseView === 'backmo' ? '' : 'none';
     document.getElementById('cm-reading-nav').style.display = appData.chineseView === 'reading' ? '' : 'none';
+  } else if (pageName === 'math') {
+    renderMathPage();
   } else if (subjectPages[pageName]) {
     var tab = appData.subjectTabs[pageName] || 'daily';
     var tabsEl = document.querySelectorAll('#page-' + pageName + ' .st-tab');
@@ -4363,6 +4436,163 @@ function initApp() {
 window.addEventListener('keydown',function(e){if(e.key==='Escape'){closeModal();closePlanModal();}});
 document.getElementById('modal-overlay').addEventListener('click',function(e){if(e.target===this)closeModal();});
 document.querySelectorAll('.nav-item').forEach(function(n){n.addEventListener('click',function(e){e.preventDefault();});});
+
+
+// ==================== 数学思维速算 ====================
+if (!appData.mathBest) appData.mathBest = { addsub: 0, mul: 0, div: 0 };
+
+var mathQuiz = { mode: null, questions: [], idx: 0, score: 0, startTime: 0, timerId: null, answered: false };
+
+function renderMathPage() {
+  var home = document.getElementById('math-home');
+  var practice = document.getElementById('math-practice');
+  var result = document.getElementById('math-result');
+  if (home) home.style.display = '';
+  if (practice) practice.style.display = 'none';
+  if (result) result.style.display = 'none';
+  var modes = ['addsub','mul','div'];
+  modes.forEach(function(m) {
+    var el = document.getElementById('math-best-' + m);
+    if (el) el.textContent = (appData.mathBest[m] || 0);
+  });
+}
+
+function startMentalMath(mode) {
+  mathQuiz.mode = mode;
+  mathQuiz.questions = [];
+  mathQuiz.idx = 0;
+  mathQuiz.score = 0;
+  mathQuiz.answered = false;
+  for (var i = 0; i < 50; i++) {
+    mathQuiz.questions.push(generateMathQuestion(mode));
+  }
+  document.getElementById('math-home').style.display = 'none';
+  document.getElementById('math-result').style.display = 'none';
+  document.getElementById('math-practice').style.display = '';
+  mathQuiz.startTime = Date.now();
+  startMathTimer();
+  showMathQuestion();
+}
+
+function startMathTimer() {
+  if (mathQuiz.timerId) clearInterval(mathQuiz.timerId);
+  mathQuiz.timerId = setInterval(function() {
+    var elapsed = Math.floor((Date.now() - mathQuiz.startTime) / 1000);
+    var m = String(Math.floor(elapsed / 60)).padStart(2, '0');
+    var s = String(elapsed % 60).padStart(2, '0');
+    var el = document.getElementById('mp-timer');
+    if (el) el.textContent = '⏱ ' + m + ':' + s;
+  }, 200);
+}
+
+function generateMathQuestion(mode) {
+  var a, b, op, answer;
+  if (mode === 'addsub') {
+    op = Math.random() < 0.5 ? '+' : '-';
+    if (op === '+') {
+      a = Math.floor(Math.random() * 51) + 10;
+      b = Math.floor(Math.random() * (100 - a)) + 1;
+      answer = a + b;
+    } else {
+      a = Math.floor(Math.random() * 80) + 20;
+      b = Math.floor(Math.random() * (a - 1)) + 1;
+      answer = a - b;
+    }
+  } else if (mode === 'mul') {
+    a = Math.floor(Math.random() * 9) + 1;
+    b = Math.floor(Math.random() * 9) + 1;
+    op = '×';
+    answer = a * b;
+  } else {
+    b = Math.floor(Math.random() * 9) + 1;
+    var c = Math.floor(Math.random() * 9) + 1;
+    a = b * c;
+    op = '÷';
+    answer = c;
+  }
+  var options = [answer];
+  while (options.length < 4) {
+    var delta = Math.floor(Math.random() * 5) + 1;
+    if (Math.random() < 0.5) delta = -delta;
+    var wrong = answer + delta;
+    if (wrong < 0) wrong = answer + Math.abs(delta);
+    if (options.indexOf(wrong) === -1) options.push(wrong);
+  }
+  options.sort(function() { return Math.random() - 0.5; });
+  return { a: a, b: b, op: op, answer: answer, options: options };
+}
+
+function showMathQuestion() {
+  var q = mathQuiz.questions[mathQuiz.idx];
+  mathQuiz.answered = false;
+  document.getElementById('mp-progress').textContent = (mathQuiz.idx + 1) + ' / 50';
+  document.getElementById('mp-score').textContent = '得分: ' + mathQuiz.score;
+  document.getElementById('mp-question').innerHTML =
+    '<div class="q-text">' + q.a + ' <span class="q-equal">' + q.op + '</span> ' + q.b + ' <span class="q-equal">=</span><span class="q-mark">?</span></div>';
+  var answersEl = document.getElementById('mp-answers');
+  answersEl.innerHTML = '';
+  q.options.forEach(function(opt) {
+    var btn = document.createElement('div');
+    btn.className = 'mp-answer-btn';
+    btn.textContent = opt;
+    btn.onclick = function() { selectMathAnswer(opt, btn); };
+    answersEl.appendChild(btn);
+  });
+}
+
+function selectMathAnswer(answer, btn) {
+  if (mathQuiz.answered) return;
+  mathQuiz.answered = true;
+  var q = mathQuiz.questions[mathQuiz.idx];
+  var correct = (answer === q.answer);
+  if (correct) {
+    btn.classList.add('correct');
+    mathQuiz.score += 2;
+  } else {
+    btn.classList.add('wrong');
+    var btns = document.querySelectorAll('.mp-answer-btn');
+    btns.forEach(function(b) {
+      if (parseInt(b.textContent) === q.answer) b.classList.add('correct');
+      b.disabled = true;
+    });
+  }
+  document.getElementById('mp-score').textContent = '得分: ' + mathQuiz.score;
+  setTimeout(function() {
+    mathQuiz.idx++;
+    if (mathQuiz.idx >= 50) {
+      finishMathQuiz();
+    } else {
+      showMathQuestion();
+    }
+  }, correct ? 400 : 900);
+}
+
+function finishMathQuiz() {
+  clearInterval(mathQuiz.timerId);
+  var elapsed = Math.floor((Date.now() - mathQuiz.startTime) / 1000);
+  var m = String(Math.floor(elapsed / 60)).padStart(2, '0');
+  var s = String(elapsed % 60).padStart(2, '0');
+  var mode = mathQuiz.mode;
+  var isBest = mathQuiz.score > (appData.mathBest[mode] || 0);
+  if (isBest) {
+    appData.mathBest[mode] = mathQuiz.score;
+    saveData(appData);
+  }
+  var modeNames = { addsub: '100以内加减法', mul: '乘法口诀表', div: '除法口诀表' };
+  document.getElementById('math-practice').style.display = 'none';
+  var resultEl = document.getElementById('math-result');
+  resultEl.style.display = '';
+  resultEl.innerHTML =
+    '<div class="mp-result-card">' +
+    '<div style="font-size:22px;font-weight:700;color:var(--text);margin-bottom:4px;">' + modeNames[mode] + '</div>' +
+    '<div class="mp-result-score">' + mathQuiz.score + ' 分</div>' +
+    '<div class="mp-result-label">用时 ' + m + ':' + s + ' · 答对 ' + (mathQuiz.score / 2) + '/50 题</div>' +
+    (isBest ? '<div class="mp-result-best">🎉 新纪录！</div>' : '<div class="mp-result-best">🏆 最高分: ' + (appData.mathBest[mode] || 0) + '</div>') +
+    '<div class="mp-result-btns">' +
+    '<button class="mp-btn primary" onclick="startMentalMath(\'' + mode + '\')">再来一次</button>' +
+    '<button class="mp-btn secondary" onclick="renderMathPage()">返回选择</button>' +
+    '</div></div>';
+}
 
 // 页面加载时尝试自动登录
 checkAutoLogin();
