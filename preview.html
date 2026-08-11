@@ -107,39 +107,34 @@ function makeSmallStar(color) {
 
 function makeBottle(color, count) {
   var isRainbow = color === 'rainbow';
-  var showCount = count; // 有多少显示多少
-  // 计算堆叠位置
+  var showCount = count;
+  // 错落叠放位置 - 随机但有规律的堆叠
   var positions = [];
-  var maxPerRow = 3;
-  var startY = 118;
-  var stepY = 16;
-  var stepX = 20;
-  var startRow = 0;
-  for (var r = 0; r < 10; r++) {
-    var inThisRow = Math.min(maxPerRow, showCount - r * maxPerRow);
-    if (inThisRow <= 0) break;
-    var rowWidth = (inThisRow - 1) * stepX;
-    var sX = 50 - rowWidth / 2;
-    for (var c = 0; c < inThisRow; c++) {
-      positions.push([sX + c * stepX, startY - r * stepY]);
-    }
+  var baseY = 120;
+  for (var i = 0; i < showCount; i++) {
+    // 从底部往上堆，每颗有随机偏移
+    var layer = Math.floor(i / 4); // 每层约4颗
+    var inLayer = i % 4;
+    var px = 22 + inLayer * 18 + (Math.sin(i * 2.3) * 4); // 水平错落
+    var py = baseY - layer * 13 - (Math.cos(i * 1.7) * 3); // 垂直错落
+    positions.push([px, py]);
   }
   var stars = '';
-  for (var i = 0; i < showCount && i < positions.length; i++) {
+  for (var i = 0; i < showCount; i++) {
     var p = positions[i];
-    var gid = 'st' + i + '_' + count;
+    var gid = 'st' + i + 'b' + count;
     var sFill = isRainbow ? 'url(#' + gid + ')' : color;
     var sDefs = isRainbow ?
       '<defs><linearGradient id="' + gid + '" x1="0" y1="0" x2="1" y2="1">' +
       '<stop offset="0%" stop-color="#ff6b6b"/><stop offset="50%" stop-color="#7bc043"/>' +
       '<stop offset="100%" stop-color="#c77fd0"/></linearGradient></defs>' : '';
-    stars += '<g' + (isRainbow ? ' class="rainbow-star" style="transform-origin:center;transform-box:fill-box"' : '') + ' transform="translate(' + p[0] + ',' + p[1] + ') scale(0.38)">' +
+    stars += '<g' + (isRainbow ? ' class="rainbow-star" style="transform-origin:center;transform-box:fill-box"' : '') + ' transform="translate(' + p[0].toFixed(1) + ',' + p[1].toFixed(1) + ') scale(0.42)"' + '>' +
       '<path d="' + STAR_PATH + '" fill="' + sFill + '" fill-opacity="0.35" transform="translate(0.8,0.8)"/>' +
       '<path d="' + STAR_PATH + '" fill="' + sFill + '" fill-opacity="0.85" stroke="' + (isRainbow ? '#fff' : color) + '" stroke-width="1.5" stroke-linejoin="round"/>' +
       '<path d="M0,-12 L2.9,-4 L11.4,-3.7 L4.6,1.4" fill="rgba(255,255,255,0.3)" stroke="none"/>' +
       '</g>';
   }
-  var uid = 'bc' + count + '_' + Math.floor(Math.random()*10000);
+  var uid = 'bc' + count + '_' + Math.floor(Math.random()*100000);
   return '<svg viewBox="0 0 100 145" width="80" height="116">' +
     '<defs><clipPath id="' + uid + '"><path d="M30,30 C30,30 28,32 28,35 C16,42 6,58 6,78 C6,105 22,125 50,125 C78,125 94,105 94,78 C94,58 84,42 72,35 C72,32 70,30 70,30 Z"/></clipPath>' +
     '<linearGradient id="glass' + uid + '" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="rgba(255,255,255,0.3)"/><stop offset="100%" stop-color="rgba(240,235,220,0.12)"/></linearGradient></defs>' +
