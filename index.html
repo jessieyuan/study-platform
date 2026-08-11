@@ -3477,7 +3477,6 @@ function renderCraneBottle() {
   if (!el) return;
   var info = getCraneInfo();
   var lvInfo = CRANE_LEVELS[info.level - 1];
-  var todayTasks = (appData.tasks || []).filter(function(t) { return t.date === todayStr(); });
   var allDone = todayTasks.length > 0 && todayTasks.every(function(t) { return t.done; });
   var claimed = appData.craneClaimedToday === todayStr();
   if (allDone && !claimed) {
@@ -3485,46 +3484,63 @@ function renderCraneBottle() {
     info = getCraneInfo();
     lvInfo = CRANE_LEVELS[info.level - 1];
   }
-  var fillH = Math.min(80, Math.max(5, (info.total / 150) * 80));
-  var fillY = 125 - fillH;
-  // 折纸千纸鹤
-  var showCount = Math.min(5, info.total);
+  var total = info.total;
+  // 计算瓶子内显示多少只纸鹤
+  var showCount = Math.min(total, 15); // 最多显示15只
+  // 生成纸鹤位置（从底部往上堆叠）
   var cranesHtml = '';
-  var positions = [[30,95],[55,80],[40,65],[65,100],[25,110]];
+  // 折纸千纸鹤路径 - 模拟折纸鹤的正面视角
+  var cranePath = 'M0,-8 L-3,-4 L-8,-6 L-4,-1 L-6,8 L0,4 L6,8 L4,-1 L8,-6 L3,-4 Z';
+  // 堆叠位置
+  var positions = [];
+  var cols = 3;
+  var rows = Math.ceil(showCount / cols);
+  var startY = 115;
+  var stepY = 14;
+  var stepX = 22;
+  var offsetX = 28;
+  for (var r = 0; r < rows; r++) {
+    var inThisRow = Math.min(cols, showCount - r * cols);
+    var rowWidth = (inThisRow - 1) * stepX;
+    var startX = 50 - rowWidth / 2;
+    for (var c = 0; c < inThisRow; c++) {
+      var px = startX + c * stepX;
+      var py = startY - r * stepY;
+      positions.push([px, py]);
+    }
+  }
   for (var i = 0; i < showCount; i++) {
     var p = positions[i];
-    var delay = i * 0.4;
-    cranesHtml += '<g transform="translate(' + p[0] + ',' + p[1] + ') scale(0.5)" style="animation:craneBob 2.5s ease-in-out ' + delay + 's infinite;transform-origin:center;transform-box:fill-box">' +
-      '<path d="M12 2L8 8L2 6L8 12L5 22L12 16L19 22L16 12L22 6L16 8Z" fill="' + lvInfo.color + '" fill-opacity="0.5" stroke="' + lvInfo.color + '" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>' +
+    var delay = (i * 0.3) % 2;
+    cranesHtml += '<g transform="translate(' + p[0] + ',' + p[1] + ') scale(0.7)" style="animation:craneBob 2.5s ease-in-out ' + delay + 's infinite;transform-origin:center;transform-box:fill-box">' +
+      '<path d="' + cranePath + '" fill="' + lvInfo.color + '" fill-opacity="0.45" stroke="' + lvInfo.color + '" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>' +
       '</g>';
   }
+  var fillH = Math.min(85, Math.max(3, (total / 150) * 85));
+  var fillY = 125 - fillH;
   var html = '<svg class="crane-vase" viewBox="0 0 100 145" width="80" height="116">';
   html += '<defs>';
-  // 瓶身裁剪区
   html += '<clipPath id="jb-clip"><path d="M30,30 C30,30 28,32 28,35 L28,35 C16,42 6,58 6,78 C6,105 22,125 50,125 C78,125 94,105 94,78 C94,58 84,42 72,35 L72,35 C72,32 70,30 70,30 Z"/></clipPath>';
-  // 木塞渐变
   html += '<linearGradient id="cork-g" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#d4a870"/><stop offset="100%" stop-color="#a87840"/></linearGradient>';
-  // 玻璃渐变
-  html += '<linearGradient id="glass-g" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="rgba(255,255,255,0.35)"/><stop offset="100%" stop-color="rgba(240,235,220,0.15)"/></linearGradient>';
+  html += '<linearGradient id="glass-g" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="rgba(255,255,255,0.3)"/><stop offset="100%" stop-color="rgba(240,235,220,0.12)"/></linearGradient>';
   html += '</defs>';
   // 瓶内液体填充
-  html += '<rect x="0" y="' + fillY + '" width="100" height="145" fill="' + lvInfo.color + '" fill-opacity="0.2" clip-path="url(#jb-clip)"/>';
-  // 千纸鹤
-  html += cranesHtml;
-  // 瓶身（圆滚滚的广口瓶）
-  html += '<path d="M30,30 C30,30 28,32 28,35 L28,35 C16,42 6,58 6,78 C6,105 22,125 50,125 C78,125 94,105 94,78 C94,58 84,42 72,35 L72,35 C72,32 70,30 70,30 Z" fill="url(#glass-g)" stroke="rgba(180,160,120,0.65)" stroke-width="2.5"/>';
+  html += '<rect x="0" y="' + fillY + '" width="100" height="145" fill="' + lvInfo.color + '" fill-opacity="0.15" clip-path="url(#jb-clip)"/>';
+  // 千纸鹤（在瓶内）
+  html += '<g clip-path="url(#jb-clip)">' + cranesHtml + '</g>';
+  // 瓶身轮廓
+  html += '<path d="M30,30 C30,30 28,32 28,35 L28,35 C16,42 6,58 6,78 C6,105 22,125 50,125 C78,125 94,105 94,78 C94,58 84,42 72,35 L72,35 C72,32 70,30 70,30 Z" fill="url(#glass-g)" stroke="rgba(180,160,120,0.7)" stroke-width="2.5"/>';
   // 玻璃高光
-  html += '<path d="M22,40 C22,40 16,55 14,75 C12,90 16,108 22,118" fill="none" stroke="rgba(255,255,255,0.6)" stroke-width="4" stroke-linecap="round"/>';
+  html += '<path d="M22,42 C22,42 16,57 14,77 C12,92 16,110 22,118" fill="none" stroke="rgba(255,255,255,0.5)" stroke-width="4" stroke-linecap="round"/>';
   // 瓶口边沿
-  html += '<rect x="28" y="24" width="44" height="8" rx="4" fill="rgba(255,255,255,0.25)" stroke="rgba(180,160,120,0.6)" stroke-width="1.5"/>';
+  html += '<rect x="28" y="24" width="44" height="8" rx="4" fill="rgba(255,255,255,0.2)" stroke="rgba(180,160,120,0.6)" stroke-width="1.5"/>';
   // 木塞
   html += '<rect x="33" y="10" width="34" height="16" rx="4" fill="url(#cork-g)" stroke="rgba(140,100,50,0.5)" stroke-width="1.2"/>';
-  // 木塞纹理
-  html += '<line x1="38" y1="14" x2="38" y2="22" stroke="rgba(140,100,50,0.3)" stroke-width="0.8"/>';
+  html += '<line x1="40" y1="14" x2="40" y2="22" stroke="rgba(140,100,50,0.3)" stroke-width="0.8"/>';
   html += '<line x1="50" y1="12" x2="50" y2="24" stroke="rgba(140,100,50,0.3)" stroke-width="0.8"/>';
-  html += '<line x1="62" y1="14" x2="62" y2="22" stroke="rgba(140,100,50,0.3)" stroke-width="0.8"/>';
+  html += '<line x1="60" y1="14" x2="60" y2="22" stroke="rgba(140,100,50,0.3)" stroke-width="0.8"/>';
   html += '</svg>';
-  html += '<div class="crane-count-badge">' + info.total + '</div>';
+  html += '<div class="crane-count-badge">' + total + '</div>';
   html += '<div class="crane-label">许愿瓶 Lv.' + info.level + '</div>';
   el.innerHTML = html;
 }
