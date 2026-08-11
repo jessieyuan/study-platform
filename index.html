@@ -3492,7 +3492,7 @@ function renderCraneBottle() {
   // 生成纸鹤位置（从底部往上堆叠）
   var cranesHtml = '';
   // 折纸千纸鹤路径 - 模拟折纸鹤的正面视角
-  var cranePath = 'M0,-12 L3,-8 L14,-4 L10,0 L5,-2 L3,8 L0,10 L-3,8 L-5,-2 L-10,0 L-14,-4 L-3,-8 Z';
+  var cranePath = 'M-14,-1 L-5,-3 L-1,-3 L0,-11 L3,-3 L8,-1 L14,2 L6,3 L0,2 L-8,3 Z';
   // 堆叠位置
   var positions = [];
   var cols = 3;
@@ -3514,8 +3514,10 @@ function renderCraneBottle() {
   for (var i = 0; i < showCount; i++) {
     var p = positions[i];
     var delay = (i * 0.3) % 2;
-    cranesHtml += '<g transform="translate(' + p[0] + ',' + p[1] + ') scale(0.7)" >' +
-      '<path d="' + cranePath + '" fill="' + lvInfo.color + '" fill-opacity="0.7" stroke="' + lvInfo.color + '" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>' +
+    cranesHtml += '<g transform="translate(' + p[0] + ',' + p[1] + ') scale(0.55)">' +
+      '<path d="' + cranePath + '" fill="' + lvInfo.color + '" fill-opacity="0.6" stroke="' + lvInfo.color + '" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>' +
+      '<path d="M-1,-3 L0,-11 L3,-3" fill="none" stroke="' + lvInfo.color + '" stroke-width="1" stroke-linecap="round"/>' +
+      '<path d="M-5,-3 L8,-1" fill="none" stroke="' + lvInfo.color + '" stroke-width="0.8" opacity="0.5"/>' +
       '</g>';
   }
   var fillH = Math.min(85, Math.max(3, (total / 150) * 85));
