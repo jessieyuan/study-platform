@@ -107,7 +107,7 @@ function makeSmallStar(color) {
     '</svg>';
 }
 
-function makeBottle(color, count) {
+function makeBottle(color, count, uidSeed) {
   var isRainbow = color === 'rainbow';
   // 瓶子内部范围：底部Y约115，最宽处Y约78（x:8-92），底部窄（x:22-78）
   // 错落叠放位置，确保在瓶内可见
@@ -183,7 +183,7 @@ var bHtml = '';
 for (var i = 0; i < demos.length; i++) {
   var d = demos[i];
   bHtml += '<div class="bottle-card">' +
-    makeBottle(d.color, i) +
+    makeBottle(d.color, d.count, i) +
     '<div class="bottle-count">' + makeSmallStar(d.color) + '<span>×' + d.count + '</span></div>' +
     '</div>';
 }
