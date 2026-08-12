@@ -1365,6 +1365,7 @@
   }
   .unit-menu-btn.active { border-color:#f0a020; background:#fff8e0; color:#f0a020; }
   .unit-menu-btn:hover { border-color:#f0a020; }
+  .unit-menu-btn.locked { opacity:0.4; cursor:not-allowed; }
   .cm-type-row { display:flex; gap:6px; flex-wrap:wrap; }
   .ct-tab {
     padding:6px 14px; border-radius:10px; border:2px solid #f0e4c0;
@@ -1804,23 +1805,8 @@
   .mp-review-user { font-size:11px; color:#d44545; }
 
   /* ========== 数学分级菜单 ========== */
-  .math-tabs { display:flex; gap:8px; margin-bottom:16px; }
-  .mt-tab {
-    padding:8px 18px; border-radius:12px; border:none; cursor:pointer;
-    font-size:14px; font-weight:600; background:var(--card-bg); color:var(--text-secondary);
-    transition:all 0.2s; box-shadow:var(--card-shadow);
-  }
-  .mt-tab.active { background:linear-gradient(135deg,#5ba4cf,#4a90c0); color:#fff; }
+  /* math-tabs removed, using chinese-menu style */
   /* ========== 数独 ========== */
-  .sudoku-size-selector { display:flex; gap:8px; margin-bottom:10px; justify-content:center; }
-  .sudoku-size-btn { padding:8px 18px; border-radius:12px; border:2px solid #e0d8c8; background:var(--card-bg); font-size:14px; font-weight:700; cursor:pointer; transition:all 0.15s; }
-  .sudoku-size-btn.active { background:linear-gradient(135deg,#7bc043,#5a9e3a); color:#fff; border-color:#7bc043; }
-  .sudoku-size-btn:hover:not(.active) { border-color:#7bc043; }
-  .sudoku-levels { display:flex; gap:6px; margin-bottom:12px; flex-wrap:wrap; justify-content:center; }
-  .sudoku-lvl-btn { padding:6px 12px; border-radius:10px; border:2px solid #e0d8c8; background:var(--card-bg); font-size:12px; font-weight:700; cursor:pointer; transition:all 0.15s; }
-  .sudoku-lvl-btn.active { background:linear-gradient(135deg,#5ba4cf,#4a90c0); color:#fff; border-color:#5ba4cf; }
-  .sudoku-lvl-btn.locked { opacity:0.4; cursor:not-allowed; }
-  .sudoku-lvl-btn:hover:not(.locked):not(.active) { border-color:#5ba4cf; }
   .sudoku-info { font-size:12px; color:var(--text-secondary); margin-bottom:12px; display:flex; gap:16px; flex-wrap:wrap; }
   .sudoku-info b { color:var(--text); }
   .sudoku-toolbar { display:flex; align-items:center; gap:12px; margin-bottom:16px; }
@@ -1994,9 +1980,17 @@
 <div class="page" id="page-math">
 <main class="main">
   <div class="subject-page-header"><div class="sph-icon">🔢</div><div class="sph-title">数学思维</div></div>
-  <div class="math-tabs">
-    <button class="mt-tab active" onclick="switchMathTab('calc',this)">📝 每日计算</button>
-    <button class="mt-tab" onclick="switchMathTab('sudoku',this)">🔢 数独</button>
+  <div class="chinese-menu">
+    <div class="cm-bread">
+      <span class="breadcrumb-label">数学思维 ›</span>
+      <span class="breadcrumb-item active" onclick="switchMathTab('calc',this)">每日计算</span>
+      <span class="breadcrumb-sep">|</span>
+      <span class="breadcrumb-item" onclick="switchMathTab('sudoku',this)">数独</span>
+    </div>
+    <div id="math-sudoku-filters" style="display:none;">
+      <div class="cm-unit-row" id="sudoku-size-selector"></div>
+      <div class="cm-type-row" id="sudoku-levels"></div>
+    </div>
   </div>
   <div id="math-tab-calc">
   <div id="math-home">
@@ -4781,8 +4775,9 @@ function sk() { return appData.sudoku; }
 function skKey(sz, di) { return sz + '-' + di; }
 
 function switchMathTab(tab, el) {
-  document.querySelectorAll('.mt-tab').forEach(function(t) { t.classList.remove('active'); });
+  document.querySelectorAll('.cm-bread .breadcrumb-item').forEach(function(t) { t.classList.remove('active'); });
   if (el) el.classList.add('active');
+  document.getElementById('math-sudoku-filters').style.display = tab === 'sudoku' ? '' : 'none';
   document.getElementById('math-tab-calc').style.display = tab === 'calc' ? '' : 'none';
   document.getElementById('math-tab-sudoku').style.display = tab === 'sudoku' ? '' : 'none';
   if (tab === 'calc') renderMathPage();
@@ -4795,8 +4790,8 @@ function renderSudokuSizes() {
   el.innerHTML = '';
   var curSize = sk().size || 4;
   SUDOKU_SIZES.forEach(function(sz) {
-    var btn = document.createElement('div');
-    btn.className = 'sudoku-size-btn';
+    var btn = document.createElement('button');
+    btn.className = 'unit-menu-btn';
     if (sz === curSize) btn.classList.add('active');
     btn.textContent = SUDOKU_CONFIG[sz].name;
     btn.onclick = function() { sk().size = sz; saveData(appData); renderSudokuSizes(); renderSudokuLevels(); newSudokuGame(); };
@@ -4813,8 +4808,8 @@ function renderSudokuLevels() {
   var curDiff = (sk().diff && sk().diff[sz]) || 0;
   var unlocked = (sk().unlocked && sk().unlocked[sz]) || 0;
   cfg.diffs.forEach(function(d, i) {
-    var btn = document.createElement('div');
-    btn.className = 'sudoku-lvl-btn';
+    var btn = document.createElement('button');
+    btn.className = 'unit-menu-btn';
     if (i === curDiff) btn.classList.add('active');
     if (i > unlocked) btn.classList.add('locked');
     btn.textContent = d.name;
