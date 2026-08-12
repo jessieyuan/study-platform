@@ -1812,7 +1812,11 @@
   }
   .mt-tab.active { background:linear-gradient(135deg,#5ba4cf,#4a90c0); color:#fff; }
   /* ========== 数独 ========== */
-  .sudoku-levels { display:flex; gap:6px; margin-bottom:12px; flex-wrap:wrap; }
+  .sudoku-size-selector { display:flex; gap:8px; margin-bottom:10px; justify-content:center; }
+  .sudoku-size-btn { padding:8px 18px; border-radius:12px; border:2px solid #e0d8c8; background:var(--card-bg); font-size:14px; font-weight:700; cursor:pointer; transition:all 0.15s; }
+  .sudoku-size-btn.active { background:linear-gradient(135deg,#7bc043,#5a9e3a); color:#fff; border-color:#7bc043; }
+  .sudoku-size-btn:hover:not(.active) { border-color:#7bc043; }
+  .sudoku-levels { display:flex; gap:6px; margin-bottom:12px; flex-wrap:wrap; justify-content:center; }
   .sudoku-lvl-btn { padding:6px 12px; border-radius:10px; border:2px solid #e0d8c8; background:var(--card-bg); font-size:12px; font-weight:700; cursor:pointer; transition:all 0.15s; }
   .sudoku-lvl-btn.active { background:linear-gradient(135deg,#5ba4cf,#4a90c0); color:#fff; border-color:#5ba4cf; }
   .sudoku-lvl-btn.locked { opacity:0.4; cursor:not-allowed; }
@@ -2035,6 +2039,7 @@
   <div id="math-result" style="display:none;"></div>
   </div>
   <div id="math-tab-sudoku" style="display:none;">
+    <div class="sudoku-size-selector" id="sudoku-size-selector"></div>
     <div class="sudoku-levels" id="sudoku-levels"></div>
     <div class="sudoku-info" id="sudoku-info"></div>
     <div class="sudoku-toolbar">
@@ -2432,7 +2437,7 @@ function ensureDataFields() {
   if (typeof appData.craneLevel === 'undefined') appData.craneLevel = 1; // 许愿星级别 1-5
   if (typeof appData.craneClaimedToday === 'undefined') appData.craneClaimedToday = null; // 今日是否已领取
   if (!appData.mathBest) appData.mathBest = { addsub: 0, mul: 0, div: 0, mixed: 0 }; // 速算最高分
-  if (!appData.sudoku) appData.sudoku = { level: 1, unlocked: 1, wins: {}, bestTime: {} }; // 数独进度
+  if (!appData.sudoku) appData.sudoku = { size: 4, diff: {4:0,6:0,9:0}, unlocked: {4:0,6:0,9:0}, wins: {}, bestTime: {} }; // 数独进度
 }
 
 // ---- 数据保存（防抖API同步） ----
@@ -4757,17 +4762,23 @@ function finishMathQuiz() {
 
 
 // ==================== 数独 ====================
-var SUDOKU_LEVELS = [
-  { name: '入门', size: 4, empty: 4, boxR: 2, boxC: 2 },
-  { name: '简单', size: 4, empty: 6, boxR: 2, boxC: 2 },
-  { name: '中等', size: 4, empty: 8, boxR: 2, boxC: 2 },
-  { name: '困难', size: 4, empty: 10, boxR: 2, boxC: 2 },
-  { name: '挑战', size: 6, empty: 12, boxR: 2, boxC: 3 },
-  { name: '专家', size: 6, empty: 16, boxR: 2, boxC: 3 },
-];
+var SUDOKU_CONFIG = {
+  4: { name: '四宫格', boxR: 2, boxC: 2, cellSize: 54, fontSize: 26, diffs: [
+    { name: '入门', empty: 4 }, { name: '简单', empty: 6 }, { name: '中等', empty: 8 }, { name: '困难', empty: 10 }
+  ]},
+  6: { name: '六宫格', boxR: 2, boxC: 3, cellSize: 46, fontSize: 22, diffs: [
+    { name: '入门', empty: 8 }, { name: '简单', empty: 12 }, { name: '中等', empty: 16 }, { name: '困难', empty: 20 }
+  ]},
+  9: { name: '九宫格', boxR: 3, boxC: 3, cellSize: 36, fontSize: 18, diffs: [
+    { name: '入门', empty: 25 }, { name: '简单', empty: 35 }, { name: '中等', empty: 45 }, { name: '困难', empty: 55 }
+  ]},
+};
+var SUDOKU_SIZES = [4, 6, 9];
 var SUDOKU_WINS_TO_UNLOCK = 5;
+var sudokuGame = { solution: [], puzzle: [], user: [], selected: null, startTime: 0, timerId: null, size: 4, boxR: 2, boxC: 2, cellSize: 54, fontSize: 26 };
 
-var sudokuGame = { solution: [], puzzle: [], user: [], selected: null, startTime: 0, timerId: null, size: 4, boxR: 2, boxC: 2 };
+function sk() { return appData.sudoku; }
+function skKey(sz, di) { return sz + '-' + di; }
 
 function switchMathTab(tab, el) {
   document.querySelectorAll('.mt-tab').forEach(function(t) { t.classList.remove('active'); });
@@ -4775,88 +4786,82 @@ function switchMathTab(tab, el) {
   document.getElementById('math-tab-calc').style.display = tab === 'calc' ? '' : 'none';
   document.getElementById('math-tab-sudoku').style.display = tab === 'sudoku' ? '' : 'none';
   if (tab === 'calc') renderMathPage();
-  if (tab === 'sudoku') { renderSudokuLevels(); if (sudokuGame.solution.length === 0) newSudokuGame(); }
+  if (tab === 'sudoku') { renderSudokuSizes(); renderSudokuLevels(); if (sudokuGame.solution.length === 0) newSudokuGame(); }
+}
+
+function renderSudokuSizes() {
+  var el = document.getElementById('sudoku-size-selector');
+  if (!el) return;
+  el.innerHTML = '';
+  var curSize = sk().size || 4;
+  SUDOKU_SIZES.forEach(function(sz) {
+    var btn = document.createElement('div');
+    btn.className = 'sudoku-size-btn';
+    if (sz === curSize) btn.classList.add('active');
+    btn.textContent = SUDOKU_CONFIG[sz].name;
+    btn.onclick = function() { sk().size = sz; saveData(appData); renderSudokuSizes(); renderSudokuLevels(); newSudokuGame(); };
+    el.appendChild(btn);
+  });
 }
 
 function renderSudokuLevels() {
   var el = document.getElementById('sudoku-levels');
   if (!el) return;
   el.innerHTML = '';
-  var cur = appData.sudoku.level || 1;
-  var unlocked = appData.sudoku.unlocked || 1;
-  SUDOKU_LEVELS.forEach(function(lv, i) {
-    var lvl = i + 1;
+  var sz = sk().size || 4;
+  var cfg = SUDOKU_CONFIG[sz];
+  var curDiff = (sk().diff && sk().diff[sz]) || 0;
+  var unlocked = (sk().unlocked && sk().unlocked[sz]) || 0;
+  cfg.diffs.forEach(function(d, i) {
     var btn = document.createElement('div');
     btn.className = 'sudoku-lvl-btn';
-    if (lvl === cur) btn.classList.add('active');
-    if (lvl > unlocked) btn.classList.add('locked');
-    btn.textContent = 'Lv' + lvl + ' ' + lv.name;
+    if (i === curDiff) btn.classList.add('active');
+    if (i > unlocked) btn.classList.add('locked');
+    btn.textContent = d.name;
     btn.onclick = function() {
-      if (lvl > unlocked) return;
-      appData.sudoku.level = lvl;
-      saveData(appData);
-      renderSudokuLevels();
-      newSudokuGame();
+      if (i > unlocked) return;
+      if (!sk().diff) sk().diff = {};
+      sk().diff[sz] = i; saveData(appData); renderSudokuLevels(); newSudokuGame();
     };
     el.appendChild(btn);
   });
-  // 信息栏
   var info = document.getElementById('sudoku-info');
   if (info) {
-    var cfg = SUDOKU_LEVELS[cur - 1];
-    var wins = (appData.sudoku.wins && appData.sudoku.wins[cur]) || 0;
-    var bt = appData.sudoku.bestTime && appData.sudoku.bestTime[cur];
+    var k = skKey(sz, curDiff);
+    var wins = (sk().wins && sk().wins[k]) || 0;
+    var bt = sk().bestTime && sk().bestTime[k];
     var btStr = bt ? Math.floor(bt/60) + ':' + String(bt%60).padStart(2,'0') : '无';
-    info.innerHTML = '<span>当前: <b>' + cfg.name + '</b> (' + cfg.size + 'x' + cfg.size + ')</span>' +
-      '<span>完成: <b>' + wins + '/' + SUDOKU_WINS_TO_UNLOCK + '</b></span>' +
-      '<span>最佳: <b>' + btStr + '</b></span>' +
-      '<span>最高解锁: <b>Lv' + unlocked + '</b></span>';
+    info.innerHTML = '<span>当前: <b>' + cfg.name + ' ' + cfg.diffs[curDiff].name + '</b></span><span>完成: <b>' + wins + '/' + SUDOKU_WINS_TO_UNLOCK + '</b></span><span>最佳: <b>' + btStr + '</b></span>';
   }
 }
 
+function generateSudokuBase(sz) {
+  if (sz === 4) return [[1,2,3,4],[3,4,1,2],[2,1,4,3],[4,3,2,1]];
+  if (sz === 6) return [[1,2,3,4,5,6],[4,5,6,1,2,3],[2,3,1,5,6,4],[5,6,4,2,3,1],[3,1,2,6,4,5],[6,4,5,3,1,2]];
+  var sol = [];
+  for (var i = 0; i < 9; i++) { var row = []; for (var j = 0; j < 9; j++) row.push((i*3 + Math.floor(i/3) + j) % 9 + 1); sol.push(row); }
+  return sol;
+}
+
 function newSudokuGame() {
-  var cur = appData.sudoku.level || 1;
-  var cfg = SUDOKU_LEVELS[cur - 1];
-  var size = cfg.size;
-  sudokuGame.size = size;
-  sudokuGame.boxR = cfg.boxR;
-  sudokuGame.boxC = cfg.boxC;
-  var base4 = [[1,2,3,4],[3,4,1,2],[2,1,4,3],[4,3,2,1]];
-  var base6 = [[1,2,3,4,5,6],[4,5,6,1,2,3],[2,3,1,5,6,4],[5,6,4,2,3,1],[3,1,2,6,4,5],[6,4,5,3,1,2]];
-  var sol = size === 4 ? base4.map(function(r){return r.slice();}) : base6.map(function(r){return r.slice();});
-  // 随机排列数字
+  var sz = sk().size || 4;
+  var cfg = SUDOKU_CONFIG[sz];
+  var di = (sk().diff && sk().diff[sz]) || 0;
+  var diff = cfg.diffs[di];
+  sudokuGame.size = sz; sudokuGame.boxR = cfg.boxR; sudokuGame.boxC = cfg.boxC; sudokuGame.cellSize = cfg.cellSize; sudokuGame.fontSize = cfg.fontSize;
+  var sol = generateSudokuBase(sz);
   var digits = [];
-  for (var i = 1; i <= size; i++) digits.push(i);
+  for (var i = 1; i <= sz; i++) digits.push(i);
   for (var i = digits.length-1; i > 0; i--) { var j = Math.floor(Math.random()*(i+1)); var t = digits[i]; digits[i]=digits[j]; digits[j]=t; }
   sol = sol.map(function(row) { return row.map(function(v) { return digits[v-1]; }); });
-  // 随机交换band内的行
-  var bands = size / cfg.boxR;
-  for (var b = 0; b < bands; b++) {
-    if (Math.random() < 0.5) {
-      var r1 = b * cfg.boxR, r2 = b * cfg.boxR + 1;
-      var tmp = sol[r1]; sol[r1] = sol[r2]; sol[r2] = tmp;
-    }
-  }
-  // 随机交换band
-  if (bands >= 2 && Math.random() < 0.5) {
-    for (var r = 0; r < cfg.boxR; r++) {
-      var tmp = sol[r]; sol[r] = sol[cfg.boxR + r]; sol[cfg.boxR + r] = tmp;
-    }
-  }
-  // 转置
-  if (Math.random() < 0.5) {
-    var tr = [];
-    for (var r = 0; r < size; r++) { tr.push([]); for (var c = 0; c < size; c++) tr[r].push(sol[c][r]); }
-    sol = tr;
-  }
+  var bands = sz / cfg.boxR;
+  for (var b = 0; b < bands; b++) { if (Math.random() < 0.5) { var r1=b*cfg.boxR, r2=b*cfg.boxR+1; var tmp=sol[r1]; sol[r1]=sol[r2]; sol[r2]=tmp; } }
+  if (bands >= 2 && Math.random() < 0.5) { for (var r = 0; r < cfg.boxR; r++) { var tmp=sol[r]; sol[r]=sol[cfg.boxR+r]; sol[cfg.boxR+r]=tmp; } }
+  if (Math.random() < 0.5) { var tr = []; for (var r = 0; r < sz; r++) { tr.push([]); for (var c = 0; c < sz; c++) tr[r].push(sol[c][r]); } sol = tr; }
   sudokuGame.solution = sol;
-  // 挖空
   var puzzle = sol.map(function(r) { return r.slice(); });
   var removed = 0;
-  while (removed < cfg.empty) {
-    var rr = Math.floor(Math.random()*size), cc = Math.floor(Math.random()*size);
-    if (puzzle[rr][cc] !== 0) { puzzle[rr][cc] = 0; removed++; }
-  }
+  while (removed < diff.empty) { var rr = Math.floor(Math.random()*sz), cc = Math.floor(Math.random()*sz); if (puzzle[rr][cc] !== 0) { puzzle[rr][cc] = 0; removed++; } }
   sudokuGame.puzzle = puzzle;
   sudokuGame.user = puzzle.map(function(r) { return r.slice(); });
   sudokuGame.selected = null;
@@ -4874,55 +4879,49 @@ function startSudokuTimer() {
     var m = String(Math.floor(elapsed/60)).padStart(2,'0');
     var s = String(elapsed%60).padStart(2,'0');
     var el = document.getElementById('sudoku-timer');
-    if (el) el.textContent = '⏱ ' + m + ':' + s;
+    if (el) el.textContent = '\u23f1 ' + m + ':' + s;
   }, 500);
 }
 
 function renderSudoku() {
-  var size = sudokuGame.size;
+  var sz = sudokuGame.size;
   var gridEl = document.getElementById('sudoku-grid');
   gridEl.innerHTML = '';
-  gridEl.style.gridTemplateColumns = 'repeat(' + size + ', auto)';
-  for (var r = 0; r < size; r++) {
-    for (var c = 0; c < size; c++) {
+  gridEl.style.gridTemplateColumns = 'repeat(' + sz + ', auto)';
+  for (var r = 0; r < sz; r++) {
+    for (var c = 0; c < sz; c++) {
       var cell = document.createElement('div');
       cell.className = 'sudoku-cell';
-      if (size === 6) { cell.style.width = '46px'; cell.style.height = '46px'; cell.style.fontSize = '22px'; }
+      cell.style.width = sudokuGame.cellSize + 'px';
+      cell.style.height = sudokuGame.cellSize + 'px';
+      cell.style.fontSize = sudokuGame.fontSize + 'px';
       var val = sudokuGame.user[r][c];
-      if (sudokuGame.puzzle[r][c] !== 0) {
-        cell.classList.add('given');
-        cell.textContent = val;
-      } else {
-        cell.textContent = val || '';
-        cell.onclick = (function(rr, cc) { return function() { selectSudokuCell(rr, cc); }; })(r, c);
-      }
-      if (sudokuGame.selected && sudokuGame.selected[0] === r && sudokuGame.selected[1] === c) {
-        cell.classList.add('selected');
-      }
-      if (val && sudokuGame.selected && sudokuGame.user[sudokuGame.selected[0]][sudokuGame.selected[1]] === val) {
-        cell.classList.add('same-num');
-      }
-      // box分隔
-      if ((c + 1) % sudokuGame.boxC === 0 && c < size - 1) cell.style.marginRight = '3px';
-      if ((r + 1) % sudokuGame.boxR === 0 && r < size - 1) cell.style.marginBottom = '3px';
+      if (sudokuGame.puzzle[r][c] !== 0) { cell.classList.add('given'); cell.textContent = val; }
+      else { cell.textContent = val || ''; cell.onclick = (function(rr, cc) { return function() { selectSudokuCell(rr, cc); }; })(r, c); }
+      if (sudokuGame.selected && sudokuGame.selected[0] === r && sudokuGame.selected[1] === c) cell.classList.add('selected');
+      if (val && sudokuGame.selected && sudokuGame.user[sudokuGame.selected[0]][sudokuGame.selected[1]] === val) cell.classList.add('same-num');
+      if ((c + 1) % sudokuGame.boxC === 0 && c < sz - 1) cell.style.marginRight = '3px';
+      if ((r + 1) % sudokuGame.boxR === 0 && r < sz - 1) cell.style.marginBottom = '3px';
       gridEl.appendChild(cell);
     }
   }
-  // 数字键盘 - 彩色大按钮
-  var keyColors = ['#e85555','#f0a020','#f5c842','#7bc043','#5ba4cf','#c77fd0'];
+  var keyColors = ['#e85555','#f0a020','#f5c842','#7bc043','#5ba4cf','#c77fd0','#e85555','#f0a020','#f5c842'];
   var padEl = document.getElementById('sudoku-numpad');
   padEl.innerHTML = '';
-  for (var n = 1; n <= size; n++) {
+  var keySize = sz <= 4 ? 52 : (sz <= 6 ? 46 : 38);
+  for (var n = 1; n <= sz; n++) {
     var key = document.createElement('div');
     key.className = 'sudoku-key';
     key.textContent = n;
-    key.style.background = keyColors[n - 1];
+    key.style.background = keyColors[(n-1) % 9];
+    key.style.width = keySize + 'px'; key.style.height = keySize + 'px'; key.style.fontSize = (keySize - 8) + 'px';
     key.onclick = (function(nn) { return function() { inputSudokuDigit(nn); }; })(n);
     padEl.appendChild(key);
   }
   var erase = document.createElement('div');
   erase.className = 'sudoku-key erase';
-  erase.textContent = '⌫';
+  erase.textContent = '\u232b';
+  erase.style.width = keySize + 'px'; erase.style.height = keySize + 'px';
   erase.onclick = function() { inputSudokuDigit(0); };
   padEl.appendChild(erase);
 }
@@ -4943,39 +4942,34 @@ function inputSudokuDigit(d) {
 }
 
 function checkSudokuComplete() {
-  var size = sudokuGame.size;
-  for (var r = 0; r < size; r++) {
-    for (var c = 0; c < size; c++) {
-      if (sudokuGame.user[r][c] === 0) return;
-    }
-  }
+  var sz = sudokuGame.size;
+  for (var r = 0; r < sz; r++) for (var c = 0; c < sz; c++) if (sudokuGame.user[r][c] === 0) return;
   var correct = true;
-  for (var r = 0; r < size; r++) {
-    for (var c = 0; c < size; c++) {
-      if (sudokuGame.user[r][c] !== sudokuGame.solution[r][c]) { correct = false; break; }
-    }
-  }
+  for (var r = 0; r < sz; r++) for (var c = 0; c < sz; c++) if (sudokuGame.user[r][c] !== sudokuGame.solution[r][c]) { correct = false; break; }
   var msgEl = document.getElementById('sudoku-msg');
   if (correct) {
     clearInterval(sudokuGame.timerId);
     var elapsed = Math.floor((Date.now() - sudokuGame.startTime) / 1000);
-    var cur = appData.sudoku.level || 1;
-    if (!appData.sudoku.wins) appData.sudoku.wins = {};
-    if (!appData.sudoku.bestTime) appData.sudoku.bestTime = {};
-    appData.sudoku.wins[cur] = (appData.sudoku.wins[cur] || 0) + 1;
-    var isBest = !appData.sudoku.bestTime[cur] || elapsed < appData.sudoku.bestTime[cur];
-    if (isBest) appData.sudoku.bestTime[cur] = elapsed;
-    var unlocked = appData.sudoku.unlocked || 1;
+    var sz2 = sk().size || 4;
+    var di = (sk().diff && sk().diff[sz2]) || 0;
+    var k = skKey(sz2, di);
+    if (!sk().wins) sk().wins = {};
+    if (!sk().bestTime) sk().bestTime = {};
+    sk().wins[k] = (sk().wins[k] || 0) + 1;
+    var isBest = !sk().bestTime[k] || elapsed < sk().bestTime[k];
+    if (isBest) sk().bestTime[k] = elapsed;
+    if (!sk().unlocked) sk().unlocked = {};
+    var unlocked = sk().unlocked[sz2] || 0;
     var leveledUp = false;
-    if (appData.sudoku.wins[cur] >= SUDOKU_WINS_TO_UNLOCK && cur === unlocked && unlocked < SUDOKU_LEVELS.length) {
-      appData.sudoku.unlocked = unlocked + 1;
+    if (sk().wins[k] >= SUDOKU_WINS_TO_UNLOCK && di === unlocked && unlocked < SUDOKU_CONFIG[sz2].diffs.length - 1) {
+      sk().unlocked[sz2] = unlocked + 1;
       leveledUp = true;
     }
     saveData(appData);
     var timeStr = Math.floor(elapsed/60) + ':' + String(elapsed%60).padStart(2,'0');
-    var msg = '🎉 完成了！用时 ' + timeStr;
+    var msg = '\u2728 完成了！用时 ' + timeStr;
     if (isBest) msg += ' 新纪录！';
-    if (leveledUp) msg += ' 解锁 Lv' + appData.sudoku.unlocked + ' ' + SUDOKU_LEVELS[appData.sudoku.unlocked - 1].name + '！';
+    if (leveledUp) msg += ' 解锁 ' + SUDOKU_CONFIG[sz2].diffs[unlocked + 1].name + '难度！';
     msgEl.textContent = msg;
     msgEl.className = 'sudoku-msg ok';
     renderSudokuLevels();
