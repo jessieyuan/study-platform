@@ -1802,6 +1802,45 @@
   .mp-review-item.ok .mp-review-mark { color:#5a9e3a; }
   .mp-review-item.no .mp-review-mark { color:#d44545; }
   .mp-review-user { font-size:11px; color:#d44545; }
+
+  /* ========== 数学分级菜单 ========== */
+  .math-tabs { display:flex; gap:8px; margin-bottom:16px; }
+  .mt-tab {
+    padding:8px 18px; border-radius:12px; border:none; cursor:pointer;
+    font-size:14px; font-weight:600; background:var(--card-bg); color:var(--text-secondary);
+    transition:all 0.2s; box-shadow:var(--card-shadow);
+  }
+  .mt-tab.active { background:linear-gradient(135deg,#5ba4cf,#4a90c0); color:#fff; }
+  /* ========== 数独 ========== */
+  .sudoku-toolbar { display:flex; align-items:center; gap:12px; margin-bottom:16px; }
+  .sudoku-btn { padding:8px 16px; border-radius:10px; border:none; cursor:pointer; font-size:13px; font-weight:700; background:linear-gradient(135deg,#5ba4cf,#4a90c0); color:#fff; }
+  .sudoku-btn:active { transform:scale(0.95); }
+  .sudoku-timer { font-size:15px; font-weight:700; color:#5ba4cf; }
+  .sudoku-best { font-size:12px; color:#b08020; font-weight:600; margin-left:auto; }
+  .sudoku-grid { display:grid; gap:2px; margin:0 auto 16px; width:fit-content; background:#5ba4cf; padding:3px; border-radius:8px; }
+  .sudoku-cell {
+    width:48px; height:48px; display:flex; align-items:center; justify-content:center;
+    font-size:22px; font-weight:700; cursor:pointer; background:#fff; border-radius:4px;
+    transition:background 0.15s; user-select:none;
+  }
+  .sudoku-cell.given { background:#f0e8d8; color:#8a6d2e; cursor:default; }
+  .sudoku-cell.selected { background:#d0e8ff; box-shadow:0 0 0 2px #5ba4cf inset; }
+  .sudoku-cell.same-num { background:#e8f0fe; }
+  .sudoku-cell.error { background:#ffe0e0; color:#d44545; }
+  .sudoku-cell.box-sep { margin-right:2px; }
+  .sudoku-cell.row-sep { margin-bottom:2px; }
+  .sudoku-numpad { display:flex; gap:8px; justify-content:center; margin-bottom:12px; }
+  .sudoku-key {
+    width:44px; height:44px; border-radius:10px; border:2px solid #e0d8c8; background:var(--card-bg);
+    font-size:20px; font-weight:800; cursor:pointer; display:flex; align-items:center; justify-content:center;
+    transition:all 0.12s;
+  }
+  .sudoku-key:hover { border-color:#5ba4cf; background:#e8f0fe; }
+  .sudoku-key:active { transform:scale(0.92); }
+  .sudoku-key.erase { font-size:16px; color:#d44545; }
+  .sudoku-msg { text-align:center; font-size:14px; font-weight:600; min-height:20px; }
+  .sudoku-msg.ok { color:#5a9e3a; }
+  .sudoku-msg.err { color:#d44545; }
   .mp-result-card { text-align:center; padding:24px; }
   .mp-result-card .mp-result-score { font-size:48px; font-weight:800; color:#f0a020; margin:8px 0; }
   .mp-result-card .mp-result-label { font-size:14px; color:var(--text-secondary); margin-bottom:16px; }
@@ -1945,6 +1984,11 @@
 <div class="page" id="page-math">
 <main class="main">
   <div class="subject-page-header"><div class="sph-icon">🔢</div><div class="sph-title">数学思维</div></div>
+  <div class="math-tabs">
+    <button class="mt-tab active" onclick="switchMathTab('calc',this)">📝 每日计算</button>
+    <button class="mt-tab" onclick="switchMathTab('sudoku',this)">🔢 数独</button>
+  </div>
+  <div id="math-tab-calc">
   <div id="math-home">
     <div class="math-modes">
       <div class="math-mode-card" onclick="startMentalMath('addsub')">
@@ -1983,6 +2027,17 @@
     <div class="mp-answers" id="mp-answers"></div>
   </div>
   <div id="math-result" style="display:none;"></div>
+  </div>
+  <div id="math-tab-sudoku" style="display:none;">
+    <div class="sudoku-toolbar">
+      <button class="sudoku-btn" onclick="newSudokuGame()">🔄 新游戏</button>
+      <div class="sudoku-timer" id="sudoku-timer">⏱ 00:00</div>
+      <div class="sudoku-best" id="sudoku-best"></div>
+    </div>
+    <div class="sudoku-grid" id="sudoku-grid"></div>
+    <div class="sudoku-numpad" id="sudoku-numpad"></div>
+    <div class="sudoku-msg" id="sudoku-msg"></div>
+  </div>
 </main></div>
 
 <!-- 英语 -->
@@ -2368,6 +2423,7 @@ function ensureDataFields() {
   if (typeof appData.craneLevel === 'undefined') appData.craneLevel = 1; // 许愿星级别 1-5
   if (typeof appData.craneClaimedToday === 'undefined') appData.craneClaimedToday = null; // 今日是否已领取
   if (!appData.mathBest) appData.mathBest = { addsub: 0, mul: 0, div: 0, mixed: 0 }; // 速算最高分
+  if (typeof appData.sudokuBest !== 'number' && !appData.sudokuBest) appData.sudokuBest = null; // 数独最佳时间
 }
 
 // ---- 数据保存（防抖API同步） ----
@@ -4688,6 +4744,158 @@ function finishMathQuiz() {
     '<button class="mp-btn primary" onclick="startMentalMath(\'' + mode + '\')">再来一次</button>' +
     '<button class="mp-btn secondary" onclick="renderMathPage()">返回选择</button>' +
     '</div></div>';
+}
+
+
+// ==================== 数独 ====================
+if (!appData.sudokuBest) appData.sudokuBest = null; // 最佳完成时间(秒)
+
+var sudokuGame = { solution: [], puzzle: [], user: [], selected: null, startTime: 0, timerId: null, size: 4 };
+
+function switchMathTab(tab, el) {
+  document.querySelectorAll('.mt-tab').forEach(function(t) { t.classList.remove('active'); });
+  if (el) el.classList.add('active');
+  document.getElementById('math-tab-calc').style.display = tab === 'calc' ? '' : 'none';
+  document.getElementById('math-tab-sudoku').style.display = tab === 'sudoku' ? '' : 'none';
+  if (tab === 'calc') renderMathPage();
+  if (tab === 'sudoku' && sudokuGame.solution.length === 0) newSudokuGame();
+}
+
+function newSudokuGame() {
+  var base = [[1,2,3,4],[3,4,1,2],[2,1,4,3],[4,3,2,1]];
+  // 随机排列数字
+  var digits = [1,2,3,4];
+  for (var i = digits.length-1; i > 0; i--) { var j = Math.floor(Math.random()*(i+1)); var t = digits[i]; digits[i]=digits[j]; digits[j]=t; }
+  var sol = base.map(function(row) { return row.map(function(v) { return digits[v-1]; }); });
+  // 随机交换band内的行
+  if (Math.random() < 0.5) { var tmp = sol[0]; sol[0]=sol[1]; sol[1]=tmp; }
+  if (Math.random() < 0.5) { var tmp = sol[2]; sol[2]=sol[3]; sol[3]=tmp; }
+  // 随机交换band
+  if (Math.random() < 0.5) { var tmp = [sol[0],sol[1]]; sol[0]=sol[2]; sol[1]=sol[3]; sol[2]=tmp[0]; sol[3]=tmp[1]; }
+  // 转置
+  if (Math.random() < 0.5) {
+    var tr = [];
+    for (var r = 0; r < 4; r++) { tr.push([]); for (var c = 0; c < 4; c++) tr[r].push(sol[c][r]); }
+    sol = tr;
+  }
+  sudokuGame.solution = sol;
+  // 随机挖空约8格
+  var puzzle = sol.map(function(r) { return r.slice(); });
+  var removed = 0;
+  while (removed < 8) {
+    var rr = Math.floor(Math.random()*4), cc = Math.floor(Math.random()*4);
+    if (puzzle[rr][cc] !== 0) { puzzle[rr][cc] = 0; removed++; }
+  }
+  sudokuGame.puzzle = puzzle;
+  sudokuGame.user = puzzle.map(function(r) { return r.slice(); });
+  sudokuGame.selected = null;
+  sudokuGame.startTime = Date.now();
+  var msgEl = document.getElementById('sudoku-msg');
+  if (msgEl) { msgEl.textContent = ''; msgEl.className = 'sudoku-msg'; }
+  startSudokuTimer();
+  renderSudoku();
+}
+
+function startSudokuTimer() {
+  if (sudokuGame.timerId) clearInterval(sudokuGame.timerId);
+  sudokuGame.timerId = setInterval(function() {
+    var elapsed = Math.floor((Date.now() - sudokuGame.startTime) / 1000);
+    var m = String(Math.floor(elapsed/60)).padStart(2,'0');
+    var s = String(elapsed%60).padStart(2,'0');
+    var el = document.getElementById('sudoku-timer');
+    if (el) el.textContent = '⏱ ' + m + ':' + s;
+  }, 500);
+}
+
+function renderSudoku() {
+  var gridEl = document.getElementById('sudoku-grid');
+  gridEl.innerHTML = '';
+  gridEl.style.gridTemplateColumns = 'repeat(4, auto)';
+  for (var r = 0; r < 4; r++) {
+    for (var c = 0; c < 4; c++) {
+      var cell = document.createElement('div');
+      cell.className = 'sudoku-cell';
+      var val = sudokuGame.user[r][c];
+      if (sudokuGame.puzzle[r][c] !== 0) {
+        cell.classList.add('given');
+        cell.textContent = val;
+      } else {
+        cell.textContent = val || '';
+        cell.onclick = (function(rr, cc) { return function() { selectSudokuCell(rr, cc); }; })(r, c);
+      }
+      if (sudokuGame.selected && sudokuGame.selected[0] === r && sudokuGame.selected[1] === c) {
+        cell.classList.add('selected');
+      }
+      if (val && sudokuGame.selected && sudokuGame.user[sudokuGame.selected[0]][sudokuGame.selected[1]] === val) {
+        cell.classList.add('same-num');
+      }
+      // box分隔
+      if (c === 1) cell.style.marginRight = '3px';
+      if (r === 1) cell.style.marginBottom = '3px';
+      gridEl.appendChild(cell);
+    }
+  }
+  // 数字键盘
+  var padEl = document.getElementById('sudoku-numpad');
+  padEl.innerHTML = '';
+  for (var n = 1; n <= 4; n++) {
+    var key = document.createElement('div');
+    key.className = 'sudoku-key';
+    key.textContent = n;
+    key.onclick = (function(nn) { return function() { inputSudokuDigit(nn); }; })(n);
+    padEl.appendChild(key);
+  }
+  var erase = document.createElement('div');
+  erase.className = 'sudoku-key erase';
+  erase.textContent = '⌫';
+  erase.onclick = function() { inputSudokuDigit(0); };
+  padEl.appendChild(erase);
+  // 最佳时间
+  var bestEl = document.getElementById('sudoku-best');
+  if (bestEl) bestEl.textContent = appData.sudokuBest ? '🏆 最佳: ' + Math.floor(appData.sudokuBest/60) + ':' + String(appData.sudokuBest%60).padStart(2,'0') : '';
+}
+
+function selectSudokuCell(r, c) {
+  if (sudokuGame.puzzle[r][c] !== 0) return;
+  sudokuGame.selected = [r, c];
+  renderSudoku();
+}
+
+function inputSudokuDigit(d) {
+  if (!sudokuGame.selected) return;
+  var r = sudokuGame.selected[0], c = sudokuGame.selected[1];
+  if (sudokuGame.puzzle[r][c] !== 0) return;
+  sudokuGame.user[r][c] = d;
+  renderSudoku();
+  checkSudokuComplete();
+}
+
+function checkSudokuComplete() {
+  for (var r = 0; r < 4; r++) {
+    for (var c = 0; c < 4; c++) {
+      if (sudokuGame.user[r][c] === 0) return;
+    }
+  }
+  // 全填满了，检查是否正确
+  var correct = true;
+  for (var r = 0; r < 4; r++) {
+    for (var c = 0; c < 4; c++) {
+      if (sudokuGame.user[r][c] !== sudokuGame.solution[r][c]) { correct = false; break; }
+    }
+  }
+  var msgEl = document.getElementById('sudoku-msg');
+  if (correct) {
+    clearInterval(sudokuGame.timerId);
+    var elapsed = Math.floor((Date.now() - sudokuGame.startTime) / 1000);
+    var isBest = !appData.sudokuBest || elapsed < appData.sudokuBest;
+    if (isBest) { appData.sudokuBest = elapsed; saveData(appData); }
+    msgEl.textContent = '🎉 完成了！用时 ' + Math.floor(elapsed/60) + ':' + String(elapsed%60).padStart(2,'0') + (isBest ? ' 新纪录！' : '');
+    msgEl.className = 'sudoku-msg ok';
+    renderSudoku();
+  } else {
+    msgEl.textContent = '还没对哦，再检查检查~';
+    msgEl.className = 'sudoku-msg err';
+  }
 }
 
 // 页面加载时尝试自动登录
