@@ -1824,8 +1824,8 @@
   .sudoku-btn:active { transform:scale(0.95); }
   .sudoku-timer { font-size:15px; font-weight:700; color:#5ba4cf; }
   .sudoku-best { font-size:12px; color:#b08020; font-weight:600; margin-left:auto; }
-  .sudoku-play-area { position:relative; display:flex; justify-content:center; margin-bottom:16px; }
-  .sudoku-grid { display:grid; gap:2px; width:fit-content; background:#5ba4cf; padding:3px; border-radius:8px; position:relative; z-index:1; }
+  .sudoku-play-area { display:flex; flex-direction:row; justify-content:center; align-items:center; gap:20px; margin-bottom:16px; flex-wrap:wrap; }
+  .sudoku-grid { display:grid; gap:2px; width:fit-content; background:#5ba4cf; padding:3px; border-radius:8px; }
   .sudoku-cell {
     width:48px; height:48px; display:flex; align-items:center; justify-content:center;
     font-size:22px; font-weight:700; cursor:pointer; background:#fff; border-radius:4px;
@@ -1838,19 +1838,16 @@
   .sudoku-cell.box-sep { margin-right:2px; }
   .sudoku-cell.row-sep { margin-bottom:2px; }
   .sudoku-numpad {
-    position:absolute; display:flex; flex-direction:column; gap:4px; z-index:10;
-    background:var(--card-bg); padding:6px; border-radius:12px; box-shadow:0 4px 16px rgba(0,0,0,0.15);
-    animation:sudokuPop 0.15s ease-out;
+    display:grid; gap:6px; padding:10px; border-radius:14px; background:var(--card-bg); box-shadow:var(--card-shadow);
   }
-  @keyframes sudokuPop { from { opacity:0; transform:scale(0.8); } to { opacity:1; transform:scale(1); } }
   .sudoku-key {
-    width:36px; height:36px; border-radius:8px; border:2px solid #e0d8c8; background:var(--card-bg);
-    font-size:18px; font-weight:800; cursor:pointer; display:flex; align-items:center; justify-content:center;
+    width:42px; height:42px; border-radius:10px; border:2px solid #e0d8c8; background:#fff;
+    font-size:20px; font-weight:800; cursor:pointer; display:flex; align-items:center; justify-content:center;
     transition:all 0.12s;
   }
-  .sudoku-key:hover { border-color:#5ba4cf; background:#e8f0fe; }
+  .sudoku-key:hover { border-color:#5ba4cf; background:#e8f0fe; transform:scale(1.05); }
   .sudoku-key:active { transform:scale(0.92); }
-  .sudoku-key.erase { font-size:14px; color:#d44545; }
+  .sudoku-key.erase { font-size:16px; color:#d44545; grid-column:span 2; }
   .sudoku-msg { text-align:center; font-size:14px; font-weight:600; min-height:20px; }
   .sudoku-msg.ok { color:#5a9e3a; }
   .sudoku-msg.err { color:#d44545; }
@@ -4930,37 +4927,9 @@ function renderSudoku() {
   erase.textContent = '⌫';
   erase.onclick = function() { inputSudokuDigit(0); };
   padEl.appendChild(erase);
-  // 定位数字键盘到选中格子旁边
-  positionSudokuNumpad();
-}
-
-function positionSudokuNumpad() {
-  var padEl = document.getElementById('sudoku-numpad');
-  if (!padEl) return;
-  if (!sudokuGame.selected) { padEl.style.display = 'none'; return; }
-  padEl.style.display = '';
-  var sr = sudokuGame.selected[0], sc = sudokuGame.selected[1];
-  var cells = document.querySelectorAll('.sudoku-cell');
-  var idx = sr * sudokuGame.size + sc;
-  var cell = cells[idx];
-  if (!cell) { padEl.style.display = 'none'; return; }
-  var gridEl = document.getElementById('sudoku-grid');
-  var playArea = document.getElementById('sudoku-play-area');
-  var cellRect = cell.getBoundingClientRect();
-  var areaRect = playArea.getBoundingClientRect();
-  var padW = padEl.offsetWidth;
-  var padH = padEl.offsetHeight;
-  var left = cell.offsetLeft + cell.offsetWidth + 6;
-  // 右边放不下就放左边
-  if (left + padW > gridEl.offsetLeft + gridEl.offsetWidth + 10) {
-    left = cell.offsetLeft - padW - 6;
-  }
-  var top = cell.offsetTop - 4;
-  // 底部超出就上移
-  if (top + padH > gridEl.offsetHeight) top = gridEl.offsetHeight - padH;
-  if (top < 0) top = 0;
-  padEl.style.left = left + 'px';
-  padEl.style.top = top + 'px';
+  // 根据网格大小设置键盘列数
+  var cols = sudokuGame.size <= 4 ? 2 : 3;
+  padEl.style.gridTemplateColumns = 'repeat(' + cols + ', 1fr)';
 }
 
 function selectSudokuCell(r, c) {
