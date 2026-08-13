@@ -1759,9 +1759,9 @@
   /* ========== 数学思维速算 ========== */
   .math-modes { display:grid; grid-template-columns:repeat(2,1fr); gap:14px; margin-bottom:16px; }
   .math-mode-card {
-    background:var(--card-bg); border-radius:18px; padding:18px 12px; text-align:center;
+    background:var(--card-bg); border-radius:18px; padding:16px 12px; text-align:center;
     cursor:pointer; transition:transform 0.2s, box-shadow 0.2s; border:2px solid transparent;
-    display:flex; flex-direction:column; align-items:center; gap:6px;
+    display:flex; flex-direction:column; align-items:center; justify-content:center; gap:6px; aspect-ratio:1;
   }
   .math-mode-card:hover { transform:translateY(-3px); box-shadow:0 8px 24px rgba(91,164,207,0.15); border-color:#5ba4cf; }
   .math-mode-card:active { transform:scale(0.97); }
