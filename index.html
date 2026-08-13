@@ -1807,6 +1807,22 @@
   /* ========== 数学分级菜单 ========== */
   /* math-tabs removed, using chinese-menu style */
 
+
+  /* ========== 课文巩固 ========== */
+  .con-lesson-list { display:flex; flex-direction:column; gap:10px; }
+  .con-lesson-card {
+    display:flex; align-items:center; gap:12px; padding:12px 16px;
+    background:var(--card-bg); border-radius:14px; box-shadow:var(--card-shadow);
+  }
+  .con-lesson-name { font-size:15px; font-weight:700; color:var(--text); min-width:140px; }
+  .con-part-btn {
+    padding:6px 16px; border-radius:10px; border:2px solid #f0e4c0;
+    background:#faf5e8; font-size:13px; font-weight:600; color:#8a7a5e;
+    cursor:pointer; transition:0.2s; font-family:inherit;
+  }
+  .con-part-btn:hover { border-color:#f0a020; background:#fff8e0; color:#f0a020; }
+  .con-part-btn:active { transform:scale(0.95); }
+
   /* ========== 2048 游戏 ========== */
   .game2048-wrap { display:flex; flex-direction:column; align-items:center; gap:14px; }
   .game2048-header { display:flex; gap:12px; align-items:center; }
@@ -1998,9 +2014,14 @@
   <div class="chinese-menu">
     <div class="cm-bread">
       <span class="breadcrumb-label">语文殿堂 ›</span>
-      <span class="breadcrumb-item active" id="bread-backmo" onclick="switchChineseView('backmo',this)">同步背默单</span>
+      <span class="breadcrumb-item active" id="bread-consolidate" onclick="switchChineseView('consolidate',this)">课文巩固</span>
+      <span class="breadcrumb-sep">|</span>
+      <span class="breadcrumb-item" id="bread-backmo" onclick="switchChineseView('backmo',this)">同步背默单</span>
       <span class="breadcrumb-sep">|</span>
       <span class="breadcrumb-item" id="bread-reading" onclick="switchChineseView('reading',this)">阅读理解</span>
+    </div>
+    <div id="cm-consolidate-filters" style="display:none;">
+      <div class="cm-unit-row" id="con-unit-row"></div>
     </div>
     <div id="cm-filters" style="display:none;">
       <div class="cm-unit-row" id="cm-unit-row"></div>
@@ -2010,6 +2031,7 @@
       <div class="unit-menu-btn active" onclick="switchReadingUnit('all')">全部</div>
     </div>
   </div>
+  <div id="consolidate-content"></div>
   <div id="chinese-content"></div>
 </main></div>
 
@@ -2477,10 +2499,11 @@ function ensureDataFields() {
   if (!appData.currentLessonMode) appData.currentLessonMode = 'read';
   if (typeof appData.showPinyin !== 'boolean') appData.showPinyin = true;
   if (typeof appData.showTranslation !== 'boolean') appData.showTranslation = true;
- if (!appData.chineseView) appData.chineseView = 'backmo';
+ if (!appData.chineseView) appData.chineseView = 'consolidate';
   if (typeof appData.cranes === 'undefined') appData.cranes = 0; // 许愿星数量
   if (typeof appData.craneLevel === 'undefined') appData.craneLevel = 1; // 许愿星级别 1-5
-  if (typeof appData.craneClaimedToday === 'undefined') appData.craneClaimedToday = null; // 今日是否已领取
+  if (typeof appData.craneClaimedToday === 'undefined') appData.craneClaimedToday = null;
+  if (typeof appData.conUnit === 'undefined') appData.conUnit = 1; // 课文巩固当前单元 // 今日是否已领取
   if (!appData.mathBest) appData.mathBest = { addsub: 0, mul: 0, div: 0, mixed: 0 }; // 速算最高分
   if (!appData.sudoku) appData.sudoku = { size: 4, diff: {4:0,6:0,9:0}, unlocked: {4:0,6:0,9:0}, wins: {}, bestTime: {} }; // 数独进度
   if (typeof appData.best2048 !== 'number') appData.best2048 = 0; // 2048最高分
@@ -2539,7 +2562,7 @@ if (!appData.selectedLessonId) appData.selectedLessonId = null;
 if (!appData.currentLessonMode) appData.currentLessonMode = 'read';
 if (typeof appData.showPinyin !== 'boolean') appData.showPinyin = true;
 if (typeof appData.showTranslation !== 'boolean') appData.showTranslation = true;
-if (!appData.chineseView) appData.chineseView = 'backmo';
+if (!appData.chineseView) appData.chineseView = 'consolidate';
 
 var LESSONS = [
   { id:'l1', unit:1, type:'古诗', title:'题临安邸', pinyin:'tí lín ān dǐ', author:'林升',
@@ -2671,12 +2694,129 @@ var READING_EXERCISES = [
 // ==================== 语文殿堂渲染 ====================
 function switchChineseView(view, el) {
   appData.chineseView = view;
+  document.getElementById('bread-consolidate').classList.toggle('active', view === 'consolidate');
   document.getElementById('bread-backmo').classList.toggle('active', view === 'backmo');
   document.getElementById('bread-reading').classList.toggle('active', view === 'reading');
+  document.getElementById('cm-consolidate-filters').style.display = view === 'consolidate' ? '' : 'none';
   document.getElementById('cm-filters').style.display = view === 'backmo' ? '' : 'none';
   document.getElementById('cm-reading-nav').style.display = view === 'reading' ? '' : 'none';
-  if (view === 'backmo') renderChinesePage();
+  document.getElementById('consolidate-content').style.display = view === 'consolidate' ? '' : 'none';
+  document.getElementById('chinese-content').style.display = view === 'consolidate' ? 'none' : '';
+  if (view === 'consolidate') renderConsolidatePage();
+  else if (view === 'backmo') renderChinesePage();
   else renderReadingList('all');
+}
+
+
+// ==================== 课文巩固 ====================
+var CONSOLIDATE_UNITS = [
+  { id: 1, name: '第一单元', type: '课文', lessons: [
+    { name: '小蛤蟆找妈妈', parts: ['一','二'] },
+    { name: '我是什么', parts: ['一','二'] },
+    { name: '植物妈妈有办法', parts: ['一','二'] },
+    { name: '语文园地一', parts: ['一','二'] },
+    { name: '单元复习默写', parts: [] },
+  ]},
+  { id: 2, name: '第二单元', type: '识字', lessons: [
+    { name: '场景歌', parts: ['一','二'] },
+    { name: '树之歌', parts: ['一','二'] },
+    { name: '拍手歌', parts: ['一','二'] },
+    { name: '田家四季歌', parts: ['一','二'] },
+    { name: '语文园地二', parts: ['一','二'] },
+    { name: '单元复习默写', parts: [] },
+  ]},
+  { id: 3, name: '第三单元', type: '课文', lessons: [
+    { name: '曹冲称象', parts: ['一','二'] },
+    { name: '玲玲的画', parts: ['一','二'] },
+    { name: '一封信', parts: ['一','二'] },
+    { name: '妈妈睡了', parts: ['一','二'] },
+    { name: '语文园地三', parts: ['一','二'] },
+    { name: '单元复习默写', parts: [] },
+  ]},
+  { id: 4, name: '第四单元', type: '课文', lessons: [
+    { name: '古诗二首', parts: ['一','二'] },
+    { name: '黄山奇石', parts: ['一','二'] },
+    { name: '日月潭', parts: ['一','二'] },
+    { name: '葡萄沟', parts: ['一','二'] },
+    { name: '语文园地四', parts: ['一','二'] },
+    { name: '单元复习默写', parts: [] },
+  ]},
+  { id: 5, name: '第五单元', type: '课文', lessons: [
+    { name: '坐井观天', parts: ['一','二'] },
+    { name: '寒号鸟', parts: ['一','二'] },
+    { name: '我要的是葫芦', parts: ['一','二'] },
+    { name: '语文园地五', parts: ['一','二'] },
+    { name: '单元复习默写', parts: [] },
+  ]},
+  { id: 6, name: '第六单元', type: '课文', lessons: [
+    { name: '八角楼上', parts: ['一','二'] },
+    { name: '朱德的扁担', parts: ['一','二'] },
+    { name: '难忘的泼水节', parts: ['一','二'] },
+    { name: '刘胡兰', parts: ['一','二'] },
+    { name: '语文园地六', parts: ['一','二'] },
+    { name: '单元复习默写', parts: [] },
+  ]},
+  { id: 7, name: '第七单元', type: '课文', lessons: [
+    { name: '古诗二首', parts: ['一','二'] },
+    { name: '雾在哪里', parts: ['一','二'] },
+    { name: '雪孩子', parts: ['一','二'] },
+    { name: '语文园地七', parts: ['一','二'] },
+    { name: '单元复习默写', parts: [] },
+  ]},
+  { id: 8, name: '第八单元', type: '课文', lessons: [
+    { name: '狐假虎威', parts: ['一','二'] },
+    { name: '纸船和风筝', parts: ['一','二'] },
+    { name: '风娃娃', parts: ['一','二'] },
+    { name: '语文园地八', parts: ['一','二'] },
+    { name: '单元复习默写', parts: [] },
+  ]},
+];
+
+function renderConsolidatePage() {
+  if (typeof appData.conUnit === 'undefined') appData.conUnit = 1;
+  var unitRow = document.getElementById('con-unit-row');
+  if (!unitRow) return;
+  // Build unit buttons
+  unitRow.innerHTML = CONSOLIDATE_UNITS.map(function(u) {
+    return '<button class="unit-menu-btn' + (appData.conUnit === u.id ? ' active' : '') + '" onclick="selectConUnit(' + u.id + ')">' + u.name + '</button>';
+  }).join('');
+  // Build lesson list
+  var unit = CONSOLIDATE_UNITS.find(function(u) { return u.id === appData.conUnit; });
+  if (!unit) return;
+  var container = document.getElementById('consolidate-content');
+  if (!container) return;
+  var html = '<div class="con-lesson-list">';
+  unit.lessons.forEach(function(lesson) {
+    html += '<div class="con-lesson-card">';
+    html += '<div class="con-lesson-name">' + lesson.name + '</div>';
+    if (lesson.parts.length === 0) {
+      html += '<button class="con-part-btn" onclick="openConsolidate(\'' + unit.id + '\',\'' + lesson.name + '\',\'\')">开始练习</button>';
+    } else {
+      lesson.parts.forEach(function(p) {
+        html += '<button class="con-part-btn" onclick="openConsolidate(\'' + unit.id + '\',\'' + lesson.name + '\',\'' + p + '\')">(' + p + ')</button>';
+      });
+    }
+    html += '</div>';
+  });
+  html += '</div>';
+  container.innerHTML = html;
+}
+
+function selectConUnit(uid) {
+  appData.conUnit = uid;
+  saveData(appData);
+  renderConsolidatePage();
+}
+
+function openConsolidate(uid, name, part) {
+  // Placeholder - will show exercise content when data is ready
+  var container = document.getElementById('consolidate-content');
+  if (!container) return;
+  container.innerHTML = '<div style="text-align:center;padding:40px 20px;">' +
+    '<div style="font-size:18px;font-weight:700;margin-bottom:8px;">' + name + (part ? '(' + part + ')' : '') + '</div>' +
+    '<div style="color:var(--text-secondary);font-size:14px;">练习内容开发中...</div>' +
+    '<button class="unit-menu-btn" style="margin-top:16px;" onclick="renderConsolidatePage()">返回列表</button>' +
+    '</div>';
 }
 
 function renderChinesePage() {
@@ -3629,10 +3769,14 @@ function switchPage(pageName, el) {
 
   var subjectPages = { chinese:'语文', math:'数学', english:'英语', sport:'体育', reading:'阅读', labor:'劳动' };
   if (pageName === 'chinese') {
-    if (appData.chineseView === 'reading') renderReadingList('all');
+    if (appData.chineseView === 'consolidate') renderConsolidatePage();
+    else if (appData.chineseView === 'reading') renderReadingList('all');
     else renderChinesePage();
+    document.getElementById('cm-consolidate-filters').style.display = appData.chineseView === 'consolidate' ? '' : 'none';
     document.getElementById('cm-filters').style.display = appData.chineseView === 'backmo' ? '' : 'none';
     document.getElementById('cm-reading-nav').style.display = appData.chineseView === 'reading' ? '' : 'none';
+    document.getElementById('consolidate-content').style.display = appData.chineseView === 'consolidate' ? '' : 'none';
+    document.getElementById('chinese-content').style.display = appData.chineseView === 'consolidate' ? 'none' : '';
   } else if (pageName === 'math') {
     renderMathPage();
   } else if (subjectPages[pageName]) {
