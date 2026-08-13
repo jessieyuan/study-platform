@@ -1823,6 +1823,32 @@
   .con-part-btn:hover { border-color:#f0a020; background:#fff8e0; color:#f0a020; }
   .con-part-btn:active { transform:scale(0.95); }
 
+
+  .con-exercise { }
+  .con-ex-header { display:flex; align-items:center; gap:12px; margin-bottom:16px; }
+  .con-back-btn { padding:6px 14px; border-radius:10px; border:2px solid #f0e4c0; background:#faf5e8; font-size:13px; color:#8a7a5e; cursor:pointer; }
+  .con-back-btn:hover { border-color:#f0a020; }
+  .con-ex-title { font-size:18px; font-weight:700; color:var(--text); }
+  .con-section { margin-bottom:20px; }
+  .con-sec-title { font-size:14px; font-weight:700; color:#5c4a2e; margin-bottom:10px; }
+  .con-q-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(200px, 1fr)); gap:10px; }
+  .con-q-item { display:flex; align-items:center; gap:6px; padding:8px 12px; background:var(--card-bg); border-radius:10px; box-shadow:var(--card-shadow); }
+  .con-pinyin { font-size:14px; color:#5ba4cf; font-weight:600; min-width:80px; }
+  .con-word { font-size:16px; font-weight:700; color:var(--text); }
+  .con-input { border:1.5px solid #e0d8c8; border-radius:8px; padding:4px 8px; font-size:14px; width:80px; text-align:center; font-family:inherit; }
+  .con-input.con-input-sm { width:50px; }
+  .con-input.con-correct { border-color:#7bc043; background:#eef7e8; color:#5a9e3a; }
+  .con-input.con-wrong { border-color:#e85555; background:#ffe5e5; color:#d44545; text-decoration:line-through; }
+  .con-input.con-blank { border-color:#ccc; background:#f5f5f5; }
+  .con-input:disabled { cursor:default; }
+  .con-submit-btn { display:block; margin:20px auto; padding:10px 32px; border-radius:14px; border:none; background:linear-gradient(135deg,#f5c842,#f0a020); color:#fff; font-size:15px; font-weight:700; cursor:pointer; }
+  .con-submit-btn:active { transform:scale(0.95); }
+  .con-result { text-align:center; margin-top:16px; }
+  .con-score { font-size:36px; font-weight:800; color:#f0a020; }
+  .con-stats { font-size:14px; color:var(--text-secondary); margin-top:4px; }
+  .con-perfect { font-size:16px; font-weight:700; color:#7bc043; margin-top:8px; }
+  .con-empty { text-align:center; padding:30px; color:var(--text-secondary); font-size:14px; }
+
   /* ========== 2048 游戏 ========== */
   .game2048-wrap { display:flex; flex-direction:column; align-items:center; gap:14px; }
   .game2048-header { display:flex; gap:12px; align-items:center; }
@@ -2772,6 +2798,102 @@ var CONSOLIDATE_UNITS = [
   ]},
 ];
 
+var CONSOLIDATE_DATA = {
+  1: {
+    1: { lesson: "", p2w: [], w2p: [["池塘", "tang"], ["灰色", "hui"], ["教书", "jiao"], ["捕提", "pbu"], ["迎接", "yfng"], ["乌龟", "gui"], ["打鼓", "gi"]] },
+    2: { lesson: "小电昱找妈妈(2)", p2w: [["yan jing", "眼睛"], ["kun jian", "看见"], ["zhio", "找"], ["lisng", "两"], ["tiao", "跳"]], w2p: [] },
+    3: { lesson: "我是什么(1)", p2w: [], w2p: [["晒干", "shai"], ["超越", "yue"], ["水滴", "di"], ["小溪", "xi"], ["奔跑", "ban"], ["坏事", "huai"], ["角灭", "huf"], ["房屋", "w"]] },
+    4: { lesson: "我是什么(2)", p2w: [["bang wan", "傍晚"], ["rn men", "人们"], ["pfng chkng", "平常"]], w2p: [["淹没", "mo"], ["没有", "mei"], ["奔走", "ban"], ["投奔", "bean"]] },
+    5: { lesson: "植物妈妈有办法(1)", p2w: [["tian kong", "天空"]], w2p: [["植物", "zhf"]] },
+    6: { lesson: "植物妈妈有办法(2)", p2w: [["yijing", "已经"], ["zhing du", "长大"], ["nulf", "那里"], ["zhi shi", "知识"]], w2p: [["鱼刺", "ci"], ["识别", "shf"], ["准备", "bei"], ["因为", "wei"], ["得到", "dai"]] },
+    7: { lesson: "语文园地一(1)", p2w: [], w2p: [["手套", "too"], ["登山", "dsng"], ["裤子", "ku"], ["地图", "t"], ["水过", "hu"], ["帐篷", "zhang"]] },
+    8: { lesson: "语文园地一(2)", p2w: [], w2p: [] },
+    9: { lesson: "单元复习默写", p2w: [], w2p: [["裳筷", "dai"], ["顶点", "ding"], ["猜想", "cui"], ["底下", "di"], ["指南针", "zhan"]] },
+  },
+  2: {
+    10: { lesson: "场景歌(1)", p2w: [], w2p: [["军人", "jin"], ["舰队", "jian"], ["稻田", "doo"], ["园林", "yudn"], ["潼竹", "cui"], ["队旗", "dui"], ["号角", "hao"]] },
+    11: { lesson: "场景歌(2)", p2w: [["shf qido", "石桥"], ["hbng ling jin", "红领巾"], ["duiqf", "队旗"]], w2p: [] },
+    12: { lesson: "树之歌(1)", p2w: [["siji", "四季"]], w2p: [["手掌", "zhing"], ["桦树", "huo"], ["耐心", "nai"], ["守护", "shou"], ["边给", "jiang"], ["银查", "yfn"], ["杉树", "shan"]] },
+    13: { lesson: "树之歌(2)", p2w: [["ng bbi", "松柏"], ["jin gui", "金桂"]], w2p: [] },
+    14: { lesson: "拍手歌(1)", p2w: [["huu shf", "化石"]], w2p: [["世间", "shi"], ["界限", "jie"], ["毛孔", "king"], ["麻震", "que"], ["锦鸡", "jin"], ["雄磨", "ying"], ["大雁", "yan"], ["深入", "shan"]] },
+    15: { lesson: "”拍手歌(2)", p2w: [["cbng lin", "丛林"], ["shan chu", "深处"], ["xigng mao", "熊猫"], ["peng you", "朋友"]], w2p: [] },
+    16: { lesson: "田家四季歌(1)", p2w: [], w2p: [["小麦", "mai"], ["虽然", "sui"], ["禾苗", "mido"], ["桑树", "sing"], ["场院", "chdng"], ["谷子", "go"]] },
+    17: { lesson: "”田家四季歌(2)", p2w: [["yue guang", "月光"], ["midn yi", "棉衣"]], w2p: [["场院", "chbng"], ["长大", "zhang"], ["很长", "chkng"]] },
+    18: { lesson: "”语文园地二(1)", p2w: [], w2p: [["紫色", "zi"], ["狐狸", "hu"], ["笨重", "ben"], ["辛酸", "suan"], ["紫色", "zi"], ["狐狸", "hu"], ["笨重", "ben"], ["辛酸", "suan"]] },
+    19: { lesson: "语文园地二(2)", p2w: [], w2p: [] },
+    20: { lesson: "单元复习默写", p2w: [], w2p: [["帆船", "fan"], ["稻草", "dao"], ["杉树", "shan"], ["场院", "chdng"], ["松柏", "bai"], ["化石", "hua"], ["帆船", "fan"], ["稻草", "dao"], ["杉树", "shan"], ["场院", "chdng"], ["松柏", "bai"], ["化石", "hua"]] },
+  },
+  3: {
+    21: { lesson: "曹冲称象(1)", p2w: [], w2p: [["曾冲", "cdo"], ["官员", "yudn"], ["树根", "gan"], ["商议", "yi"], ["讨论", "ln"], ["重量", "zhong"], ["艳树", "kin"], ["画线", "xiun"], ["停止", "zhi"], ["曾冲", "cdo"], ["官员", "yudn"], ["树根", "gan"], ["商议", "yi"], ["讨论", "ln"], ["重量", "zhong"], ["艳树", "kin"], ["画线", "xiun"], ["停止", "zhi"]] },
+    22: { lesson: "曹冲称象(2)", p2w: [["gug rdn", "果然"], ["dao df", "到底"], ["i qi", "力气"], ["gug rdn", "果然"], ["dao df", "到底"], ["i qi", "力气"]], w2p: [] },
+    23: { lesson: "”玲玲的画(1)", p2w: [], w2p: [["端详", "xidng"], ["催促", "cui"], ["弄脏", "zang"], ["受伤", "shang"], ["肯定", "kan"], ["端详", "xidng"], ["催促", "cui"], ["弄脏", "zang"], ["受伤", "shang"], ["肯定", "kan"]] },
+    24: { lesson: "玲玲的画(2)", p2w: [["ling wui", "另外"], ["shf jian", "时间"], ["shi qing", "事情"], ["buo zhf", "报纸"], ["ling wui", "另外"], ["shf jian", "时间"], ["shi qing", "事情"], ["buo zhf", "报纸"]], w2p: [] },
+    25: { lesson: "”一封信(1)", p2w: [], w2p: [["封闭", "fang"], ["削皮", "xiao"], ["开始", "shi"], ["修理", "xii"], ["膀", "jian"], ["圆", "tukn"], ["封闭", "fang"], ["削皮", "xiao"], ["开始", "shi"], ["修理", "xii"], ["膀", "jian"], ["圆", "tukn"]] },
+    26: { lesson: "一封信(2)", p2w: [["jin tian", "今天"], ["kaixin", "开心"], ["i qitn", "以前"], ["dian yifng", "电影"], ["zhe shf", "这时"], ["ydng guaing", "阳光"], ["jin tian", "今天"], ["kaixin", "开心"], ["i qitn", "以前"], ["dian yifng", "电影"], ["zhe shf", "这时"], ["ydng guaing", "阳光"]], w2p: [["重量", "zhong"], ["打结", "jie"], ["结实", "ji"], ["朝霞", "zhao"], ["着", "chko"], ["重量", "zhong"], ["打结", "jie"], ["结实", "ji"], ["朝霞", "zhao"], ["着", "chko"]] },
+    27: { lesson: "妈妈睡了(1)", p2w: [], w2p: [["紧张", "jin"], ["湿润", "run"], ["等待", "dsng"], ["呼吸", "xi"], ["粘贴", "zhan"], ["汗水", "han"], ["紧张", "jin"], ["湿润", "run"], ["等待", "dsng"], ["呼吸", "xi"], ["粘贴", "zhan"], ["汗水", "han"]] },
+    28: { lesson: "妈妈睡了(2)", p2w: [["hang", "哄"], ["chuang wui", "窗外"], ["ming liang", "明亮"], ["feng bi", "封闭"], ["gu shi", "故事"], ["hang", "哄"], ["chuang wui", "窗外"], ["ming liang", "明亮"], ["feng bi", "封闭"], ["gu shi", "故事"]], w2p: [] },
+    29: { lesson: "语文园地三(1)", p2w: [], w2p: [["钢铁", "gang"], ["琴纺", "qfn"], ["练习", "llan"], ["泥土", "nf"], ["滚动", "guin"], ["圆环", "hutn"], ["空荡", "dang"], ["钢铁", "gang"], ["琴纺", "qfn"], ["练习", "llan"], ["泥土", "nf"], ["滚动", "guin"], ["圆环", "hutn"], ["空荡", "dang"]] },
+    30: { lesson: "语文园地三(2)", p2w: [], w2p: [] },
+    31: { lesson: "单元复习默写", p2w: [], w2p: [["楼梯", "tr"], ["铁锈", "ti"], ["期待", "qi"], ["结尾", "je"], ["鲜花", "xiin"], ["重复", "chbng"], ["楼梯", "tr"], ["铁锈", "ti"], ["期待", "qi"], ["结尾", "je"], ["鲜花", "xiin"], ["重复", "chbng"]] },
+  },
+  4: {
+    32: { lesson: "古诗二首(1)", p2w: [], w2p: [["有尽头", "jn"], ["穷尽", "qidng"], ["层次", "ceng"], ["瀑布", "pu"], ["棉布", "bu"], ["姑远", "ydo"], ["有尽头", "jn"], ["穷尽", "qidng"], ["层次", "ceng"], ["瀑布", "pu"], ["棉布", "bu"], ["姑远", "ydo"]] },
+    33: { lesson: "古诗二首(2)", p2w: [["yi zhao", "依照"], ["hudng he", "黄河"], ["jin tbu", "尽头"], ["yi zhao", "依照"], ["hudng he", "黄河"], ["jin tbu", "尽头"]], w2p: [] },
+    34: { lesson: "黄山奇石(1)", p2w: [], w2p: [["新闻", "wen"], ["名字", "mfng"], ["风景", "jing"], ["省份", "shsng"], ["部门", "bu"], ["神仙", "xian"], ["新闻", "wen"], ["名字", "mfng"], ["风景", "jing"], ["省份", "shsng"], ["部门", "bu"], ["神仙", "xian"]] },
+    35: { lesson: "黄山奇石(2)", p2w: [["shan ding", "山顶"], ["ydn hai", "云海"], ["na xie", "那些"], ["jshf", "巨石"], ["yf deng bd deng", "一动不动"], ["shan ding", "山顶"], ["ydn hai", "云海"], ["na xie", "那些"], ["jshf", "巨石"], ["yf deng bd deng", "一动不动"]], w2p: [] },
+    36: { lesson: "日月潭(1)", p2w: [], w2p: [["漂水", "tn"], ["童话", "tbng"], ["环绕", "rao"], ["茂盛", "mao"], ["环境", "jing"], ["周围", "wei"], ["小岛", "dao"], ["纱布", "sha"], ["漂水", "tn"], ["童话", "tbng"], ["环绕", "rao"], ["茂盛", "mao"], ["环境", "jing"], ["周围", "wei"], ["小岛", "dao"], ["纱布", "sha"]] },
+    37: { lesson: "日月潭(2)", p2w: [["fsng guang", "风光"], ["zhan xiun", "展现"], ["fsng guang", "风光"], ["zhan xiun", "展现"]], w2p: [] },
+    38: { lesson: "葡萄沟(1)", p2w: [], w2p: [["淡绿", "dan"], ["味咕", "wei"], ["足够", "gou"], ["收获", "shau"], ["留下", "lg"], ["人钉木板", "ding"], ["淡绿", "dan"], ["味咕", "wei"], ["足够", "gou"], ["收获", "shau"], ["留下", "lg"], ["人钉木板", "ding"]] },
+    39: { lesson: "葡萄沟(2)", p2w: [["hao ke", "好客"], ["lao xiang", "老乡"], ["kang qj", "空气"], ["shui fen", "水分"], ["ng shi", "城市"], ["hao ke", "好客"], ["lao xiang", "老乡"], ["kang qj", "空气"], ["shui fen", "水分"], ["ng shi", "城市"]], w2p: [["好友", "hao"], ["爱好", "hao"], ["干活", "gan"], ["干净", "gan"], ["分数", "fan"], ["分外", "fen"], ["好友", "hao"], ["爱好", "hao"], ["干活", "gan"], ["干净", "gan"], ["分数", "fan"], ["分外", "fen"]] },
+    40: { lesson: "语文园地四(1)", p2w: [], w2p: [["昌盛", "chang"], ["店铺", "pu"], ["空调", "tiko"], ["卧室", "wo"], ["乘坐", "cheng"], ["卖", "shou"], ["昌盛", "chang"], ["店铺", "pu"], ["空调", "tiko"], ["卧室", "wo"], ["乘坐", "cheng"], ["卖", "shou"]] },
+    41: { lesson: "语文园地四(2)", p2w: [], w2p: [] },
+    42: { lesson: "单元复习默写", p2w: [], w2p: [["著名", "zhu"], ["圆形", "xfng"], ["其中", "qf"], ["优秀", "xio"], ["巨人", "io"], ["吸引", "yin"], ["胜利", "sheng"], ["茂盛", "sheng"], ["干部", "gun"], ["干净", "gan"], ["干活", "gun"], ["分外", "fen"], ["充分", "fen"], ["著名", "zhu"], ["圆形", "xfng"], ["其中", "qf"], ["优秀", "xio"], ["巨人", "io"], ["吸引", "yin"], ["胜利", "sheng"], ["茂盛", "sheng"], ["干部", "gun"], ["干净", "gan"], ["干活", "gun"], ["分外", "fen"], ["充分", "fen"]] },
+  },
+  5: {
+    43: { lesson: "坐井观天(1)", p2w: [], w2p: [["沿海", "yin"], ["渴望", "k"], ["水", "hs"], ["错误", "cuo"], ["边际", "ji"], ["抬头", "ti"], ["沿海", "yin"], ["渴望", "k"], ["水", "hs"], ["错误", "cuo"], ["边际", "ji"], ["抬头", "ti"]] },
+    44: { lesson: "坐井观天(2)", p2w: [["u ke", "口渴"], ["heshuf", "喝水"], ["hu", "话"], ["wbian wii", "无边无际"], ["u ke", "口渴"], ["heshuf", "喝水"], ["hu", "话"], ["wbian wii", "无边无际"]], w2p: [] },
+    45: { lesson: "寒号鸟(1)", p2w: [], w2p: [["堵门", "du"], ["和颖", "feng"], ["喜上欧", "que"], ["衔接", "xidn"], ["干枯", "ki"], ["劝告", "quan"], ["趁机", "chen"], ["将来", "jiang"], ["吼叫", "hau"], ["堵门", "du"], ["和颖", "feng"], ["喜上欧", "que"], ["衔接", "xidn"], ["干枯", "ki"], ["劝告", "quan"], ["趁机", "chen"], ["将来", "jiang"], ["吼叫", "hau"]] },
+    46: { lesson: "寒号鸟(2)", p2w: [["qing zio", "清早"], ["qing lsng", "晴朗"], ["shan jiso", "山脚"], ["zhen", "阵"], ["ko hukng", "枯黄"], ["jiang", "将"], ["qing zio", "清早"], ["qing lsng", "晴朗"], ["shan jiso", "山脚"], ["zhen", "阵"], ["ko hukng", "枯黄"], ["jiang", "将"]], w2p: [["号叫", "hko"], ["口号", "hao"], ["应当", "dang"], ["当作", "dang"], ["号叫", "hko"], ["口号", "hao"], ["应当", "dang"], ["当作", "dang"]] },
+    47: { lesson: "”我要的是葫芦(1)", p2w: [], w2p: [["戎户", "hu"], ["瓜芯", "teng"], ["盯着", "ding"], ["比赛", "soi"], ["怪物", "guai"], ["慢慢", "man"], ["戎户", "hu"], ["瓜芯", "teng"], ["盯着", "ding"], ["比赛", "soi"], ["怪物", "guai"], ["慢慢", "man"]] },
+    48: { lesson: "”我要的是萌芦(2)", p2w: [["ding", "盯"], ["gan xie", "感谢"], ["ding", "盯"], ["gan xie", "感谢"]], w2p: [] },
+    49: { lesson: "语文园地五1)", p2w: [], w2p: [["山径", "jing"], ["钓鱼", "diuo"], ["寒冷", "hin"], ["山径", "jing"], ["钓鱼", "diuo"], ["寒冷", "hin"]] },
+    51: { lesson: "单元复习默写", p2w: [], w2p: [["衔接", "xitn"], ["趁机", "chen"], ["将来", "jiang"], ["衔接", "xitn"], ["趁机", "chen"], ["将来", "jiang"]] },
+  },
+  6: {
+    52: { lesson: "八角楼上(1)", p2w: [], w2p: [["斗争", "zhang"], ["时代", "doi"], ["文章", "zhang"], ["把握", "wo"], ["电视", "shi"], ["斗争", "zhang"], ["时代", "doi"], ["文章", "zhang"], ["把握", "wo"], ["电视", "shi"]] },
+    53: { lesson: "八角楼上(2)", p2w: [["nidn", "年"], ["ye", "夜"], ["pi", "披"], ["qing qing", "轻轻"], ["lbu", "楼"], ["nidn", "年"], ["ye", "夜"], ["pi", "披"], ["qing qing", "轻轻"], ["lbu", "楼"]], w2p: [] },
+    54: { lesson: "朱德的扁担(1)", p2w: [], w2p: [["道德", "de"], ["敌人", "df"], ["根据", "ii"], ["陡坡", "dgu"], ["不料", "liao"], ["间雪", "jing"], ["道德", "de"], ["敌人", "df"], ["根据", "ii"], ["陡坡", "dgu"], ["不料", "liao"], ["间雪", "jing"]] },
+    56: { lesson: "天入 1", p2w: [], w2p: [["民族", "z"], ["风度", "du"], ["敲打", "qiao"], ["笑容", "rdng"], ["踩水", "cai"], ["祝福", "zhu"], ["民族", "z"], ["风度", "du"], ["敲打", "qiao"], ["笑容", "rdng"], ["踩水", "cai"], ["祝福", "zhu"]] },
+    57: { lesson: "”难忘的泼水节(2)", p2w: [["yi nitn yf di", "一年一度"], ["chuin", "穿"], ["lng", "令"], ["nn wang", "难忘"], ["yi nitn yf di", "一年一度"], ["chuin", "穿"], ["lng", "令"], ["nn wang", "难忘"]], w2p: [["踩着", "cii"], ["盛满", "cheng"], ["银碗", "win"], ["踩着", "cii"], ["盛满", "cheng"], ["银碗", "win"]] },
+    58: { lesson: "刘胡兰(1)", p2w: [], w2p: [["兰花", "ltn"], ["派对", "pui"], ["棉被", "bai"], ["插立", "ting"], ["杀害", "sha"], ["烈士", "lie"], ["光荣", "rng"], ["兰花", "ltn"], ["派对", "pui"], ["棉被", "bai"], ["插立", "ting"], ["杀害", "sha"], ["烈士", "lie"], ["光荣", "rng"]] },
+    59: { lesson: "刘胡兰(2)", p2w: [["nidn qing", "年轻"], ["guin", "关"], ["shi bing", "士兵"], ["zhi dao", "知道"], ["nidn qing", "年轻"], ["guin", "关"], ["shi bing", "士兵"], ["zhi dao", "知道"]], w2p: [["鲜血", "xue"], ["血淋淋", "xi"], ["鲜血", "xue"], ["血淋淋", "xi"]] },
+    60: { lesson: "语文园地六(1)", p2w: [], w2p: [["轿车", "jiao"], ["救护车", "ip"], ["消防", "ftng"], ["货船", "huo"], ["油轮", "lin"], ["科学", "ke"], ["考察", "kio"], ["轿车", "jiao"], ["救护车", "ip"], ["消防", "ftng"], ["货船", "huo"], ["油轮", "lin"], ["科学", "ke"], ["考察", "kio"]] },
+    61: { lesson: "语文园地六(2)", p2w: [], w2p: [["床铺", "pu"], ["号令", "hao"], ["种子", "zhang"], ["水分", "fen"], ["十分", "fan"], ["教室", "jiao"], ["干净", "gain"], ["床铺", "pu"], ["号令", "hao"], ["种子", "zhang"], ["水分", "fen"], ["十分", "fan"], ["教室", "jiao"], ["干净", "gain"]] },
+    62: { lesson: "单元复习默写", p2w: [], w2p: [["健康", "jian"], ["长寿", "shou"], ["重复", "chdng"], ["健康", "jian"], ["长寿", "shou"], ["重复", "chdng"]] },
+  },
+  7: {
+    63: { lesson: "古诗二首(1)", p2w: [], w2p: [["寺院", "si"], ["星辰", "chen"], ["吃惊", "jing"], ["盖子", "goi"], ["苍茫", "mng"], ["寺院", "si"], ["星辰", "chen"], ["吃惊", "jing"], ["盖子", "goi"], ["苍茫", "mng"]] },
+    64: { lesson: "古诗二首(2)", p2w: [["wai", "危"], ["jing", "惊"], ["yang gan", "勇敢"], ["yin chen chen", "阴沉沉"], ["cang mdng", "苍茫"], ["si", "似"], ["wai", "危"], ["jing", "惊"], ["yang gan", "勇敢"], ["yin chen chen", "阴沉沉"], ["cang mdng", "苍茫"], ["si", "似"]], w2p: [] },
+    65: { lesson: "雾在哪里(1)", p2w: [], w2p: [["淘气", "to"], ["黑暗", "un"], ["街道", "j"], ["桥梁", "libng"], ["甚至", "shen"], ["至少", "zhi"], ["淘气", "to"], ["黑暗", "un"], ["街道", "j"], ["桥梁", "libng"], ["甚至", "shen"], ["至少", "zhi"]] },
+    66: { lesson: "雾在哪里(2)", p2w: [["wo lun", "无论"], ["qin qie", "亲切"], ["wizi", "屋子"], ["unbian", "涯边"], ["wo lun", "无论"], ["qin qie", "亲切"], ["wizi", "屋子"], ["unbian", "涯边"]], w2p: [] },
+    67: { lesson: "雪孩子(1)", p2w: [], w2p: [["添加", "tian"], ["火柴", "chdi"], ["烧火", "shao"], ["旺盛", "wang"], ["逐渐", "jan"], ["冒着", "mauo"], ["添加", "tian"], ["火柴", "chdi"], ["烧火", "shao"], ["旺盛", "wang"], ["逐渐", "jan"], ["冒着", "mauo"]] },
+    68: { lesson: "雪孩子(2)", p2w: [["shuf", "谁"], ["hun", "浑"], ["pdng bian", "过边"], ["gjchse", "汽车"], ["gsn", "赶"], ["shuf", "谁"], ["hun", "浑"], ["pdng bian", "过边"], ["gjchse", "汽车"], ["gsn", "赶"]], w2p: [] },
+    69: { lesson: "语文园地七(1)", p2w: [], w2p: [["海滩", "tan"], ["贝壳", "ke"], ["沙漠", "me"], ["骆驼", "luo"], ["骏马", "jun"], ["海滩", "tan"], ["贝壳", "ke"], ["沙漠", "me"], ["骆驼", "luo"], ["骏马", "jun"]] },
+    70: { lesson: "语文园地七(2)", p2w: [], w2p: [] },
+    71: { lesson: "单元复习默写", p2w: [], w2p: [["和急切", "qie"], ["消失", "shi"], ["苑耳", "cang"], ["浑身", "hdun"], ["哈人", "qiang"], ["溪手", "tang"], ["终于", "zhang"], ["了瞧见", "qiko"], ["住和福", "su"], ["似乎", "si"], ["岸边", "an"], ["和急切", "qie"], ["消失", "shi"], ["苑耳", "cang"], ["浑身", "hdun"], ["哈人", "qiang"], ["溪手", "tang"], ["终于", "zhang"], ["了瞧见", "qiko"], ["住和福", "su"], ["似乎", "si"], ["岸边", "an"]] },
+  },
+  8: {
+    72: { lesson: "狐假虎威(1)", p2w: [], w2p: [["威风", "wai"], ["拉扯", "che"], ["嗓子", "sdng"], ["野兽", "shou"], ["爪子", "zhua"], ["纳闽", "nol"], ["威风", "wai"], ["拉扯", "che"], ["嗓子", "sdng"], ["野兽", "shou"], ["爪子", "zhua"], ["纳闽", "nol"]] },
+    73: { lesson: "狐假虎威(2)", p2w: [["ye", "和区和苑"], ["ye", "和区和苑"]], w2p: [["头孝", "man"], ["烦问", "men"], ["头孝", "man"], ["烦问", "men"]] },
+    74: { lesson: "纸船和风筝(1)", p2w: [], w2p: [["松鼠", "shi"], ["古筝", "zheng"], ["折断", "zhe"], ["漂流", "piao"], ["愿意", "yuan"], ["幸运", "xing"], ["俩人", "la"], ["松鼠", "shi"], ["古筝", "zheng"], ["折断", "zhe"], ["漂流", "piao"], ["愿意", "yuan"], ["幸运", "xing"], ["俩人", "la"]] },
+    75: { lesson: "纸船和风筝(2)", p2w: [["zhua zhu", "抓住"], ["dan shi", "但是"], ["zhua zhu", "抓住"], ["dan shi", "但是"]], w2p: [] },
+    76: { lesson: "风娃娃(1)", p2w: [], w2p: [["帮助", "bang"], ["费劲", "jn"], ["表示", "biio"], ["仍旧", "reng"], ["翻跟头", "fan"], ["帮助", "bang"], ["费劲", "jn"], ["表示", "biio"], ["仍旧", "reng"], ["翻跟头", "fan"]] },
+    77: { lesson: "风娃娃\2)", p2w: [["jmdng", "和急忙"], ["de", "得"], ["dahan", "大汗"], ["jmdng", "和急忙"], ["de", "得"], ["dahan", "大汗"]], w2p: [["摇摆", "bai"], ["翻滚", "fan"], ["继续", "xu"], ["帮助", "bang"], ["劲头", "jin"], ["但愿", "dun"], ["取得", "qi"], ["摇摆", "bai"], ["翻滚", "fan"], ["继续", "xu"], ["帮助", "bang"], ["劲头", "jin"], ["但愿", "dun"], ["取得", "qi"]] },
+    78: { lesson: "语文园地八(1)", p2w: [], w2p: [["狼", "ldng"], ["蛇", "she"], ["是", "xia"], ["和蛋", "cin"], ["白镶", "he"], ["猩猩", "xing"], ["狼", "ldng"], ["蛇", "she"], ["是", "xia"], ["和蛋", "cin"], ["白镶", "he"], ["猩猩", "xing"]] },
+    79: { lesson: "语文园地八(2)", p2w: [], w2p: [] },
+    80: { lesson: "单元复习默写", p2w: [], w2p: [["爪子", "zhua"], ["转表", "zhuan"], ["纳冰", "men"], ["抗议", "kang"], ["接受", "shou"], ["连续", "xo"], ["助力", "zho"], ["示好", "shi"], ["播摆", "baii"], ["易电", "yin"], ["螃稻", "xie"], ["场院", "chbng"], ["长大", "zhang"], ["很长", "chkng"], ["爪子", "zhua"], ["转表", "zhuan"], ["纳冰", "men"], ["抗议", "kang"], ["接受", "shou"], ["连续", "xo"], ["助力", "zho"], ["示好", "shi"], ["播摆", "baii"], ["易电", "yin"], ["螃稻", "xie"]] },
+  },
+};
 function renderConsolidatePage() {
   if (typeof appData.conUnit === 'undefined') appData.conUnit = 1;
   var unitRow = document.getElementById('con-unit-row');
@@ -2809,14 +2931,92 @@ function selectConUnit(uid) {
 }
 
 function openConsolidate(uid, name, part) {
-  // Placeholder - will show exercise content when data is ready
   var container = document.getElementById('consolidate-content');
   if (!container) return;
-  container.innerHTML = '<div style="text-align:center;padding:40px 20px;">' +
-    '<div style="font-size:18px;font-weight:700;margin-bottom:8px;">' + name + (part ? '(' + part + ')' : '') + '</div>' +
-    '<div style="color:var(--text-secondary);font-size:14px;">练习内容开发中...</div>' +
-    '<button class="unit-menu-btn" style="margin-top:16px;" onclick="renderConsolidatePage()">返回列表</button>' +
-    '</div>';
+  var unitData = CONSOLIDATE_DATA[uid];
+  if (!unitData) { container.innerHTML = '<div class="con-empty">暂无数据</div>'; return; }
+  // Find the day that matches this lesson name + part
+  var dayId = null;
+  var dayData = null;
+  for (var did in unitData) {
+    var d = unitData[did];
+    var dName = d.lesson.replace(/[""\u200b]/g, '').trim();
+    var matchName = name;
+    var matchPart = part ? '(' + part + ')' : '';
+    if (dName.indexOf(matchName) !== -1 && (!part || dName.indexOf(matchPart) !== -1 || dName.indexOf(part) !== -1)) {
+      if (!dayId || parseInt(did) < dayId) { dayId = parseInt(did); dayData = d; }
+    }
+  }
+  if (!dayData) {
+    // Try partial match
+    for (var did2 in unitData) {
+      var d2 = unitData[did2];
+      var dName2 = d2.lesson.replace(/[""\u200b]/g, '').trim();
+      if (dName2.indexOf(name) !== -1) { dayData = d2; break; }
+    }
+  }
+  if (!dayData) { container.innerHTML = '<div class="con-empty">暂无此课练习数据</div><button class="unit-menu-btn" onclick="renderConsolidatePage()">返回</button>'; return; }
+  var title = name + (part ? '(' + part + ')' : '');
+  var html = '<div class="con-exercise">';
+  html += '<div class="con-ex-header"><button class="con-back-btn" onclick="renderConsolidatePage()">← 返回</button><div class="con-ex-title">' + title + '</div></div>';
+  var qNum = 0;
+  var questions = [];
+  // Section 1: 看拼音写词语
+  if (dayData.p2w && dayData.p2w.length > 0) {
+    html += '<div class="con-section"><div class="con-sec-title">一、看拼音写词语</div>';
+    html += '<div class="con-q-grid">';
+    dayData.p2w.forEach(function(item) {
+      html += '<div class="con-q-item"><span class="con-pinyin">' + item[0] + '</span><input class="con-input" data-answer="' + item[1] + '" type="text" /></div>';
+      questions.push({ pinyin: item[0], answer: item[1] });
+      qNum++;
+    });
+    html += '</div></div>';
+  }
+  // Section 2: 给加点字注音
+  if (dayData.w2p && dayData.w2p.length > 0) {
+    html += '<div class="con-section"><div class="con-sec-title">二、给加点字注音</div>';
+    html += '<div class="con-q-grid">';
+    dayData.w2p.forEach(function(item) {
+      html += '<div class="con-q-item"><span class="con-word">' + item[0] + '(</span><input class="con-input con-input-sm" data-answer="' + item[1] + '" type="text" /><span>)</span></div>';
+      questions.push({ word: item[0], answer: item[1] });
+      qNum++;
+    });
+    html += '</div></div>';
+  }
+  if (qNum === 0) {
+    html += '<div class="con-empty">本练习暂无题目数据</div>';
+  }
+  html += '<button class="con-submit-btn" onclick="gradeConsolidate(' + qNum + ')">提交批改</button>';
+  html += '<div class="con-result" id="con-result"></div>';
+  html += '</div>';
+  container.innerHTML = html;
+}
+
+function gradeConsolidate(total) {
+  var inputs = document.querySelectorAll('.con-input');
+  var correct = 0, wrong = 0, blank = 0;
+  var results = [];
+  inputs.forEach(function(inp) {
+    var userVal = inp.value.trim();
+    var answer = inp.getAttribute('data-answer');
+    if (!userVal) { blank++; inp.classList.add('con-blank'); }
+    else if (userVal === answer) { correct++; inp.classList.add('con-correct'); }
+    else { wrong++; inp.classList.add('con-wrong'); inp.setAttribute('placeholder', answer); }
+    inp.disabled = true;
+  });
+  var score = total > 0 ? Math.round(correct / total * 100) : 0;
+  var resultEl = document.getElementById('con-result');
+  if (resultEl) {
+    resultEl.innerHTML = '<div class="con-score">' + score + '分</div>' +
+      '<div class="con-stats">正确 ' + correct + ' / 错误 ' + wrong + ' / 未填 ' + blank + ' / 共 ' + total + '</div>' +
+      (wrong === 0 && blank === 0 ? '<div class="con-perfect">全对了！</div>' : '');
+    resultEl.style.display = '';
+  }
+  // Save record
+  if (!appData.conRecords) appData.conRecords = {};
+  var key = appData.conUnit + '_' + 'lesson';
+  appData.conRecords[key] = { score: score, correct: correct, wrong: wrong, blank: blank, date: todayStr() };
+  saveData(appData);
 }
 
 function renderChinesePage() {
