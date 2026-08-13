@@ -5160,28 +5160,27 @@ function render2048() {
 
 // Keyboard
 document.addEventListener('keydown', function(e) {
-  var page = document.getElementById('page-2048');
-  if (!page || !page.classList.contains('active')) return;
+  var tab = document.getElementById('math-tab-g2048');
+  if (!tab || tab.style.display === 'none') return;
   var dirs = { ArrowLeft:'left', ArrowRight:'right', ArrowUp:'up', ArrowDown:'down' };
   if (dirs[e.key]) { e.preventDefault(); move2048(dirs[e.key]); }
 });
 
 // Touch swipe
-(function() {
-  var tsx, tsy;
-  var board = document.getElementById('g2048-board');
-  if (!board) { setTimeout(arguments.callee, 500); return; }
-  board.addEventListener('touchstart', function(e) { tsx = e.touches[0].clientX; tsy = e.touches[0].clientY; });
-  board.addEventListener('touchend', function(e) {
-    if (tsx === undefined) return;
-    var dx = e.changedTouches[0].clientX - tsx;
-    var dy = e.changedTouches[0].clientY - tsy;
+var g2048_tsx, g2048_tsy;
+var g2048Board = document.getElementById('g2048-board');
+if (g2048Board) {
+  g2048Board.addEventListener('touchstart', function(e) { g2048_tsx = e.touches[0].clientX; g2048_tsy = e.touches[0].clientY; }, { passive: true });
+  g2048Board.addEventListener('touchend', function(e) {
+    if (g2048_tsx === undefined) return;
+    var dx = e.changedTouches[0].clientX - g2048_tsx;
+    var dy = e.changedTouches[0].clientY - g2048_tsy;
     if (Math.abs(dx) < 20 && Math.abs(dy) < 20) return;
     if (Math.abs(dx) > Math.abs(dy)) move2048(dx > 0 ? 'right' : 'left');
     else move2048(dy > 0 ? 'down' : 'up');
-    tsx = undefined;
-  });
-})();
+    g2048_tsx = undefined;
+  }, { passive: true });
+}
 
 
 // 页面加载时尝试自动登录
