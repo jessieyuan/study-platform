@@ -1757,7 +1757,7 @@
   .user-empty { text-align: center; color: #b8a080; padding: 20px; font-size: 13px; }
 
   /* ========== 数学思维速算 ========== */
-  .math-modes { display:grid; grid-template-columns:repeat(2,1fr); gap:14px; margin-bottom:16px; }
+  .math-modes { display:grid; grid-template-columns:repeat(2,1fr); gap:12px; margin:0 auto 16px; max-width:340px; }
   .math-mode-card {
     background:var(--card-bg); border-radius:18px; padding:16px 12px; text-align:center;
     cursor:pointer; transition:transform 0.2s, box-shadow 0.2s; border:2px solid transparent;
@@ -1883,7 +1883,7 @@
   .mp-btn.primary { background:linear-gradient(135deg,#f5c842,#f0a020); color:#fff; }
   .mp-btn.secondary { background:var(--card-bg); color:var(--text); border:2px solid #e0d8c8; }
   @media (max-width:767px) {
-    .math-modes { grid-template-columns:1fr; }
+    .math-modes { max-width:300px; }
   }
 </style>
 </head>
