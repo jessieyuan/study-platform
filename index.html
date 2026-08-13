@@ -1883,7 +1883,36 @@
   .mp-btn.primary { background:linear-gradient(135deg,#f5c842,#f0a020); color:#fff; }
   .mp-btn.secondary { background:var(--card-bg); color:var(--text); border:2px solid #e0d8c8; }
   @media (max-width:767px) {
-    .math-modes { max-width:300px; }
+   .math-modes { max-width:300px; }
+ }
+  /* ========== 成语板块 ========== */
+  .idiom-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:12px; margin-bottom:14px; }
+  .idiom-card { background:var(--card-bg); border-radius:16px; padding:16px; box-shadow:var(--card-shadow); border:2px solid transparent; transition:0.25s; }
+  .idiom-card:hover { border-color:#f0a020; transform:translateY(-2px); }
+  .idiom-card-emoji { font-size:28px; margin-bottom:4px; }
+  .idiom-card-word { font-size:20px; font-weight:700; color:var(--text); margin-bottom:2px; }
+  .idiom-card-pinyin { font-size:12px; color:var(--text-secondary); margin-bottom:8px; }
+  .idiom-card-meaning { font-size:13px; color:var(--text); line-height:1.6; margin-bottom:6px; }
+  .idiom-card-example { font-size:12px; color:var(--text-secondary); line-height:1.5; padding:8px 10px; background:#faf5e8; border-radius:8px; }
+  .idiom-quiz-wrap { max-width:480px; margin:0 auto; }
+  .idiom-quiz-info { display:flex; justify-content:space-around; margin-bottom:14px; }
+  .idiom-quiz-info span { font-size:14px; font-weight:600; color:var(--text); }
+  .idiom-quiz-q { font-size:16px; color:var(--text); line-height:1.7; text-align:center; padding:24px 16px; background:var(--card-bg); border-radius:14px; box-shadow:var(--card-shadow); margin-bottom:14px; }
+  .idiom-quiz-opts { display:grid; grid-template-columns:repeat(2,1fr); gap:10px; }
+  .idiom-quiz-btn { padding:14px; border-radius:12px; border:2px solid #e0d8c8; background:var(--card-bg); font-size:17px; font-weight:600; cursor:pointer; transition:0.2s; }
+  .idiom-quiz-btn:hover { border-color:#f0a020; background:#fff8e0; }
+  .idiom-quiz-btn.correct { border-color:#7bc043; background:#d1fae5; }
+  .idiom-quiz-btn.wrong { border-color:#e8556a; background:#ffe4e6; }
+  .idiom-quiz-btn:disabled { cursor:default; }
+  .idiom-quiz-next { text-align:center; margin-top:14px; }
+  .idiom-record-item { display:flex; align-items:center; gap:10px; padding:10px 14px; background:var(--card-bg); border-radius:10px; box-shadow:var(--card-shadow); margin-bottom:8px; }
+  .idiom-record-word { font-size:15px; font-weight:700; color:var(--text); min-width:72px; }
+  .idiom-record-bar { flex:1; height:10px; background:#f0e8d8; border-radius:5px; overflow:hidden; }
+  .idiom-record-bar-fill { height:100%; background:linear-gradient(90deg,#f5c842,#f0a020); border-radius:5px; transition:width 0.3s; }
+  .idiom-record-info { font-size:12px; color:var(--text-secondary); min-width:90px; text-align:right; }
+  @media (max-width:767px) {
+    .idiom-grid { grid-template-columns:1fr; }
+    .idiom-quiz-opts { grid-template-columns:1fr; }
   }
 </style>
 </head>
@@ -1936,9 +1965,12 @@
     <div class="nav-icon">📚</div><span>阅读</span>
   </a>
   <a href="#" class="nav-item" data-page="labor" onclick="switchPage('labor',this)">
-    <div class="nav-icon">🧹</div><span>劳动</span>
+   <div class="nav-icon">🧹</div><span>劳动</span>
+ </a>
+  <a href="#" class="nav-item" data-page="idiom" onclick="switchPage('idiom',this)">
+    <div class="nav-icon">🐉</div><span>成语</span>
   </a>
-  <div class="nav-divider"></div>
+ <div class="nav-divider"></div>
   <a href="#" class="nav-item" data-page="leaderboard" onclick="switchPage('leaderboard',this)">
     <div class="nav-icon">🏆</div><span>排行榜</span>
   </a>
@@ -2141,6 +2173,25 @@
     <button class="st-tab" onclick="switchSubjectTab('labor','weekly',this)">📆 本周任务</button>
   </div>
   <div id="labor-tasks"><div class="task-empty">加载中...</div></div>
+</main></div>
+
+<!-- 成语 -->
+<div class="page" id="page-idiom">
+<main class="main">
+  <div class="subject-page-header"><div class="sph-icon">🐉</div><div class="sph-title">成语乐园</div></div>
+  <div class="chinese-menu">
+    <div class="cm-bread">
+      <span class="breadcrumb-label">成语乐园 ›</span>
+      <span class="breadcrumb-item active" onclick="switchIdiomTab('learn',this)">成语学习</span>
+      <span class="breadcrumb-sep">|</span>
+      <span class="breadcrumb-item" onclick="switchIdiomTab('quiz',this)">成语猜谜</span>
+      <span class="breadcrumb-sep">|</span>
+      <span class="breadcrumb-item" onclick="switchIdiomTab('record',this)">背诵记录</span>
+    </div>
+  </div>
+  <div id="idiom-tab-learn"></div>
+  <div id="idiom-tab-quiz" style="display:none;"></div>
+  <div id="idiom-tab-record" style="display:none;"></div>
 </main></div>
 
 <!-- ========== 管理后台 ========== -->
@@ -2483,7 +2534,8 @@ function ensureDataFields() {
   if (typeof appData.craneClaimedToday === 'undefined') appData.craneClaimedToday = null; // 今日是否已领取
   if (!appData.mathBest) appData.mathBest = { addsub: 0, mul: 0, div: 0, mixed: 0 }; // 速算最高分
   if (!appData.sudoku) appData.sudoku = { size: 4, diff: {4:0,6:0,9:0}, unlocked: {4:0,6:0,9:0}, wins: {}, bestTime: {} }; // 数独进度
-  if (typeof appData.best2048 !== 'number') appData.best2048 = 0; // 2048最高分
+ if (typeof appData.best2048 !== 'number') appData.best2048 = 0; // 2048最高分
+  if (!appData.idioms) appData.idioms = {}; // 成语学习记录 { word: {tested:0, correct:0} }
 }
 
 // ---- 数据保存（防抖API同步） ----
@@ -3650,7 +3702,8 @@ function switchPage(pageName, el) {
   }
   if (pageName === 'home') renderHomePage();
   if (pageName === 'leaderboard') { switchLbTab('streak'); return; }
-  if (pageName === 'pet') renderPetPage();
+ if (pageName === 'pet') renderPetPage();
+  if (pageName === 'idiom') renderIdiomPage();
 }
 
 // ==================== 每日名言 ====================
@@ -5203,6 +5256,209 @@ if (g2048Board) {
 
 // 页面加载时尝试自动登录
 checkAutoLogin();
+
+// ==================== 成语板块 ====================
+var IDIOMS = [
+  { w:'守株待兔', py:'shǒu zhū dài tù', m:'比喻不主动努力，存着侥幸心理，希望得到意外的收获。', ex:'我们不能守株待兔，要主动学习才能进步。', emoji:'🐰' },
+  { w:'亡羊补牢', py:'wáng yáng bǔ láo', m:'出了问题后想办法补救，还不算晚。', ex:'虽然迟了，但亡羊补牢为时未晚。', emoji:'🐑' },
+  { w:'刻舟求剑', py:'kè zhōu qiú jiàn', m:'比喻拘泥成法，不知变通。', ex:'做事要灵活，不能刻舟求剑。', emoji:'⚔️' },
+  { w:'画蛇添足', py:'huà shé tiān zú', m:'比喻做了多余的事，反而不恰当。', ex:'文章已经写好了，不要再画蛇添足。', emoji:'🐍' },
+  { w:'拔苗助长', py:'bá miáo zhù zhǎng', m:'比喻违反事物发展规律，急于求成。', ex:'教育孩子不能拔苗助长。', emoji:'🌱' },
+  { w:'掩耳盗铃', py:'yǎn ěr dào líng', m:'比喻自己欺骗自己。', ex:'不想复习就假装没考试，这不是掩耳盗铃吗？', emoji:'🔔' },
+  { w:'狐假虎威', py:'hú jiǎ hǔ wēi', m:'比喻倚仗别人的势力来欺压人。', ex:'他总是狐假虎威，欺负同学。', emoji:'🦊' },
+  { w:'井底之蛙', py:'jǐng dǐ zhī wā', m:'比喻见识短浅的人。', ex:'我们要多读书，不做井底之蛙。', emoji:'🐸' },
+  { w:'对牛弹琴', py:'duì niú tán qín', m:'比喻对不懂道理的人讲道理，白费力气。', ex:'跟他讲道理就像对牛弹琴。', emoji:'🐮' },
+  { w:'自相矛盾', py:'zì xiāng máo dùn', m:'比喻自己说话做事前后抵触。', ex:'你刚才说的和现在说的自相矛盾。', emoji:'🛡️' },
+  { w:'叶公好龙', py:'yè gōng hào lóng', m:'比喻表面上爱好某事物，实际上并不真爱好。', ex:'他只是叶公好龙，并不是真的喜欢。', emoji:'🐲' },
+  { w:'愚公移山', py:'yú gōng yí shān', m:'比喻有毅力，不怕困难，坚持到底。', ex:'只要像愚公移山一样坚持，一定能成功。', emoji:'⛰️' },
+  { w:'画龙点睛', py:'huà lóng diǎn jīng', m:'比喻在关键处加一点，使内容更加生动有力。', ex:'这句话真是画龙点睛之笔。', emoji:'🐉' },
+  { w:'一石二鸟', py:'yī shí èr niǎo', m:'一个石头打中两只鸟，比喻一举两得。', ex:'走路去上学既锻炼身体又省车费，真是一石二鸟。', emoji:'🐦' },
+  { w:'三心二意', py:'sān xīn èr yì', m:'注意力不集中，不专心。', ex:'学习要一心一意，不能三心二意。', emoji:'💛' },
+  { w:'五颜六色', py:'wǔ yán liù sè', m:'形容颜色多，色彩丰富。', ex:'花园里开着五颜六色的花。', emoji:'🌈' },
+  { w:'七上八下', py:'qī shàng bā xià', m:'形容心里慌乱不安。', ex:'考试前我心里七上八下的。', emoji:'😲' },
+  { w:'九牛一毛', py:'jiǔ niú yī máo', m:'比喻极大数量中微不足道的一部分。', ex:'这点钱对他来说是九牛一毛。', emoji:'🐂' },
+  { w:'十全十美', py:'shí quán shí měi', m:'形容十分完美，没有缺点。', ex:'世界上没有十全十美的人。', emoji:'✨' },
+  { w:'一心一意', py:'yī xīn yī yì', m:'心思集中，专心。', ex:'上课要一心一意听讲。', emoji:'🧡' },
+  { w:'百发百中', py:'bǎi fā bǎi zhòng', m:'形容射术高明或预测准确，每次都命中。', ex:'他投篮百发百中，太厉害了。', emoji:'🎯' },
+  { w:'闻鸡起舞', py:'wén jī qǐ wǔ', m:'比喻有志之人奋发图强。', ex:'我们要闻鸡起舞，努力学习。', emoji:'🐓' },
+  { w:'手不释卷', py:'shǒu bù shì juàn', m:'形容勤学不倦，书不离手。', ex:'他手不释卷，成绩自然好。', emoji:'📖' },
+  { w:'温故知新', py:'wēn gù zhī xīn', m:'复习学过的知识，得到新的理解和体会。', ex:'经常温故知新，才能学得扎实。', emoji:'📚' },
+  { w:'孜孜不倦', py:'zī zī bù juàn', m:'形容勤奋努力，不知疲倦。', ex:'他孜孜不倦地钻研学问。', emoji:'💪' },
+  { w:'锲而不舍', py:'qiè ér bù shě', m:'比喻有恒心，有毅力，坚持不懈。', ex:'只要锲而不舍，铁杵也能磨成针。', emoji:'🔧' },
+  { w:'水滴石穿', py:'shuǐ dī shí chuān', m:'比喻坚持不懈，事情终能成功。', ex:'每天练一点，水滴石穿，总会进步。', emoji:'💧' },
+  { w:'日积月累', py:'rì jī yuè lěi', m:'形容长时间不断地积累。', ex:'知识要日积月累，不能临时抱佛脚。', emoji:'📅' },
+  { w:'开卷有益', py:'kāi juàn yǒu yì', m:'打开书本阅读就有好处。', ex:'读书开卷有益，要多看书。', emoji:'📗' },
+  { w:'熟能生巧', py:'shú néng shēng qiǎo', m:'熟练了就能产生巧办法。', ex:'多练习就能熟能生巧。', emoji:'🎨' },
+  { w:'举一反三', py:'jǔ yī fǎn sān', m:'从一件事类推到其他类似的事。', ex:'学数学要举一反三，不能死记。', emoji:'🔢' },
+  { w:'恍然大悟', py:'huǎng rán dà wù', m:'形容一下子明白过来。', ex:'听了老师的讲解，我恍然大悟。', emoji:'💡' },
+  { w:'虎头蛇尾', py:'hǔ tóu shé wěi', m:'比喻做事有始无终。', ex:'做事不能虎头蛇尾，要善始善终。', emoji:'🐯' },
+  { w:'鹤立鸡群', py:'hè lì jī qún', m:'比喻才能或仪表出众。', ex:'他成绩全班第一，真是鹤立鸡群。', emoji:'🦩' },
+  { w:'鸡飞狗跳', py:'jī fēi gǒu tiào', m:'形容混乱不安的样子。', ex:'弟弟一来，家里就鸡飞狗跳。', emoji:'🐔' },
+  { w:'龙马精神', py:'lóng mǎ jīng shén', m:'形容精神健旺，精力充沛。', ex:'祝爷爷龙马精神，健康长寿。', emoji:'🐴' },
+  { w:'春暖花开', py:'chūn nuǎn huā kāi', m:'春天来了，天气暖和，花儿开放。', ex:'春暖花开，我们去郊游吧。', emoji:'🌸' },
+  { w:'冰天雪地', py:'bīng tiān xuě dì', m:'形容天气寒冷，冰雪覆盖。', ex:'冬天到了，外面冰天雪地。', emoji:'❄️' },
+  { w:'骄阳似火', py:'jiāo yáng sì huǒ', m:'形容太阳很毒，天气很热。', ex:'夏天骄阳似火，要注意防暑。', emoji:'☀️' },
+  { w:'风雨交加', py:'fēng yǔ jiāo jiā', m:'风和雨一起袭来，形容天气恶劣。', ex:'外面风雨交加，我们还是在家看书吧。', emoji:'🌧️' },
+];
+
+function renderIdiomPage() {
+  renderIdiomLearn();
+}
+
+function switchIdiomTab(tab, el) {
+  document.querySelectorAll('#page-idiom .breadcrumb-item').forEach(function(t) { t.classList.remove('active'); });
+  if (el) el.classList.add('active');
+  document.getElementById('idiom-tab-learn').style.display = tab === 'learn' ? '' : 'none';
+  document.getElementById('idiom-tab-quiz').style.display = tab === 'quiz' ? '' : 'none';
+  document.getElementById('idiom-tab-record').style.display = tab === 'record' ? '' : 'none';
+  if (tab === 'learn') renderIdiomLearn();
+  if (tab === 'quiz') renderIdiomQuizStart();
+  if (tab === 'record') renderIdiomRecord();
+}
+
+function renderIdiomLearn() {
+  var el = document.getElementById('idiom-tab-learn');
+  if (!el) return;
+  var html = '<div class="idiom-grid">';
+  IDIOMS.forEach(function(id) {
+    html += '<div class="idiom-card">' +
+      '<div class="idiom-card-emoji">' + id.emoji + '</div>' +
+      '<div class="idiom-card-word">' + id.w + '</div>' +
+      '<div class="idiom-card-pinyin">' + id.py + '</div>' +
+      '<div class="idiom-card-meaning">' + id.m + '</div>' +
+      '<div class="idiom-card-example">💬 ' + id.ex + '</div>' +
+    '</div>';
+  });
+  html += '</div>';
+  el.innerHTML = html;
+}
+
+var idiomQuiz = { score: 0, total: 0, current: null, options: [], answered: false, queue: [] };
+
+function renderIdiomQuizStart() {
+  var el = document.getElementById('idiom-tab-quiz');
+  if (!el) return;
+  var prevScore = '';
+  if (idiomQuiz.total > 0) {
+    prevScore = '<div style="font-size:14px;color:var(--text-secondary);margin-bottom:20px;">上轮得分: ' + idiomQuiz.score + '/' + idiomQuiz.total + '</div>';
+  } else {
+    prevScore = '<div style="font-size:14px;color:var(--text-secondary);margin-bottom:20px;">根据解释猜成语，四选一</div>';
+  }
+  el.innerHTML = '<div style="text-align:center;padding:30px;">' +
+    '<div style="font-size:48px;margin-bottom:12px;">🎯</div>' +
+    '<div style="font-size:18px;font-weight:700;margin-bottom:8px;">成语猜谜</div>' +
+    prevScore +
+    '<button class="mp-btn primary" style="padding:12px 32px;" onclick="startIdiomQuiz()">开始答题</button>' +
+  '</div>';
+}
+
+function startIdiomQuiz() {
+  idiomQuiz.score = 0;
+  idiomQuiz.total = 0;
+  idiomQuiz.queue = IDIOMS.map(function(_, i) { return i; });
+  for (var i = idiomQuiz.queue.length - 1; i > 0; i--) {
+    var j = Math.floor(Math.random() * (i + 1));
+    var tmp = idiomQuiz.queue[i]; idiomQuiz.queue[i] = idiomQuiz.queue[j]; idiomQuiz.queue[j] = tmp;
+  }
+  nextIdiomQuestion();
+}
+
+function nextIdiomQuestion() {
+  if (idiomQuiz.queue.length === 0) { showIdiomQuizResult(); return; }
+  idiomQuiz.total++;
+  var idx = idiomQuiz.queue.shift();
+  var id = IDIOMS[idx];
+  idiomQuiz.current = id;
+  idiomQuiz.answered = false;
+  var pool = IDIOMS.filter(function(_, i) { return i !== idx; });
+  for (var i = pool.length - 1; i > 0; i--) {
+    var j = Math.floor(Math.random() * (i + 1));
+    var tmp = pool[i]; pool[i] = pool[j]; pool[j] = tmp;
+  }
+  var opts = pool.slice(0, 3).concat([id]);
+  for (var i = opts.length - 1; i > 0; i--) {
+    var j = Math.floor(Math.random() * (i + 1));
+    var tmp = opts[i]; opts[i] = opts[j]; opts[j] = tmp;
+  }
+  idiomQuiz.options = opts;
+  var optsHtml = opts.map(function(o, i) {
+    return '<button class="idiom-quiz-btn" onclick="answerIdiom(' + i + ',this)">' + o.w + '</button>';
+  }).join('');
+  var el = document.getElementById('idiom-tab-quiz');
+  el.innerHTML = '<div class="idiom-quiz-wrap">' +
+    '<div class="idiom-quiz-info"><span>第 ' + idiomQuiz.total + ' 题</span><span>得分: ' + idiomQuiz.score + '</span></div>' +
+    '<div class="idiom-quiz-q">📖 ' + id.m + '</div>' +
+    '<div class="idiom-quiz-opts">' + optsHtml + '</div>' +
+    '<div class="idiom-quiz-next" id="idiom-next" style="display:none;"><button class="mp-btn primary" style="padding:10px 28px;" onclick="nextIdiomQuestion()">下一题 →</button></div>' +
+  '</div>';
+}
+
+function answerIdiom(i, btn) {
+  if (idiomQuiz.answered) return;
+  idiomQuiz.answered = true;
+  var correct = idiomQuiz.options[i] === idiomQuiz.current;
+  var buttons = document.querySelectorAll('.idiom-quiz-btn');
+  buttons.forEach(function(b) { b.disabled = true; });
+  var correctIdx = idiomQuiz.options.indexOf(idiomQuiz.current);
+  buttons[correctIdx].classList.add('correct');
+  if (!correct) { btn.classList.add('wrong'); }
+  else { idiomQuiz.score++; }
+  var word = idiomQuiz.current.w;
+  if (!appData.idioms) appData.idioms = {};
+  if (!appData.idioms[word]) appData.idioms[word] = { tested: 0, correct: 0 };
+  appData.idioms[word].tested++;
+  if (correct) appData.idioms[word].correct++;
+  saveData(appData);
+  document.getElementById('idiom-next').style.display = '';
+}
+
+function showIdiomQuizResult() {
+  var el = document.getElementById('idiom-tab-quiz');
+  var total = idiomQuiz.total, score = idiomQuiz.score;
+  var pct = total > 0 ? Math.round(score / total * 100) : 0;
+  var msg = pct >= 90 ? '太棒了！你是成语小达人！🌟' : pct >= 70 ? '不错哦，继续加油！👍' : pct >= 50 ? '还要多练习哦！💪' : '别灰心，多学几遍就会了！📚';
+  el.innerHTML = '<div class="idiom-quiz-wrap" style="text-align:center;padding:30px;">' +
+    '<div style="font-size:48px;margin-bottom:12px;">🏆</div>' +
+    '<div style="font-size:22px;font-weight:700;margin-bottom:8px;">' + score + '/' + total + '</div>' +
+    '<div style="font-size:14px;color:var(--text-secondary);margin-bottom:6px;">正确率 ' + pct + '%</div>' +
+    '<div style="font-size:15px;color:var(--text);margin-bottom:20px;">' + msg + '</div>' +
+    '<button class="mp-btn primary" style="padding:12px 32px;" onclick="startIdiomQuiz()">再来一轮</button> ' +
+    '<button class="mp-btn secondary" style="padding:12px 24px;" onclick="renderIdiomQuizStart()">返回</button>' +
+  '</div>';
+}
+
+function renderIdiomRecord() {
+  var el = document.getElementById('idiom-tab-record');
+  if (!el) return;
+  var records = appData.idioms || {};
+  var testedWords = Object.keys(records).filter(function(w) { return records[w].tested > 0; });
+  if (testedWords.length === 0) {
+    el.innerHTML = '<div style="text-align:center;padding:40px;color:var(--text-secondary);">还没有答题记录哦<br>去「成语猜谜」答几题试试吧！🎯</div>';
+    return;
+  }
+  testedWords.sort(function(a, b) { return records[b].tested - records[a].tested; });
+  var totalTested = 0, totalCorrect = 0;
+  testedWords.forEach(function(w) { totalTested += records[w].tested; totalCorrect += records[w].correct; });
+  var overallPct = totalTested > 0 ? Math.round(totalCorrect / totalTested * 100) : 0;
+  var html = '<div style="display:flex;justify-content:space-around;margin-bottom:16px;padding:12px;background:var(--card-bg);border-radius:12px;box-shadow:var(--card-shadow);">' +
+    '<div style="text-align:center;"><div style="font-size:24px;font-weight:700;color:#f0a020;">' + testedWords.length + '</div><div style="font-size:12px;color:var(--text-secondary);">已学成语</div></div>' +
+    '<div style="text-align:center;"><div style="font-size:24px;font-weight:700;color:#7bc043;">' + totalTested + '</div><div style="font-size:12px;color:var(--text-secondary);">答题次数</div></div>' +
+    '<div style="text-align:center;"><div style="font-size:24px;font-weight:700;color:#5ba4cf;">' + overallPct + '%</div><div style="font-size:12px;color:var(--text-secondary);">总正确率</div></div>' +
+  '</div>';
+  testedWords.forEach(function(w) {
+    var r = records[w];
+    var pct = r.tested > 0 ? Math.round(r.correct / r.tested * 100) : 0;
+    var idiomData = IDIOMS.find(function(id) { return id.w === w; });
+    var emoji = idiomData ? idiomData.emoji : '📝';
+    html += '<div class="idiom-record-item">' +
+      '<span style="font-size:20px;">' + emoji + '</span>' +
+      '<span class="idiom-record-word">' + w + '</span>' +
+      '<div class="idiom-record-bar"><div class="idiom-record-bar-fill" style="width:' + pct + '%;"></div></div>' +
+      '<span class="idiom-record-info">' + r.correct + '/' + r.tested + ' · ' + pct + '%</span>' +
+    '</div>';
+  });
+  el.innerHTML = html;
+}
 </script>
 </body>
 </html>
