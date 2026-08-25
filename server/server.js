@@ -76,6 +76,12 @@ try {
 try {
   db.exec(`ALTER TABLE users ADD COLUMN status TEXT DEFAULT 'pending'`);
 } catch(e) { /* 列已存在，忽略 */ }
+try {
+  db.exec(`ALTER TABLE users ADD COLUMN leaderboard_access INTEGER DEFAULT 0`);
+} catch(e) { /* 列已存在，忽略 */ }
+try {
+  db.exec(`ALTER TABLE users ADD COLUMN groups TEXT DEFAULT '[]'`);
+} catch(e) { /* 列已存在，忽略 */ }
 
 // 迁移：已有用户（status为NULL或pending的旧数据）标记为已批准
 db.exec(`UPDATE users SET status = 'approved' WHERE status IS NULL OR status = ''`);
@@ -84,6 +90,9 @@ const firstUser = db.prepare('SELECT id FROM users ORDER BY id ASC LIMIT 1').get
 if (firstUser) {
   db.prepare('UPDATE users SET role = ?, status = ? WHERE id = ?').run('admin', 'approved', firstUser.id);
 }
+
+// 迁移：管理员默认拥有排行榜权限
+db.exec(`UPDATE users SET leaderboard_access = 1 WHERE role = 'admin'`);
 
 // ==================== 工具函数 ====================
 
@@ -123,6 +132,11 @@ function sendJSON(res, status, data) {
     'Access-Control-Allow-Headers': 'Content-Type, Authorization',
   });
   res.end(JSON.stringify(data));
+}
+
+/** 安全解析 JSON */
+function safeParseJSON(str, fallback) {
+  try { return JSON.parse(str); } catch(e) { return fallback; }
 }
 
 /** 从请求头提取 user_id */
@@ -323,7 +337,7 @@ async function handleLogin(req, res) {
   sendJSON(res, 200, {
     token,
     data,
-    user: { id: user.id, username: user.username, displayName: user.display_name, avatar: user.avatar, role: user.role, status: user.status }
+    user: { id: user.id, username: user.username, displayName: user.display_name, avatar: user.avatar, role: user.role, status: user.status, leaderboardAccess: user.leaderboard_access, groups: safeParseJSON(user.groups, []) }
   });
 }
 
@@ -354,8 +368,8 @@ async function handleGetData(req, res) {
   }
 
   // 附带用户基本信息（含 role）
-  const userRow = db.prepare('SELECT id, username, display_name, avatar, role, status FROM users WHERE id = ?').get(userId);
-  sendJSON(res, 200, { data, user: userRow });
+  const userRow = db.prepare('SELECT id, username, display_name, avatar, role, status, leaderboard_access, groups FROM users WHERE id = ?').get(userId);
+  sendJSON(res, 200, { data, user: { id: userRow.id, username: userRow.username, displayName: userRow.display_name, avatar: userRow.avatar, role: userRow.role, status: userRow.status, leaderboardAccess: userRow.leaderboard_access, groups: safeParseJSON(userRow.groups, []) } });
 }
 
 /** POST /api/data */
@@ -382,14 +396,38 @@ async function handleSaveData(req, res) {
 
 /** GET /api/leaderboard */
 async function handleLeaderboard(req, res) {
-  const rows = db.prepare(`
-    SELECT id, username, display_name, avatar, points, streak
-    FROM users
-    ORDER BY streak DESC
-    LIMIT 50
-  `).all();
-
-  const leaderboard = rows.map((r, i) => ({
+  const userId = getAuthUserId(req);
+  const currentUser = userId ? db.prepare('SELECT id, role, leaderboard_access, groups FROM users WHERE id = ?').get(userId) : null;
+  
+  // 管理员看全部
+  if (currentUser && currentUser.role === 'admin') {
+    const rows = db.prepare(`SELECT id, username, display_name, avatar, points, streak FROM users ORDER BY streak DESC LIMIT 50`).all();
+    const leaderboard = rows.map((r, i) => ({ rank: i + 1, id: r.id, username: r.username, displayName: r.display_name, avatar: r.avatar, points: r.points, streak: r.streak }));
+    return sendJSON(res, 200, { leaderboard });
+  }
+  
+  // 无权限或未登录：返回空
+  if (!currentUser || !currentUser.leaderboard_access) {
+    return sendJSON(res, 200, { leaderboard: [] });
+  }
+  
+  const userGroups = safeParseJSON(currentUser.groups, []);
+  // 无组别：看不到任何人
+  if (userGroups.length === 0) {
+    return sendJSON(res, 200, { leaderboard: [] });
+  }
+  
+  // 获取所有用户，过滤同组别的
+  const allRows = db.prepare(`SELECT id, username, display_name, avatar, points, streak, groups, role, leaderboard_access FROM users ORDER BY streak DESC`).all();
+  const filtered = allRows.filter(r => {
+    if (r.id === currentUser.id) return true; // 总是能看到自己
+    if (!r.leaderboard_access) return false; // 无排行榜权限的用户不显示
+    if (r.role === 'admin') return true; // 管理员总是可见
+    const otherGroups = safeParseJSON(r.groups, []);
+    return userGroups.some(g => otherGroups.includes(g));
+  });
+  
+  const leaderboard = filtered.slice(0, 50).map((r, i) => ({
     rank: i + 1,
     id: r.id,
     username: r.username,
@@ -404,8 +442,11 @@ async function handleLeaderboard(req, res) {
 
 /** GET /api/leaderboard/pets — 宠物排行榜 */
 async function handlePetLeaderboard(req, res) {
+  const userId = getAuthUserId(req);
+  const currentUser = userId ? db.prepare('SELECT id, role, leaderboard_access, groups FROM users WHERE id = ?').get(userId) : null;
+  
   const rows = db.prepare(`
-    SELECT u.id, u.username, u.display_name, u.avatar, ud.data
+    SELECT u.id, u.username, u.display_name, u.avatar, u.role, u.groups, u.leaderboard_access, ud.data
     FROM users u
     LEFT JOIN user_data ud ON ud.user_id = u.id
     ORDER BY u.id
@@ -448,6 +489,8 @@ async function handlePetLeaderboard(req, res) {
       username: r.username,
       displayName: r.display_name,
       avatar: r.avatar,
+      role: r.role,
+      groups: safeParseJSON(r.groups, []),
       petName: pet.name || '小宠物',
       petStyle: pet.style || 'pokemon',
       petId: pet.petId || 0,
@@ -458,8 +501,30 @@ async function handlePetLeaderboard(req, res) {
     });
   }
 
-  pets.sort((a, b) => b.level !== a.level ? b.level - a.level : b.health - a.health);
-  sendJSON(res, 200, { pets: pets.slice(0, 50) });
+  // 按组别过滤
+  let filteredPets = pets;
+  if (currentUser && currentUser.role === 'admin') {
+    // 管理员看全部
+  } else if (!currentUser || !currentUser.leaderboard_access) {
+    filteredPets = [];
+  } else {
+    const userGroups = safeParseJSON(currentUser.groups, []);
+    if (userGroups.length === 0) {
+      filteredPets = [];
+    } else {
+      filteredPets = pets.filter(p => {
+        if (p.userId === currentUser.id) return true;
+        const otherUser = rows.find(r => r.id === p.userId);
+        if (otherUser && !otherUser.leaderboard_access) return false;
+        if (otherUser && otherUser.role === 'admin') return true;
+        const otherGroups = safeParseJSON(otherUser ? otherUser.groups : '[]', []);
+        return userGroups.some(g => otherGroups.includes(g));
+      });
+    }
+  }
+  
+  filteredPets.sort((a, b) => b.level !== a.level ? b.level - a.level : b.health - a.health);
+  sendJSON(res, 200, { pets: filteredPets.slice(0, 50) });
 }
 
 /** GET /api/admin/users — 管理员获取全部用户列表 */
@@ -468,7 +533,7 @@ async function handleAdminGetUsers(req, res) {
     return sendJSON(res, 403, { error: '无权限，仅管理员可访问' });
   }
   const rows = db.prepare(`
-    SELECT id, username, display_name, avatar, role, status, points, streak, created_at
+    SELECT id, username, display_name, avatar, role, status, points, streak, created_at, leaderboard_access, groups
     FROM users
     ORDER BY
       CASE status WHEN 'pending' THEN 0 WHEN 'approved' THEN 1 WHEN 'rejected' THEN 2 END,
@@ -485,6 +550,8 @@ async function handleAdminGetUsers(req, res) {
     points: r.points,
     streak: r.streak,
     createdAt: r.created_at,
+    leaderboardAccess: r.leaderboard_access,
+    groups: safeParseJSON(r.groups, []),
   }));
 
   sendJSON(res, 200, { users });
@@ -510,6 +577,32 @@ async function handleAdminApprove(req, res) {
   }
   
   db.prepare('UPDATE users SET status = ? WHERE id = ?').run('approved', userId);
+  sendJSON(res, 200, { ok: true });
+}
+
+/** POST /api/admin/update-user — 管理员更新用户设置（排行榜权限、组别） */
+async function handleAdminUpdateUser(req, res) {
+  if (!isAdmin(req)) {
+    return sendJSON(res, 403, { error: '无权限，仅管理员可访问' });
+  }
+  const body = await parseBody(req);
+  const userId = body.userId;
+  if (!userId) {
+    return sendJSON(res, 400, { error: '缺少 userId' });
+  }
+  
+  const user = db.prepare('SELECT id, role FROM users WHERE id = ?').get(userId);
+  if (!user) {
+    return sendJSON(res, 404, { error: '用户不存在' });
+  }
+  
+  if (body.leaderboardAccess !== undefined) {
+    db.prepare('UPDATE users SET leaderboard_access = ? WHERE id = ?').run(body.leaderboardAccess ? 1 : 0, userId);
+  }
+  if (body.groups !== undefined) {
+    db.prepare('UPDATE users SET groups = ? WHERE id = ?').run(JSON.stringify(body.groups), userId);
+  }
+  
   sendJSON(res, 200, { ok: true });
 }
 
@@ -662,6 +755,9 @@ const server = http.createServer(async (req, res) => {
     }
     if (pathname === '/api/admin/reject' && req.method === 'POST') {
       return await handleAdminReject(req, res);
+    }
+    if (pathname === '/api/admin/update-user' && req.method === 'POST') {
+      return await handleAdminUpdateUser(req, res);
     }
     if (pathname === '/api/admin/stats' && req.method === 'GET') {
       return await handleAdminStats(req, res);

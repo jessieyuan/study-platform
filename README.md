@@ -1,4 +1,4 @@
-# 个人学习平台
+# Study Platform
 
 带多账号系统、宠物养成、排行榜的学习工作台。
 
@@ -31,7 +31,7 @@ node --experimental-sqlite server/server.js
 ## 项目结构
 
 ```
-个人学习平台/
+study-platform/
 ├── index.html            # 主页面（前端 UI）
 ├── server/
 │   ├── server.js         # Node.js 后端服务（含全部 API）

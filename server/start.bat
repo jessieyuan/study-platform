@@ -1,7 +1,7 @@
 @echo off
 chcp 65001 >nul
 echo ========================================
-echo   个人学习平台 - 服务器启动
+echo   Study Platform - 服务器启动
 echo   地址: http://localhost:3000
 echo ========================================
 echo.

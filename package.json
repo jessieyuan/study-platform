@@ -1,7 +1,7 @@
 {
-  "name": "personal-learning-platform",
+  "name": "study-platform",
   "version": "3.2.0",
-  "description": "个人学习平台 - 带多账号系统、宠物养成、排行榜的学习工作台",
+  "description": "study-platform - 带多账号系统、宠物养成、排行榜的学习工作台",
   "main": "server/server.js",
   "scripts": {
     "start": "node --experimental-sqlite server/server.js",
