@@ -1,0 +1,6 @@
+server/data.db
+server/data.db-journal
+.git
+node_modules
+docs
+*.md

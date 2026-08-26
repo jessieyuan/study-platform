@@ -26,10 +26,10 @@ const fs = require('node:fs');
 const path = require('node:path');
 
 // ==================== 配置 ====================
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
 const PROJECT_DIR = path.join(__dirname, '..');
 const HTML_FILE = path.join(PROJECT_DIR, 'index.html');
-const DB_PATH = path.join(__dirname, 'data.db');
+const DB_PATH = process.env.DB_PATH || path.join(__dirname, 'data.db');
 const SESSION_MAX_AGE_DAYS = 30;
 
 // ==================== 数据库初始化 ====================
