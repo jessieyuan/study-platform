@@ -1,14 +1,17 @@
 {
   "name": "study-platform",
-  "version": "3.2.0",
+  "version": "3.3.0",
   "description": "study-platform - 带多账号系统、宠物养成、排行榜的学习工作台",
   "main": "server/server.js",
   "scripts": {
-    "start": "node --experimental-sqlite server/server.js",
-    "dev": "node --experimental-sqlite server/server.js"
+    "start": "node server/server.js",
+    "dev": "node server/server.js"
+  },
+  "dependencies": {
+    "pg": "^8.13.1"
   },
   "engines": {
-    "node": ">=22.0.0"
+    "node": ">=18.0.0"
   },
   "keywords": ["learning", "education", "kids", "study", "pet"],
   "license": "MIT",

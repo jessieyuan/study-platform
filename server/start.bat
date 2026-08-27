@@ -6,5 +6,5 @@ echo   地址: http://localhost:3000
 echo ========================================
 echo.
 cd /d "%~dp0.."
-node --experimental-sqlite server\server.js
+node server\server.js
 pause

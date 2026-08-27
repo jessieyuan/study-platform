@@ -4,4 +4,4 @@ cd "$(dirname "$0")/.."
 echo "=== Study Platform 服务器启动 ==="
 echo "地址: http://localhost:3000"
 echo ""
-node --experimental-sqlite server/server.js
+node server/server.js
