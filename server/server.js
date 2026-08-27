@@ -1,9 +1,14 @@
 /**
  * 学习工作台 — 后端服务器
- * 零外部依赖：仅使用 Node.js 内置模块 (http + sqlite + crypto + fs)
+ * 依赖：pg (PostgreSQL 驱动)，其余使用 Node.js 内置模块 (http + crypto + fs)
  *
  * 启动方式:
- *   node --experimental-sqlite server/server.js
+ *   node server/server.js
+ *
+ * 环境变量:
+ *   DATABASE_URL  PostgreSQL 连接串（必填）
+ *   PORT          监听端口（默认 3000）
+ *   DB_SSL        是否启用 SSL（云端通常需要，设为 'true'）
  *
  * API 列表:
  *   POST /api/register       注册新用户（普通用户需管理员审批）
@@ -12,15 +17,17 @@
  *   GET  /api/data           获取用户数据
  *   POST /api/data           保存用户数据
  *   GET  /api/leaderboard    获取排行榜
+ *   GET  /api/leaderboard/pets 宠物排行榜
  *   --- 管理员 API ---
  *   GET  /api/admin/users    全部用户列表
  *   POST /api/admin/approve  批准用户注册
  *   POST /api/admin/reject   拒绝/删除用户
+ *   POST /api/admin/update-user 更新用户设置
  *   GET  /api/admin/stats    统计信息
  */
 
 const http = require('node:http');
-const { DatabaseSync } = require('node:sqlite');
+const { Pool } = require('pg');
 const crypto = require('node:crypto');
 const fs = require('node:fs');
 const path = require('node:path');
@@ -29,70 +36,76 @@ const path = require('node:path');
 const PORT = process.env.PORT || 3000;
 const PROJECT_DIR = path.join(__dirname, '..');
 const HTML_FILE = path.join(PROJECT_DIR, 'index.html');
-const DB_PATH = process.env.DB_PATH || path.join(__dirname, 'data.db');
+const DATABASE_URL = process.env.DATABASE_URL;
 const SESSION_MAX_AGE_DAYS = 30;
 
-// ==================== 数据库初始化 ====================
-const db = new DatabaseSync(DB_PATH);
-db.exec(`
-  CREATE TABLE IF NOT EXISTS users (
-    id            INTEGER PRIMARY KEY AUTOINCREMENT,
-    username      TEXT UNIQUE NOT NULL,
-    password_hash TEXT NOT NULL,
-    password_salt TEXT NOT NULL,
-    display_name  TEXT DEFAULT '小学霸',
-    avatar        TEXT DEFAULT '👦',
-    points        INTEGER DEFAULT 200,
-    streak        INTEGER DEFAULT 0,
-    last_active   TEXT,
-    created_at    TEXT DEFAULT (datetime('now','localtime')),
-    role          TEXT DEFAULT 'user',
-    status        TEXT DEFAULT 'pending'
-  );
-
-  CREATE TABLE IF NOT EXISTS sessions (
-    token       TEXT PRIMARY KEY,
-    user_id     INTEGER NOT NULL,
-    created_at  TEXT DEFAULT (datetime('now','localtime')),
-    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
-  );
-
-  CREATE TABLE IF NOT EXISTS user_data (
-    user_id     INTEGER PRIMARY KEY,
-    data        TEXT NOT NULL,
-    updated_at  TEXT DEFAULT (datetime('now','localtime')),
-    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
-  );
-
-  CREATE INDEX IF NOT EXISTS idx_sessions_user ON sessions(user_id);
-  CREATE INDEX IF NOT EXISTS idx_users_points ON users(points DESC);
-  CREATE INDEX IF NOT EXISTS idx_users_status ON users(status);
-`);
-
-// ---- 数据库迁移：为旧表添加新列 ----
-try {
-  db.exec(`ALTER TABLE users ADD COLUMN role TEXT DEFAULT 'user'`);
-} catch(e) { /* 列已存在，忽略 */ }
-try {
-  db.exec(`ALTER TABLE users ADD COLUMN status TEXT DEFAULT 'pending'`);
-} catch(e) { /* 列已存在，忽略 */ }
-try {
-  db.exec(`ALTER TABLE users ADD COLUMN leaderboard_access INTEGER DEFAULT 0`);
-} catch(e) { /* 列已存在，忽略 */ }
-try {
-  db.exec(`ALTER TABLE users ADD COLUMN groups TEXT DEFAULT '[]'`);
-} catch(e) { /* 列已存在，忽略 */ }
-
-// 迁移：已有用户（status为NULL或pending的旧数据）标记为已批准
-db.exec(`UPDATE users SET status = 'approved' WHERE status IS NULL OR status = ''`);
-// 首个用户自动成为管理员
-const firstUser = db.prepare('SELECT id FROM users ORDER BY id ASC LIMIT 1').get();
-if (firstUser) {
-  db.prepare('UPDATE users SET role = ?, status = ? WHERE id = ?').run('admin', 'approved', firstUser.id);
+if (!DATABASE_URL) {
+  console.error('❌ 缺少 DATABASE_URL 环境变量！请设置 PostgreSQL 连接串。');
+  console.error('   本地开发: export DATABASE_URL=postgres://user:pass@localhost:5432/dbname');
+  console.error('   云端部署: 在平台环境变量中配置 DATABASE_URL');
+  process.exit(1);
 }
 
-// 迁移：管理员默认拥有排行榜权限
-db.exec(`UPDATE users SET leaderboard_access = 1 WHERE role = 'admin'`);
+// ==================== 数据库连接 ====================
+const pool = new Pool({
+  connectionString: DATABASE_URL,
+  ssl: process.env.DB_SSL === 'true' ? { rejectUnauthorized: false } : false,
+  max: 10,
+  idleTimeoutMillis: 30000,
+  connectionTimeoutMillis: 10000,
+});
+
+// ==================== 数据库初始化 ====================
+async function initDB() {
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS users (
+      id                SERIAL PRIMARY KEY,
+      username          TEXT UNIQUE NOT NULL,
+      password_hash     TEXT NOT NULL,
+      password_salt     TEXT NOT NULL,
+      display_name      TEXT DEFAULT '小学霸',
+      avatar            TEXT DEFAULT '👦',
+      points            INTEGER DEFAULT 200,
+      streak            INTEGER DEFAULT 0,
+      last_active       TEXT,
+      created_at        TIMESTAMPTZ DEFAULT NOW(),
+      role              TEXT DEFAULT 'user',
+      status            TEXT DEFAULT 'pending',
+      leaderboard_access INTEGER DEFAULT 0,
+      groups            TEXT DEFAULT '[]'
+    );
+
+    CREATE TABLE IF NOT EXISTS sessions (
+      token       TEXT PRIMARY KEY,
+      user_id     INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      created_at  TIMESTAMPTZ DEFAULT NOW()
+    );
+
+    CREATE TABLE IF NOT EXISTS user_data (
+      user_id     INTEGER PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
+      data        TEXT NOT NULL,
+      updated_at  TIMESTAMPTZ DEFAULT NOW()
+    );
+
+    CREATE INDEX IF NOT EXISTS idx_sessions_user ON sessions(user_id);
+    CREATE INDEX IF NOT EXISTS idx_users_points ON users(points DESC);
+    CREATE INDEX IF NOT EXISTS idx_users_status ON users(status);
+  `);
+
+  // 迁移：已有用户（status为NULL或pending的旧数据）标记为已批准
+  await pool.query(`UPDATE users SET status = 'approved' WHERE status IS NULL OR status = ''`);
+
+  // 首个用户自动成为管理员
+  const { rows: firstUsers } = await pool.query('SELECT id FROM users ORDER BY id ASC LIMIT 1');
+  if (firstUsers.length > 0) {
+    await pool.query('UPDATE users SET role = $1, status = $2 WHERE id = $3', ['admin', 'approved', firstUsers[0].id]);
+  }
+
+  // 迁移：管理员默认拥有排行榜权限
+  await pool.query(`UPDATE users SET leaderboard_access = 1 WHERE role = 'admin'`);
+
+  console.log('✅ 数据库初始化完成');
+}
 
 // ==================== 工具函数 ====================
 
@@ -139,36 +152,36 @@ function safeParseJSON(str, fallback) {
   try { return JSON.parse(str); } catch(e) { return fallback; }
 }
 
-/** 从请求头提取 user_id */
-function getAuthUserId(req) {
+/** 从请求头提取 user_id（异步，需 await） */
+async function getAuthUserId(req) {
   const auth = req.headers['authorization'];
   if (!auth || !auth.startsWith('Bearer ')) return null;
   const token = auth.slice(7);
-  const row = db.prepare('SELECT user_id FROM sessions WHERE token = ?').get(token);
-  if (!row) return null;
+  const { rows } = await pool.query('SELECT user_id, created_at FROM sessions WHERE token = $1', [token]);
+  if (rows.length === 0) return null;
   // 检查 session 是否过期
-  const createdAt = db.prepare('SELECT created_at FROM sessions WHERE token = ?').get(token);
+  const createdAt = rows[0].created_at;
   if (createdAt) {
-    const ageDays = (Date.now() - new Date(createdAt.created_at).getTime()) / (1000 * 60 * 60 * 24);
+    const ageDays = (Date.now() - new Date(createdAt).getTime()) / (1000 * 60 * 60 * 24);
     if (ageDays > SESSION_MAX_AGE_DAYS) {
-      db.prepare('DELETE FROM sessions WHERE token = ?').run(token);
+      await pool.query('DELETE FROM sessions WHERE token = $1', [token]);
       return null;
     }
   }
-  return row.user_id;
+  return rows[0].user_id;
 }
 
 /** 获取完整用户信息（含 role、status） */
-function getAuthUser(req) {
-  const userId = getAuthUserId(req);
+async function getAuthUser(req) {
+  const userId = await getAuthUserId(req);
   if (!userId) return null;
-  const user = db.prepare('SELECT id, username, display_name, avatar, role, status FROM users WHERE id = ?').get(userId);
-  return user;
+  const { rows } = await pool.query('SELECT id, username, display_name, avatar, role, status FROM users WHERE id = $1', [userId]);
+  return rows[0] || null;
 }
 
 /** 检查是否管理员 */
-function isAdmin(req) {
-  const user = getAuthUser(req);
+async function isAdmin(req) {
+  const user = await getAuthUser(req);
   return user && user.role === 'admin';
 }
 
@@ -211,23 +224,23 @@ function defaultUserData() {
 }
 
 /** 将 user_data JSON 中的关键字段同步到 users 表（用于排行榜查询） */
-function syncUserFields(userId, data) {
-  db.prepare(`
+async function syncUserFields(userId, data) {
+  await pool.query(`
     UPDATE users SET
-      points = ?,
-      streak = ?,
-      display_name = ?,
-      avatar = ?,
-      last_active = ?
-    WHERE id = ?
-  `).run(
+      points = $1,
+      streak = $2,
+      display_name = $3,
+      avatar = $4,
+      last_active = $5
+    WHERE id = $6
+  `, [
     data.points || 0,
     data.streak || 0,
     (data.profile && data.profile.name) || '小学霸',
     (data.profile && data.profile.avatar) || '👦',
     data.lastActive || null,
     userId
-  );
+  ]);
 }
 
 // ==================== API 处理器 ====================
@@ -248,36 +261,37 @@ async function handleRegister(req, res) {
   }
 
   // 检查用户名是否已存在
-  const existing = db.prepare('SELECT id FROM users WHERE username = ?').get(username);
-  if (existing) {
+  const { rows: existing } = await pool.query('SELECT id FROM users WHERE username = $1', [username]);
+  if (existing.length > 0) {
     return sendJSON(res, 409, { error: '用户名已存在' });
   }
 
   // 判断是否首个用户 → 自动成为管理员
-  const userCount = db.prepare('SELECT COUNT(*) as cnt FROM users').get();
-  const isFirstUser = userCount.cnt === 0;
+  const { rows: countRows } = await pool.query('SELECT COUNT(*)::int as cnt FROM users');
+  const isFirstUser = countRows[0].cnt === 0;
   const role = isFirstUser ? 'admin' : 'user';
   const status = isFirstUser ? 'approved' : 'pending';
 
   // 创建用户
   const salt = crypto.randomBytes(16).toString('hex');
   const hash = hashPassword(password, salt);
-  const result = db.prepare(`
+  const { rows: insertRows } = await pool.query(`
     INSERT INTO users (username, password_hash, password_salt, display_name, avatar, role, status)
-    VALUES (?, ?, ?, ?, ?, ?, ?)
-  `).run(username, hash, salt, displayName, avatar, role, status);
-  const userId = result.lastInsertRowid;
+    VALUES ($1, $2, $3, $4, $5, $6, $7)
+    RETURNING id
+  `, [username, hash, salt, displayName, avatar, role, status]);
+  const userId = insertRows[0].id;
 
   // 创建默认数据
   const defaultData = defaultUserData();
   defaultData.profile.name = displayName;
   defaultData.profile.avatar = avatar;
-  db.prepare('INSERT INTO user_data (user_id, data) VALUES (?, ?)').run(userId, JSON.stringify(defaultData));
+  await pool.query('INSERT INTO user_data (user_id, data) VALUES ($1, $2)', [userId, JSON.stringify(defaultData)]);
 
   if (isFirstUser) {
     // 首个用户（管理员）直接生成 session 并返回
     const token = generateToken();
-    db.prepare('INSERT INTO sessions (token, user_id) VALUES (?, ?)').run(token, userId);
+    await pool.query('INSERT INTO sessions (token, user_id) VALUES ($1, $2)', [token, userId]);
     sendJSON(res, 200, {
       token,
       data: defaultData,
@@ -302,7 +316,8 @@ async function handleLogin(req, res) {
     return sendJSON(res, 400, { error: '请输入用户名和密码' });
   }
 
-  const user = db.prepare('SELECT * FROM users WHERE username = ?').get(username);
+  const { rows } = await pool.query('SELECT * FROM users WHERE username = $1', [username]);
+  const user = rows[0];
   if (!user) {
     return sendJSON(res, 401, { error: '用户名不存在' });
   }
@@ -322,16 +337,16 @@ async function handleLogin(req, res) {
 
   // 生成 session
   const token = generateToken();
-  db.prepare('INSERT INTO sessions (token, user_id) VALUES (?, ?)').run(token, user.id);
+  await pool.query('INSERT INTO sessions (token, user_id) VALUES ($1, $2)', [token, user.id]);
 
   // 获取用户数据
-  const dataRow = db.prepare('SELECT data FROM user_data WHERE user_id = ?').get(user.id);
+  const { rows: dataRows } = await pool.query('SELECT data FROM user_data WHERE user_id = $1', [user.id]);
   let data;
-  if (dataRow) {
-    data = JSON.parse(dataRow.data);
+  if (dataRows.length > 0) {
+    data = JSON.parse(dataRows[0].data);
   } else {
     data = defaultUserData();
-    db.prepare('INSERT INTO user_data (user_id, data) VALUES (?, ?)').run(user.id, JSON.stringify(data));
+    await pool.query('INSERT INTO user_data (user_id, data) VALUES ($1, $2)', [user.id, JSON.stringify(data)]);
   }
 
   sendJSON(res, 200, {
@@ -346,35 +361,36 @@ async function handleLogout(req, res) {
   const auth = req.headers['authorization'];
   if (auth && auth.startsWith('Bearer ')) {
     const token = auth.slice(7);
-    db.prepare('DELETE FROM sessions WHERE token = ?').run(token);
+    await pool.query('DELETE FROM sessions WHERE token = $1', [token]);
   }
   sendJSON(res, 200, { ok: true });
 }
 
 /** GET /api/data */
 async function handleGetData(req, res) {
-  const userId = getAuthUserId(req);
+  const userId = await getAuthUserId(req);
   if (!userId) {
     return sendJSON(res, 401, { error: '未登录或登录已过期' });
   }
 
-  const dataRow = db.prepare('SELECT data FROM user_data WHERE user_id = ?').get(userId);
+  const { rows: dataRows } = await pool.query('SELECT data FROM user_data WHERE user_id = $1', [userId]);
   let data;
-  if (dataRow) {
-    data = JSON.parse(dataRow.data);
+  if (dataRows.length > 0) {
+    data = JSON.parse(dataRows[0].data);
   } else {
     data = defaultUserData();
-    db.prepare('INSERT INTO user_data (user_id, data) VALUES (?, ?)').run(userId, JSON.stringify(data));
+    await pool.query('INSERT INTO user_data (user_id, data) VALUES ($1, $2)', [userId, JSON.stringify(data)]);
   }
 
   // 附带用户基本信息（含 role）
-  const userRow = db.prepare('SELECT id, username, display_name, avatar, role, status, leaderboard_access, groups FROM users WHERE id = ?').get(userId);
+  const { rows: userRows } = await pool.query('SELECT id, username, display_name, avatar, role, status, leaderboard_access, groups FROM users WHERE id = $1', [userId]);
+  const userRow = userRows[0];
   sendJSON(res, 200, { data, user: { id: userRow.id, username: userRow.username, displayName: userRow.display_name, avatar: userRow.avatar, role: userRow.role, status: userRow.status, leaderboardAccess: userRow.leaderboard_access, groups: safeParseJSON(userRow.groups, []) } });
 }
 
 /** POST /api/data */
 async function handleSaveData(req, res) {
-  const userId = getAuthUserId(req);
+  const userId = await getAuthUserId(req);
   if (!userId) {
     return sendJSON(res, 401, { error: '未登录或登录已过期' });
   }
@@ -382,43 +398,47 @@ async function handleSaveData(req, res) {
   const body = await parseBody(req);
   const dataStr = JSON.stringify(body);
 
-  // 更新 user_data
-  db.prepare(`
-    INSERT INTO user_data (user_id, data, updated_at) VALUES (?, ?, datetime('now','localtime'))
-    ON CONFLICT(user_id) DO UPDATE SET data = excluded.data, updated_at = excluded.updated_at
-  `).run(userId, dataStr);
+  // 更新 user_data（UPSERT）
+  await pool.query(`
+    INSERT INTO user_data (user_id, data, updated_at) VALUES ($1, $2, NOW())
+    ON CONFLICT(user_id) DO UPDATE SET data = EXCLUDED.data, updated_at = EXCLUDED.updated_at
+  `, [userId, dataStr]);
 
   // 同步关键字段到 users 表
-  syncUserFields(userId, body);
+  await syncUserFields(userId, body);
 
   sendJSON(res, 200, { ok: true });
 }
 
 /** GET /api/leaderboard */
 async function handleLeaderboard(req, res) {
-  const userId = getAuthUserId(req);
-  const currentUser = userId ? db.prepare('SELECT id, role, leaderboard_access, groups FROM users WHERE id = ?').get(userId) : null;
-  
+  const userId = await getAuthUserId(req);
+  let currentUser = null;
+  if (userId) {
+    const { rows } = await pool.query('SELECT id, role, leaderboard_access, groups FROM users WHERE id = $1', [userId]);
+    currentUser = rows[0] || null;
+  }
+
   // 管理员看全部
   if (currentUser && currentUser.role === 'admin') {
-    const rows = db.prepare(`SELECT id, username, display_name, avatar, points, streak FROM users ORDER BY streak DESC LIMIT 50`).all();
+    const { rows } = await pool.query('SELECT id, username, display_name, avatar, points, streak FROM users ORDER BY streak DESC LIMIT 50');
     const leaderboard = rows.map((r, i) => ({ rank: i + 1, id: r.id, username: r.username, displayName: r.display_name, avatar: r.avatar, points: r.points, streak: r.streak }));
     return sendJSON(res, 200, { leaderboard });
   }
-  
+
   // 无权限或未登录：返回空
   if (!currentUser || !currentUser.leaderboard_access) {
     return sendJSON(res, 200, { leaderboard: [] });
   }
-  
+
   const userGroups = safeParseJSON(currentUser.groups, []);
   // 无组别：看不到任何人
   if (userGroups.length === 0) {
     return sendJSON(res, 200, { leaderboard: [] });
   }
-  
+
   // 获取所有用户，过滤同组别的
-  const allRows = db.prepare(`SELECT id, username, display_name, avatar, points, streak, groups, role, leaderboard_access FROM users ORDER BY streak DESC`).all();
+  const { rows: allRows } = await pool.query('SELECT id, username, display_name, avatar, points, streak, groups, role, leaderboard_access FROM users ORDER BY streak DESC');
   const filtered = allRows.filter(r => {
     if (r.id === currentUser.id) return true; // 总是能看到自己
     if (!r.leaderboard_access) return false; // 无排行榜权限的用户不显示
@@ -426,7 +446,7 @@ async function handleLeaderboard(req, res) {
     const otherGroups = safeParseJSON(r.groups, []);
     return userGroups.some(g => otherGroups.includes(g));
   });
-  
+
   const leaderboard = filtered.slice(0, 50).map((r, i) => ({
     rank: i + 1,
     id: r.id,
@@ -442,15 +462,19 @@ async function handleLeaderboard(req, res) {
 
 /** GET /api/leaderboard/pets — 宠物排行榜 */
 async function handlePetLeaderboard(req, res) {
-  const userId = getAuthUserId(req);
-  const currentUser = userId ? db.prepare('SELECT id, role, leaderboard_access, groups FROM users WHERE id = ?').get(userId) : null;
-  
-  const rows = db.prepare(`
+  const userId = await getAuthUserId(req);
+  let currentUser = null;
+  if (userId) {
+    const { rows } = await pool.query('SELECT id, role, leaderboard_access, groups FROM users WHERE id = $1', [userId]);
+    currentUser = rows[0] || null;
+  }
+
+  const { rows } = await pool.query(`
     SELECT u.id, u.username, u.display_name, u.avatar, u.role, u.groups, u.leaderboard_access, ud.data
     FROM users u
     LEFT JOIN user_data ud ON ud.user_id = u.id
     ORDER BY u.id
-  `).all();
+  `);
 
   const today = new Date();
   today.setHours(0, 0, 0, 0);
@@ -522,23 +546,23 @@ async function handlePetLeaderboard(req, res) {
       });
     }
   }
-  
+
   filteredPets.sort((a, b) => b.level !== a.level ? b.level - a.level : b.health - a.health);
   sendJSON(res, 200, { pets: filteredPets.slice(0, 50) });
 }
 
 /** GET /api/admin/users — 管理员获取全部用户列表 */
 async function handleAdminGetUsers(req, res) {
-  if (!isAdmin(req)) {
+  if (!await isAdmin(req)) {
     return sendJSON(res, 403, { error: '无权限，仅管理员可访问' });
   }
-  const rows = db.prepare(`
+  const { rows } = await pool.query(`
     SELECT id, username, display_name, avatar, role, status, points, streak, created_at, leaderboard_access, groups
     FROM users
     ORDER BY
       CASE status WHEN 'pending' THEN 0 WHEN 'approved' THEN 1 WHEN 'rejected' THEN 2 END,
       created_at DESC
-  `).all();
+  `);
 
   const users = rows.map(r => ({
     id: r.id,
@@ -559,7 +583,7 @@ async function handleAdminGetUsers(req, res) {
 
 /** POST /api/admin/approve — 管理员批准用户 */
 async function handleAdminApprove(req, res) {
-  if (!isAdmin(req)) {
+  if (!await isAdmin(req)) {
     return sendJSON(res, 403, { error: '无权限，仅管理员可访问' });
   }
   const body = await parseBody(req);
@@ -567,22 +591,23 @@ async function handleAdminApprove(req, res) {
   if (!userId) {
     return sendJSON(res, 400, { error: '缺少 userId' });
   }
-  
-  const user = db.prepare('SELECT id, role FROM users WHERE id = ?').get(userId);
+
+  const { rows } = await pool.query('SELECT id, role FROM users WHERE id = $1', [userId]);
+  const user = rows[0];
   if (!user) {
     return sendJSON(res, 404, { error: '用户不存在' });
   }
   if (user.role === 'admin') {
     return sendJSON(res, 400, { error: '不能修改管理员状态' });
   }
-  
-  db.prepare('UPDATE users SET status = ? WHERE id = ?').run('approved', userId);
+
+  await pool.query('UPDATE users SET status = $1 WHERE id = $2', ['approved', userId]);
   sendJSON(res, 200, { ok: true });
 }
 
 /** POST /api/admin/update-user — 管理员更新用户设置（排行榜权限、组别） */
 async function handleAdminUpdateUser(req, res) {
-  if (!isAdmin(req)) {
+  if (!await isAdmin(req)) {
     return sendJSON(res, 403, { error: '无权限，仅管理员可访问' });
   }
   const body = await parseBody(req);
@@ -590,25 +615,26 @@ async function handleAdminUpdateUser(req, res) {
   if (!userId) {
     return sendJSON(res, 400, { error: '缺少 userId' });
   }
-  
-  const user = db.prepare('SELECT id, role FROM users WHERE id = ?').get(userId);
+
+  const { rows } = await pool.query('SELECT id, role FROM users WHERE id = $1', [userId]);
+  const user = rows[0];
   if (!user) {
     return sendJSON(res, 404, { error: '用户不存在' });
   }
-  
+
   if (body.leaderboardAccess !== undefined) {
-    db.prepare('UPDATE users SET leaderboard_access = ? WHERE id = ?').run(body.leaderboardAccess ? 1 : 0, userId);
+    await pool.query('UPDATE users SET leaderboard_access = $1 WHERE id = $2', [body.leaderboardAccess ? 1 : 0, userId]);
   }
   if (body.groups !== undefined) {
-    db.prepare('UPDATE users SET groups = ? WHERE id = ?').run(JSON.stringify(body.groups), userId);
+    await pool.query('UPDATE users SET groups = $1 WHERE id = $2', [JSON.stringify(body.groups), userId]);
   }
-  
+
   sendJSON(res, 200, { ok: true });
 }
 
 /** POST /api/admin/reject — 管理员拒绝/删除用户 */
 async function handleAdminReject(req, res) {
-  if (!isAdmin(req)) {
+  if (!await isAdmin(req)) {
     return sendJSON(res, 403, { error: '无权限，仅管理员可访问' });
   }
   const body = await parseBody(req);
@@ -616,36 +642,40 @@ async function handleAdminReject(req, res) {
   if (!userId) {
     return sendJSON(res, 400, { error: '缺少 userId' });
   }
-  
-  const user = db.prepare('SELECT id, role FROM users WHERE id = ?').get(userId);
+
+  const { rows } = await pool.query('SELECT id, role FROM users WHERE id = $1', [userId]);
+  const user = rows[0];
   if (!user) {
     return sendJSON(res, 404, { error: '用户不存在' });
   }
   if (user.role === 'admin') {
     return sendJSON(res, 400, { error: '不能删除管理员账号' });
   }
-  
-  // 彻底删除用户及其数据
-  db.prepare('DELETE FROM user_data WHERE user_id = ?').run(userId);
-  db.prepare('DELETE FROM sessions WHERE user_id = ?').run(userId);
-  db.prepare('DELETE FROM users WHERE id = ?').run(userId);
+
+  // 彻底删除用户及其数据（外键 ON DELETE CASCADE 会自动清理 sessions 和 user_data）
+  await pool.query('DELETE FROM users WHERE id = $1', [userId]);
   sendJSON(res, 200, { ok: true });
 }
 
 /** GET /api/admin/stats — 管理员获取统计信息 */
 async function handleAdminStats(req, res) {
-  if (!isAdmin(req)) {
+  if (!await isAdmin(req)) {
     return sendJSON(res, 403, { error: '无权限，仅管理员可访问' });
   }
-  const pending = db.prepare("SELECT COUNT(*) as cnt FROM users WHERE status = 'pending'").get();
-  const approved = db.prepare("SELECT COUNT(*) as cnt FROM users WHERE status = 'approved'").get();
-  const rejected = db.prepare("SELECT COUNT(*) as cnt FROM users WHERE status = 'rejected'").get();
-  const total = db.prepare("SELECT COUNT(*) as cnt FROM users").get();
+  const { rows } = await pool.query(`
+    SELECT
+      COUNT(*)::int FILTER (WHERE status = 'pending')  AS pending,
+      COUNT(*)::int FILTER (WHERE status = 'approved') AS approved,
+      COUNT(*)::int FILTER (WHERE status = 'rejected') AS rejected,
+      COUNT(*)::int                                    AS total
+    FROM users
+  `);
+  const stats = rows[0];
   sendJSON(res, 200, {
-    pending: pending.cnt,
-    approved: approved.cnt,
-    rejected: rejected.cnt,
-    total: total.cnt,
+    pending: stats.pending,
+    approved: stats.approved,
+    rejected: stats.rejected,
+    total: stats.total,
   });
 }
 
@@ -783,25 +813,36 @@ process.on('unhandledRejection', (reason) => {
   console.error('FATAL unhandledRejection:', reason);
 });
 
-server.listen(PORT, '0.0.0.0', () => {
-  console.log('═══════════════════════════════════════════');
-  console.log('  学习工作台服务器已启动');
-  console.log('  地址: http://localhost:' + PORT);
-  console.log('  数据库: ' + DB_PATH);
-  console.log('═══════════════════════════════════════════');
-  console.log('');
-  console.log('API 列表:');
-  console.log('  POST /api/register       注册（普通用户需审批）');
-  console.log('  POST /api/login          登录（检查审批状态）');
-  console.log('  POST /api/logout         登出');
-  console.log('  GET  /api/data           获取数据');
-  console.log('  POST /api/data           保存数据');
-  console.log('  GET  /api/leaderboard    排行榜');
-  console.log('  --- 管理员 API ---');
-  console.log('  GET  /api/admin/users    全部用户列表');
-  console.log('  POST /api/admin/approve  批准用户');
-  console.log('  POST /api/admin/reject   拒绝/删除用户');
-  console.log('  GET  /api/admin/stats    统计信息');
-  console.log('');
-  console.log('按 Ctrl+C 停止服务器');
+// ==================== 启动 ====================
+async function start() {
+  await initDB();
+  server.listen(PORT, '0.0.0.0', () => {
+    console.log('═══════════════════════════════════════════');
+    console.log('  学习工作台服务器已启动');
+    console.log('  地址: http://localhost:' + PORT);
+    console.log('  数据库: PostgreSQL');
+    console.log('═══════════════════════════════════════════');
+    console.log('');
+    console.log('API 列表:');
+    console.log('  POST /api/register       注册（普通用户需审批）');
+    console.log('  POST /api/login          登录（检查审批状态）');
+    console.log('  POST /api/logout         登出');
+    console.log('  GET  /api/data           获取数据');
+    console.log('  POST /api/data           保存数据');
+    console.log('  GET  /api/leaderboard    排行榜');
+    console.log('  GET  /api/leaderboard/pets 宠物排行榜');
+    console.log('  --- 管理员 API ---');
+    console.log('  GET  /api/admin/users    全部用户列表');
+    console.log('  POST /api/admin/approve  批准用户');
+    console.log('  POST /api/admin/reject   拒绝/删除用户');
+    console.log('  POST /api/admin/update-user 更新用户设置');
+    console.log('  GET  /api/admin/stats    统计信息');
+    console.log('');
+    console.log('按 Ctrl+C 停止服务器');
+  });
+}
+
+start().catch(err => {
+  console.error('❌ 启动失败:', err.message);
+  process.exit(1);
 });
