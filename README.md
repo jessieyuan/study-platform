@@ -40,6 +40,7 @@ study-platform/
 ├── pets/                 # 宠物图片资源
 │   ├── pokemon/          # 宝可梦系列（6张）
 │   └── star/             # 星星系列（6张）
+├── img/flowers/          # 十二月花历图片资源（12张）
 └── package.json          # 项目配置
 ```
 
@@ -65,6 +66,14 @@ study-platform/
 - 数据库表会在首次启动时自动创建（`CREATE TABLE IF NOT EXISTS`）
 - 前端页面是一个独立 HTML 文件，CSS 和 JS 均内联
 - 后端 API 全部在 server/server.js 中，无路由框架
+
+## 部署
+
+本项目支持多种部署方式：
+
+- **火山引擎云服务器**：详见 [部署指南-火山云.md](部署指南-火山云.md)
+- **Docker**：项目含 Dockerfile，可直接 `docker build -t study-platform . && docker run -p 3000:3000 study-platform`
+- **本地运行**：见上方快速启动
 
 ## License
 

@@ -4,3 +4,12 @@ server/data.db-journal
 node_modules
 docs
 *.md
+server/backups
+log.txt
+*.bak
+*.bak-*
+flower-preview.html
+部署指南-Koyeb-Supabase.html
+部署指南-火山云.md
+.github
+.DS_Store

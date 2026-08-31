@@ -6,6 +6,7 @@ WORKDIR /app
 COPY index.html package.json ./
 COPY server ./server
 COPY pets ./pets
+COPY img ./img
 
 ENV NODE_ENV=production
 

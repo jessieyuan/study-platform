@@ -1,6 +1,8 @@
 # 依赖
 node_modules/
 server/data.db
+server/data.db-journal
+server/backups/
 .DS_Store
 
 # IDE
@@ -9,3 +11,14 @@ server/data.db
 
 # 日志
 *.log
+log.txt
+
+# 备份文件
+*.bak
+*.bak-*
+
+# 开发预览页（不入库）
+flower-preview.html
+
+# 旧部署指南
+部署指南-Koyeb-Supabase.html

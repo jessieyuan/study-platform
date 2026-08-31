@@ -32,6 +32,31 @@ const HTML_FILE = path.join(PROJECT_DIR, 'index.html');
 const DB_PATH = process.env.DB_PATH || path.join(__dirname, 'data.db');
 const SESSION_MAX_AGE_DAYS = 30;
 
+// ---- 安全限制 ----
+// 头像白名单（与前端 AUTH_AVATARS 一致，防存储型 XSS）
+const AVATAR_ALLOWLIST = ['👦','👧','😊','🌟','🐱','🐶','🐼','🦊','🐰','🐨','🦄','🐸','🐵','🐯','🦁','🐮','🐷','🐭','🐹','🐻','🐔','🐧','🐦','🦋'];
+// 用户名：字母/数字/下划线/中文，2-20 位
+const USERNAME_RE = /^[a-zA-Z0-9_一-龥]{2,20}$/;
+const MIN_PASSWORD_LEN = 6;
+const MAX_DISPLAY_NAME_LEN = 12;
+// 注册节流：同一 IP 两次注册至少间隔（毫秒）
+const REGISTER_INTERVAL_MS = 10 * 1000;
+const registerLastByIP = new Map();
+// 登录防爆破：同一 IP 连续失败 N 次后锁定一段时间（毫秒）
+const LOGIN_MAX_FAILS = 5;
+const LOGIN_LOCK_MS = 10 * 60 * 1000;
+const loginFailByIP = new Map(); // ip -> { fails, lockedUntil }
+// POST body 大小上限（字节）：防止超大 JSON 撑爆内存/数据库
+const MAX_BODY_BYTES = 2 * 1024 * 1024;
+// 定时备份：每天 BACKUP_HOUR 点整备份一次，保留最近 BACKUP_KEEP 份
+// 备份目录可用环境变量 BACKUP_DIR 指定，支持相对路径（相对项目根，如 ./backup、../study-backup）
+const BACKUP_HOUR = 1;
+const BACKUP_KEEP = 14;
+const BACKUP_DIR = path.resolve(PROJECT_DIR, process.env.BACKUP_DIR || path.join(__dirname, 'backups'));
+// 单日积分涨幅上限 / 单次保存 streak 最大增幅（防客户端任意刷分）
+const DAILY_POINTS_GAIN_LIMIT = 2000;
+const STREAK_MAX_GAIN_PER_SAVE = 1;
+
 // ==================== 数据库初始化 ====================
 const db = new DatabaseSync(DB_PATH);
 db.exec(`
@@ -82,6 +107,12 @@ try {
 try {
   db.exec(`ALTER TABLE users ADD COLUMN groups TEXT DEFAULT '[]'`);
 } catch(e) { /* 列已存在，忽略 */ }
+try {
+  db.exec(`ALTER TABLE users ADD COLUMN points_base INTEGER DEFAULT 0`);
+} catch(e) { /* 列已存在，忽略 */ }
+try {
+  db.exec(`ALTER TABLE users ADD COLUMN base_date TEXT DEFAULT ''`);
+} catch(e) { /* 列已存在，忽略 */ }
 
 // 迁移：已有用户（status为NULL或pending的旧数据）标记为已批准
 db.exec(`UPDATE users SET status = 'approved' WHERE status IS NULL OR status = ''`);
@@ -106,12 +137,27 @@ function generateToken() {
   return crypto.randomUUID() + crypto.randomUUID().replace(/-/g, '');
 }
 
-/** 解析 POST body */
+/** 解析 POST body（超过 MAX_BODY_BYTES 拒收，reject 带 statusCode=413） */
 function parseBody(req) {
   return new Promise((resolve, reject) => {
     let chunks = [];
-    req.on('data', c => chunks.push(c));
+    let size = 0;
+    let overLimit = false;
+    req.on('data', c => {
+      if (overLimit) return;
+      size += c.length;
+      if (size > MAX_BODY_BYTES) {
+        overLimit = true;
+        chunks = [];
+        const err = new Error('Request body too large');
+        err.statusCode = 413;
+        reject(err); // 响应由统一 catch 发出，这里只停止收集、不断连接
+        return;
+      }
+      chunks.push(c);
+    });
     req.on('end', () => {
+      if (overLimit) return;
       try {
         const raw = Buffer.concat(chunks).toString('utf-8');
         resolve(raw ? JSON.parse(raw) : {});
@@ -123,13 +169,10 @@ function parseBody(req) {
   });
 }
 
-/** 发送 JSON 响应 */
+/** 发送 JSON 响应（前后端同源部署，无需 CORS 头） */
 function sendJSON(res, status, data) {
   res.writeHead(status, {
     'Content-Type': 'application/json; charset=utf-8',
-    'Access-Control-Allow-Origin': '*',
-    'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-    'Access-Control-Allow-Headers': 'Content-Type, Authorization',
   });
   res.end(JSON.stringify(data));
 }
@@ -144,12 +187,11 @@ function getAuthUserId(req) {
   const auth = req.headers['authorization'];
   if (!auth || !auth.startsWith('Bearer ')) return null;
   const token = auth.slice(7);
-  const row = db.prepare('SELECT user_id FROM sessions WHERE token = ?').get(token);
+  const row = db.prepare('SELECT user_id, created_at FROM sessions WHERE token = ?').get(token);
   if (!row) return null;
   // 检查 session 是否过期
-  const createdAt = db.prepare('SELECT created_at FROM sessions WHERE token = ?').get(token);
-  if (createdAt) {
-    const ageDays = (Date.now() - new Date(createdAt.created_at).getTime()) / (1000 * 60 * 60 * 24);
+  if (row.created_at) {
+    const ageDays = (Date.now() - new Date(row.created_at).getTime()) / (1000 * 60 * 60 * 24);
     if (ageDays > SESSION_MAX_AGE_DAYS) {
       db.prepare('DELETE FROM sessions WHERE token = ?').run(token);
       return null;
@@ -210,15 +252,24 @@ function defaultUserData() {
   };
 }
 
-/** 将 user_data JSON 中的关键字段同步到 users 表（用于排行榜查询） */
-function syncUserFields(userId, data) {
+/** 服务器本地日期字符串 YYYY-MM-DD */
+function serverTodayStr() {
+  const d = new Date();
+  return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+}
+
+/** 将 user_data JSON 中的关键字段同步到 users 表（用于排行榜查询）。
+ *  points/streak 由调用方先做涨幅限制后传入；points_base/base_date 记录当日涨幅基准。 */
+function syncUserFields(userId, data, pointsBase, baseDate) {
   db.prepare(`
     UPDATE users SET
       points = ?,
       streak = ?,
       display_name = ?,
       avatar = ?,
-      last_active = ?
+      last_active = ?,
+      points_base = ?,
+      base_date = ?
     WHERE id = ?
   `).run(
     data.points || 0,
@@ -226,6 +277,8 @@ function syncUserFields(userId, data) {
     (data.profile && data.profile.name) || '小学霸',
     (data.profile && data.profile.avatar) || '👦',
     data.lastActive || null,
+    pointsBase,
+    baseDate,
     userId
   );
 }
@@ -237,14 +290,23 @@ async function handleRegister(req, res) {
   const body = await parseBody(req);
   const username = (body.username || '').trim();
   const password = body.password || '';
-  const displayName = (body.displayName || '').trim() || '小学霸';
-  const avatar = body.avatar || '👦';
+  // 昵称：去掉危险字符 + 限长（防存储型 XSS，前端渲染仍会转义，此为第一道防线）
+  const displayName = (body.displayName || '').replace(/[<>&"'`]/g, '').trim().slice(0, MAX_DISPLAY_NAME_LEN) || '小学霸';
+  // 头像：白名单校验，非法值回退默认
+  const avatar = AVATAR_ALLOWLIST.includes(body.avatar) ? body.avatar : '👦';
 
-  if (!username || username.length < 2) {
-    return sendJSON(res, 400, { error: '用户名至少2个字符' });
+  // 注册节流：同一 IP 间隔限制
+  const clientIP = req.socket.remoteAddress || 'unknown';
+  const lastReg = registerLastByIP.get(clientIP) || 0;
+  if (Date.now() - lastReg < REGISTER_INTERVAL_MS) {
+    return sendJSON(res, 429, { error: '注册太频繁，请稍后再试' });
   }
-  if (!password || password.length < 4) {
-    return sendJSON(res, 400, { error: '密码至少4个字符' });
+
+  if (!USERNAME_RE.test(username)) {
+    return sendJSON(res, 400, { error: '用户名需为 2-20 位字母、数字、下划线或中文' });
+  }
+  if (!password || password.length < MIN_PASSWORD_LEN) {
+    return sendJSON(res, 400, { error: '密码至少' + MIN_PASSWORD_LEN + '个字符' });
   }
 
   // 检查用户名是否已存在
@@ -262,6 +324,7 @@ async function handleRegister(req, res) {
   // 创建用户
   const salt = crypto.randomBytes(16).toString('hex');
   const hash = hashPassword(password, salt);
+  registerLastByIP.set(clientIP, Date.now());
   const result = db.prepare(`
     INSERT INTO users (username, password_hash, password_salt, display_name, avatar, role, status)
     VALUES (?, ?, ?, ?, ?, ?, ?)
@@ -292,8 +355,25 @@ async function handleRegister(req, res) {
   }
 }
 
+/** 记录一次登录失败；达到上限则锁定 LOGIN_LOCK_MS */
+function recordLoginFail(ip, rec) {
+  rec.fails += 1;
+  if (rec.fails >= LOGIN_MAX_FAILS) {
+    rec.lockedUntil = Date.now() + LOGIN_LOCK_MS;
+    rec.fails = 0; // 锁定到期后重新计数
+  }
+  loginFailByIP.set(ip, rec);
+}
+
 /** POST /api/login */
 async function handleLogin(req, res) {
+  // 防爆破：同 IP 连续失败达到上限后锁定一段时间
+  const clientIP = req.socket.remoteAddress || 'unknown';
+  const failRec = loginFailByIP.get(clientIP) || { fails: 0, lockedUntil: 0 };
+  if (Date.now() < failRec.lockedUntil) {
+    return sendJSON(res, 429, { error: '登录失败次数过多，请 10 分钟后再试' });
+  }
+
   const body = await parseBody(req);
   const username = (body.username || '').trim();
   const password = body.password || '';
@@ -304,13 +384,18 @@ async function handleLogin(req, res) {
 
   const user = db.prepare('SELECT * FROM users WHERE username = ?').get(username);
   if (!user) {
+    recordLoginFail(clientIP, failRec);
     return sendJSON(res, 401, { error: '用户名不存在' });
   }
 
   const hash = hashPassword(password, user.password_salt);
   if (hash !== user.password_hash) {
+    recordLoginFail(clientIP, failRec);
     return sendJSON(res, 401, { error: '密码错误' });
   }
+
+  // 登录成功，清除该 IP 的失败计数
+  loginFailByIP.delete(clientIP);
 
   // 检查审批状态
   if (user.status === 'pending') {
@@ -380,6 +465,26 @@ async function handleSaveData(req, res) {
   }
 
   const body = await parseBody(req);
+
+  // ---- 防刷分：points 单日涨幅上限，streak 单次保存最多 +1 ----
+  const userRow = db.prepare('SELECT points, streak, points_base, base_date FROM users WHERE id = ?').get(userId);
+  const today = serverTodayStr();
+  // 跨天后以当前值为当日基准重新起算
+  let pointsBase = Number.isFinite(userRow.points_base) ? userRow.points_base : userRow.points;
+  if (userRow.base_date !== today) pointsBase = userRow.points;
+
+  let newPoints = Number(body.points);
+  if (!Number.isFinite(newPoints)) newPoints = userRow.points;
+  if (newPoints < 0) newPoints = 0;
+  if (newPoints > pointsBase + DAILY_POINTS_GAIN_LIMIT) newPoints = pointsBase + DAILY_POINTS_GAIN_LIMIT;
+  body.points = newPoints;
+
+  let newStreak = Number(body.streak);
+  if (!Number.isFinite(newStreak)) newStreak = userRow.streak;
+  if (newStreak < 0) newStreak = 0;
+  if (newStreak > userRow.streak + STREAK_MAX_GAIN_PER_SAVE) newStreak = userRow.streak + STREAK_MAX_GAIN_PER_SAVE;
+  body.streak = newStreak;
+
   const dataStr = JSON.stringify(body);
 
   // 更新 user_data
@@ -389,7 +494,7 @@ async function handleSaveData(req, res) {
   `).run(userId, dataStr);
 
   // 同步关键字段到 users 表
-  syncUserFields(userId, body);
+  syncUserFields(userId, body, pointsBase, today);
 
   sendJSON(res, 200, { ok: true });
 }
@@ -650,10 +755,22 @@ async function handleAdminStats(req, res) {
 }
 
 // ==================== 静态文件服务 ====================
+/** 解析 URL 对应的项目内绝对路径；越出项目目录（路径穿越）返回 null */
+function safeResolve(urlPath) {
+  const filePath = path.join(PROJECT_DIR, decodeURIComponent(urlPath));
+  if (!filePath.startsWith(PROJECT_DIR + path.sep)) return null;
+  return filePath;
+}
+
 function serveStaticFile(req, res) {
   // 其他 HTML 文件（预览页等）
   if (req.url.endsWith('.html') && !req.url.includes('..')) {
-    const filePath = path.join(PROJECT_DIR, req.url);
+    const filePath = safeResolve(req.url);
+    if (!filePath) {
+      res.writeHead(403, { 'Content-Type': 'text/plain; charset=utf-8' });
+      res.end('Forbidden');
+      return true;
+    }
     try {
       const html = fs.readFileSync(filePath, 'utf-8');
       res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
@@ -678,8 +795,38 @@ function serveStaticFile(req, res) {
     return true;
   }
 
-  // 宠物图片静态文件
-  if (req.url.startsWith('/pets/')) {
+ // 宠物图片静态文件
+ if (req.url.startsWith('/pets/')) {
+   const ext = path.extname(req.url).toLowerCase();
+   const mime = {
+     '.png': 'image/png',
+     '.jpg': 'image/jpeg',
+     '.jpeg': 'image/jpeg',
+     '.gif': 'image/gif',
+     '.svg': 'image/svg+xml',
+     '.webp': 'image/webp',
+   }[ext];
+   if (mime) {
+     const filePath = safeResolve(req.url);
+     if (!filePath) {
+       res.writeHead(403, { 'Content-Type': 'text/plain; charset=utf-8' });
+       res.end('Forbidden');
+       return true;
+     }
+     try {
+       const data = fs.readFileSync(filePath);
+       res.writeHead(200, { 'Content-Type': mime });
+       res.end(data);
+     } catch (e) {
+       res.writeHead(404, { 'Content-Type': 'text/plain; charset=utf-8' });
+       res.end('文件未找到');
+     }
+     return true;
+   }
+ }
+
+  // 花卉等图片静态文件
+  if (req.url.startsWith('/img/')) {
     const ext = path.extname(req.url).toLowerCase();
     const mime = {
       '.png': 'image/png',
@@ -690,7 +837,12 @@ function serveStaticFile(req, res) {
       '.webp': 'image/webp',
     }[ext];
     if (mime) {
-      const filePath = path.join(PROJECT_DIR, req.url);
+      const filePath = safeResolve(req.url);
+      if (!filePath) {
+        res.writeHead(403, { 'Content-Type': 'text/plain; charset=utf-8' });
+        res.end('Forbidden');
+        return true;
+      }
       try {
         const data = fs.readFileSync(filePath);
         res.writeHead(200, { 'Content-Type': mime });
@@ -708,19 +860,16 @@ function serveStaticFile(req, res) {
 
 // ==================== 主路由 ====================
 const server = http.createServer(async (req, res) => {
-  // 处理 OPTIONS 预检
-  if (req.method === 'OPTIONS') {
-    res.writeHead(204, {
-      'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-      'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-    });
-    res.end();
-    return;
-  }
-
   const url = new URL(req.url, `http://localhost:${PORT}`);
   const pathname = url.pathname;
+
+  // POST 请求 Content-Length 预检：声明超大直接拒绝，不读 body
+  if (req.method === 'POST') {
+    const declared = Number(req.headers['content-length'] || 0);
+    if (Number.isFinite(declared) && declared > MAX_BODY_BYTES) {
+      return sendJSON(res, 413, { error: '请求数据过大（上限 2MB）' });
+    }
+  }
 
   try {
     // API 路由
@@ -771,9 +920,53 @@ const server = http.createServer(async (req, res) => {
     res.end('404 Not Found');
   } catch (e) {
     console.error('Server error:', e);
+    // body 超限等场景已发过响应（或连接已被销毁），避免二次写头
+    if (res.headersSent || res.destroyed) return;
+    if (e.statusCode === 413) {
+      return sendJSON(res, 413, { error: '请求数据过大（上限 2MB）' });
+    }
     sendJSON(res, 500, { error: '服务器内部错误: ' + e.message });
   }
 });
+
+// ==================== 定时备份 ====================
+
+/** 计算距下一个 BACKUP_HOUR 点整的毫秒数 */
+function msUntilNextBackup() {
+  const now = new Date();
+  const next = new Date(now);
+  next.setHours(BACKUP_HOUR, 0, 0, 0);
+  if (next <= now) next.setDate(next.getDate() + 1);
+  return next - now;
+}
+
+/** 备份数据库（VACUUM INTO 生成一致性快照，服务运行中也可安全执行），并清理超出保留数的旧备份 */
+function backupDatabase() {
+  try {
+    fs.mkdirSync(BACKUP_DIR, { recursive: true });
+    const d = new Date();
+    const p2 = n => String(n).padStart(2, '0');
+    const stamp = '' + d.getFullYear() + p2(d.getMonth() + 1) + p2(d.getDate()) + '-' + p2(d.getHours()) + p2(d.getMinutes()) + p2(d.getSeconds());
+    const target = path.join(BACKUP_DIR, 'data-' + stamp + '.db');
+    db.exec("VACUUM INTO '" + target + "'");
+    // 清理旧备份，只保留最近 BACKUP_KEEP 份
+    const files = fs.readdirSync(BACKUP_DIR).filter(f => /^data-\d{8}-\d{6}\.db$/.test(f)).sort();
+    while (files.length > BACKUP_KEEP) {
+      fs.unlinkSync(path.join(BACKUP_DIR, files.shift()));
+    }
+    console.log('[备份] 已备份到 ' + target);
+  } catch (e) {
+    console.error('[备份] 失败: ' + e.message);
+  }
+}
+
+/** 循环定时：到点备份，再安排下一个 */
+function scheduleBackup() {
+  setTimeout(() => {
+    backupDatabase();
+    scheduleBackup();
+  }, msUntilNextBackup());
+}
 
 // 全局错误捕获，防止静默崩溃
 process.on('uncaughtException', (err) => {
@@ -788,6 +981,8 @@ server.listen(PORT, '0.0.0.0', () => {
   console.log('  学习工作台服务器已启动');
   console.log('  地址: http://localhost:' + PORT);
   console.log('  数据库: ' + DB_PATH);
+  console.log('  备份: 每天 ' + BACKUP_HOUR + ':00 → ' + BACKUP_DIR + '（保留 ' + BACKUP_KEEP + ' 份，BACKUP_DIR 可改目录）');
+  scheduleBackup();   // 每天定时备份（BACKUP_HOUR 点）
   console.log('═══════════════════════════════════════════');
   console.log('');
   console.log('API 列表:');

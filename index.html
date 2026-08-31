@@ -1473,6 +1473,67 @@
   .bs-unread { background:#f3f0e8; color:#8a7a5e; }
   .bs-reading { background:#ede9fe; color:#6d28d9; }
   .bs-done { background:#e6f6e0; color:#5a9e3a; }
+  /* 阅读计时 */
+  .rt-card { background:#fff; border-radius:18px; padding:32px 20px 24px; margin-bottom:16px; text-align:center; box-shadow:0 3px 14px rgba(0,0,0,0.05); border:1px solid #f0ebe0; }
+  .rt-display { font-size:48px; font-weight:800; color:#5c4a2e; letter-spacing:1px; line-height:1.2; font-variant-numeric:tabular-nums; }
+  .rt-label { font-size:13px; color:#b8a080; margin-top:6px; }
+  .rt-current { display:inline-block; font-size:13px; color:#8a7a5e; margin-top:10px; padding:3px 14px; border-radius:8px; background:#f5f0e5; }
+  .rt-select { margin-top:20px; padding:10px 16px; border:2px solid #e8e0d0; border-radius:12px; font-size:14px; font-family:inherit; background:#faf5e8; color:#5c4a2e; outline:none; max-width:240px; }
+  .rt-select:focus { border-color:#7ab84a; }
+  .rt-btn { margin-top:24px; padding:14px 52px; border:none; border-radius:100px; font-size:16px; font-weight:700; cursor:pointer; font-family:inherit; transition:all 0.2s; box-shadow:0 4px 12px rgba(0,0,0,0.08); }
+  .rt-btn:active { transform:scale(0.95); }
+  .rt-btn-start { background:linear-gradient(135deg,#6ab04a,#4a9a3a); color:#fff; }
+  .rt-btn-start:hover { box-shadow:0 6px 18px rgba(106,176,74,0.35); }
+  .rt-btn-pause { background:linear-gradient(135deg,#e88060,#d06040); color:#fff; }
+  .rt-btn-pause:hover { box-shadow:0 6px 18px rgba(232,128,96,0.35); }
+  .rt-sessions { background:#fff; border-radius:16px; padding:16px 18px; margin-bottom:16px; box-shadow:0 3px 14px rgba(0,0,0,0.05); border:1px solid #f0ebe0; }
+  .rt-sessions-title { font-size:14px; font-weight:700; color:#5c4a2e; margin-bottom:10px; }
+  .rt-session-item { display:flex; align-items:center; gap:12px; padding:8px 0; border-bottom:1px solid #f5f0e5; }
+  .rt-session-item:last-child { border-bottom:none; }
+  .rt-session-time { font-size:13px; color:#b8a080; min-width:50px; }
+  .rt-session-dur { font-size:14px; font-weight:700; color:#6ab04a; min-width:70px; }
+  .rt-session-book { font-size:12px; color:#8a7a5e; flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .rt-garden-row { display:flex; gap:14px; margin-bottom:16px; }
+  .rt-flower-card { flex:0 0 170px; background:#fff; border-radius:16px; padding:14px 10px 10px; text-align:center; box-shadow:0 3px 14px rgba(0,0,0,0.05); border:1px solid #f0ebe0; }
+  .rt-flower-name { font-size:15px; font-weight:700; color:#5c4a2e; margin-top:6px; }
+  .rt-flower-tip { font-size:11px; color:#8a7a5e; line-height:1.5; margin-top:6px; padding:0 4px; }
+  .rt-flower-info { font-size:10px; color:#a09a8a; line-height:1.6; margin-top:8px; padding:8px 6px; background:#f8f5f0; border-radius:8px; border:1px solid #f0ebe0; }
+  .rt-seed-toggle { display:inline-block; margin-top:8px; padding:4px 12px; border:1px solid #d8d0c0; border-radius:100px; background:#faf5e8; color:#8a7a5e; font-size:11px; cursor:pointer; font-family:inherit; transition:all 0.15s; }
+  .rt-seed-toggle:hover { background:#f5f0e5; }
+  .rt-seed-toggle:active { transform:scale(0.95); }
+  .rt-seed-preview { margin-top:8px; padding:10px 8px; background:#f8f5f0; border-radius:10px; border:1px dashed #d8d0c0; text-align:center; }
+  .rt-seed-preview-svg { width:80px; height:80px; margin:0 auto 6px; }
+  .rt-seed-preview-desc { font-size:10px; color:#a09a8a; line-height:1.5; }
+  .rt-cal-card { flex:1; background:#fff; border-radius:16px; padding:16px 14px; box-shadow:0 3px 14px rgba(0,0,0,0.05); border:1px solid #f0ebe0; }
+  .rt-cal-nav { display:flex; align-items:center; justify-content:center; gap:16px; margin-bottom:12px; }
+  .rt-cal-nav-btn { width:32px; height:32px; border:none; border-radius:8px; background:#f5f0e5; color:#8a7a5e; font-size:14px; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:all 0.15s; }
+  .rt-cal-nav-btn:active { transform:scale(0.92); }
+  .rt-cal-nav-btn:hover { background:#ede5d5; }
+  .rt-cal-label { font-size:14px; font-weight:700; color:#5c4a2e; min-width:80px; text-align:center; }
+  .rt-cal { display:grid; grid-template-columns:repeat(7,1fr); gap:3px; }
+  .rt-cal-hd { text-align:center; font-size:11px; color:#b8a080; font-weight:600; padding:4px 0; }
+  .rt-cal-day { aspect-ratio:1; border-radius:8px; background:#faf7f0; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:2px; overflow:hidden; }
+  .rt-cal-num { font-size:11px; color:#b8a080; }
+  .rt-cal-time { font-size:8px; color:#8a7a5e; font-weight:600; line-height:1.2; text-align:center; }
+  .rt-cal-today { background:#fff3e0; border:1.5px solid #e8a060; }
+  .rt-cal-good { background:#e8f5e0; }
+  .rt-cal-good .rt-cal-time { color:#4a9a3a; }
+  .rt-cal-partial { background:#fdf6e8; }
+  .rt-cal-partial .rt-cal-time { color:#c4a46a; }
+  .rt-cal-legend { display:flex; gap:12px; justify-content:center; margin-top:10px; font-size:10px; color:#b8a080; }
+  .rt-cal-legend-item { display:flex; align-items:center; gap:4px; }
+  .rt-cal-dot { width:8px; height:8px; border-radius:2px; display:inline-block; }
+  .rt-all-flowers-overlay { position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.5); z-index:9998; display:flex; align-items:center; justify-content:center; }
+  .rt-all-flowers-box { background:#fff; border-radius:16px; padding:20px; max-width:420px; max-height:85vh; overflow-y:auto; width:90%; box-shadow:0 8px 32px rgba(0,0,0,0.2); }
+  .rt-all-flowers-title { font-size:16px; font-weight:700; color:#5c4a2e; text-align:center; margin-bottom:16px; }
+  .rt-all-flowers-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; }
+  .rt-all-flower-item { text-align:center; padding:8px 4px; border-radius:10px; background:#f8f5f0; border:1px solid #f0ebe0; }
+  .rt-all-flower-item.cur { border:2px solid #c4a46a; background:#fff8e8; }
+  .rt-all-flower-svg { width:50px; height:50px; margin:0 auto 4px; }
+  .rt-all-flower-name { font-size:11px; font-weight:700; color:#5c4a2e; }
+  .rt-all-flower-month { font-size:9px; color:#b8a080; }
+  .rt-all-flowers-close { display:block; margin:14px auto 0; padding:8px 28px; border:none; border-radius:100px; background:linear-gradient(135deg,#c4a46a,#a08050); color:#fff; font-size:13px; font-weight:700; cursor:pointer; font-family:inherit; }
+  @media (max-width:480px) { .rt-garden-row { flex-direction:column; } .rt-flower-card { flex:none; } }
   .book-progress { height:5px; background:#f0ebe0; border-radius:3px; margin-bottom:4px; overflow:hidden; }
   .book-progress-fill { height:100%; background:linear-gradient(90deg,#8b5cf6,#6d28d9); border-radius:3px; }
   .book-progress-text { font-size:11px; color:#b8a080; }
@@ -2423,6 +2484,7 @@
     <div class="cm-bread"><span class="breadcrumb-label">📚 阅读 ›</span></div>
     <div class="cm-cat-tabs">
       <button class="cm-cat-tab active" data-cat="bookshelf" onclick="renderReadingPage('bookshelf',this)">我的书架</button>
+      <button class="cm-cat-tab" data-cat="timer" onclick="renderReadingPage('timer',this)">阅读计时</button>
     </div>
   </div>
   <div id="reading-content"></div>
@@ -2850,7 +2912,7 @@ if (!appData.chineseCat) appData.chineseCat = 'school';
 if (!appData.chineseView) appData.chineseView = 'backmo';
 if (!appData.englishCat) appData.englishCat = 'school';
 if (!appData.mathCat) appData.mathCat = 'school';
-if (!appData.englishSub) appData.englishSub = 'spell';
+if (appData.englishSub !== 'spell' && appData.englishSub !== 'textbook') appData.englishSub = 'spell'; // 清洗历史脏值（如 'word'）
   if (typeof appData.cranes === 'undefined') appData.cranes = 0; // 许愿星数量
   if (typeof appData.craneLevel === 'undefined') appData.craneLevel = 1; // 许愿星级别 1-5
   if (typeof appData.craneClaimedToday === 'undefined') appData.craneClaimedToday = null; // 今日是否已领取
@@ -2864,6 +2926,8 @@ if (!appData.englishSub) appData.englishSub = 'spell';
  if (!appData.sportRecords) appData.sportRecords = {};
  if (!appData.sportCat) appData.sportCat = 'skills';
 if (!appData.readingBooks) appData.readingBooks = [];
+if (!appData.readingLog) appData.readingLog = [];
+if (!appData.readingTab) appData.readingTab = 'bookshelf';
 if (!appData.spellWords) appData.spellWords = SPELL_WORDS.map(function(w) { return {cat:w.cat,emoji:w.emoji,word:w.word,cn:w.cn,img:w.img||''}; });
 if (!appData.laborRecords) appData.laborRecords = [];
 if (appData.spellWords && appData.spellWords.length === 0) {
@@ -2897,9 +2961,25 @@ function saveData(data) {
   appData = data;
   if (_saveTimer) clearTimeout(_saveTimer);
   _saveTimer = setTimeout(function() {
+    _saveTimer = null;
     apiCall('POST', '/api/data', appData).catch(function(e) { console.error('保存失败:', e); });
   }, 500);
 }
+// 关闭/切走页面前立即落盘防抖中的数据（keepalive 保证卸载后请求仍发出）
+window.addEventListener('pagehide', function() {
+  if (_saveTimer && authToken) {
+    clearTimeout(_saveTimer);
+    _saveTimer = null;
+    try {
+      fetch('/api/data', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + authToken },
+        body: JSON.stringify(appData),
+        keepalive: true
+      }).catch(function() {});
+    } catch (e) {}
+  }
+});
 
 function recalcStreak() {
   if (!appData.tasks || !Array.isArray(appData.tasks)) return;
@@ -2948,7 +3028,7 @@ if (!appData.chineseCat) appData.chineseCat = 'school';
 if (!appData.chineseView) appData.chineseView = 'backmo';
 if (!appData.englishCat) appData.englishCat = 'school';
 if (!appData.mathCat) appData.mathCat = 'school';
-if (!appData.englishSub) appData.englishSub = 'spell';
+if (appData.englishSub !== 'spell' && appData.englishSub !== 'textbook') appData.englishSub = 'spell'; // 清洗历史脏值（如 'word'）
 if (!appData.readingBooks) appData.readingBooks = [];
 if (!appData.laborRecords) appData.laborRecords = [];
 
@@ -3306,6 +3386,9 @@ function selectLesson(id) {
 function renderLessonCard(lesson) {
   var recited = appData.recitedLessons.indexOf(lesson.id) !== -1;
   var mode = appData.currentLessonMode || 'read';
+  // 每次重渲染卡片重置闯关状态（防跨课文污染 / 重复奖励）
+  quizAnswers = {};
+  quizRewarded = false;
 
   var allInUnit = LESSONS.filter(function(l) { return l.unit === lesson.unit && l.type === lesson.type; });
   var idx = allInUnit.findIndex(function(l) { return l.id === lesson.id; });
@@ -3450,7 +3533,9 @@ function markLessonRecited(id) {
 }
 
 var quizAnswers = {};
+var quizRewarded = false; // 当前课文全对奖励是否已发放
 function answerQuiz(qi, oi, el) {
+  if (quizAnswers[qi] !== undefined) return; // 每题只能答一次
   var lesson = LESSONS.find(function(l) { return l.id === appData.selectedLessonId; });
   if (!lesson) return;
   var q = lesson.quiz[qi];
@@ -3471,9 +3556,12 @@ function answerQuiz(qi, oi, el) {
     if (correct === total) {
       scoreEl.className = 'quiz-score great';
       scoreEl.textContent = '🎉 太棒了！全对！+10⭐';
-      appData.points += 10;
-      saveData(appData);
-      burstStars();
+      if (!quizRewarded) {
+        quizRewarded = true;
+        appData.points += 10;
+        saveData(appData);
+        burstStars();
+      }
     } else if (correct >= total/2) {
       scoreEl.className = 'quiz-score good';
       scoreEl.textContent = '👍 答对 '+correct+'/'+total+'，不错哦！';
@@ -3591,6 +3679,9 @@ function switchReadingUnitNav(u) {
 function checkReadingAnswers(id, count) {
   var ex = READING_EXERCISES.find(function(r) { return r.id === id; });
   if (!ex) return;
+  // 已检查过（输入框已锁定）则直接返回，防止连点重复得分
+  var firstInput = document.getElementById('r'+id+'q0');
+  if (firstInput && firstInput.disabled) return;
   var correct = 0;
   for (var qi = 0; qi < count; qi++) {
     var input = document.getElementById('r'+id+'q'+qi);
@@ -3616,16 +3707,6 @@ function checkReadingAnswers(id, count) {
     saveData(appData);
     burstStars();
     alert('🎉 全部正确！太厉害了！+5⭐');
-  }
-}
-
-// ==================== 宠物系统 ====================
-function settlePet() {
-  var pet = appData.pet;
-  if (!pet || !pet.owned || !pet.alive) return;
-  if ((pet.todayEarned || 0) < 10) {
-    pet.alive = false;
-    saveData(appData);
   }
 }
 
@@ -3921,7 +4002,7 @@ function renderPetPage() {
     container.innerHTML =
       '<div class="pp-empty">' +
         '<div class="ppe-icon">👻</div>' +
-        '<div class="ppe-title">' + (pet.name || '小宠物') + ' 饿死了…</div>' +
+        '<div class="ppe-title">' + escHtml(pet.name || '小宠物') + ' 饿死了…</div>' +
         '<div class="ppe-desc">连续3天没有喂食，宠物离开了…<br>下次领养一定要记得每天喂食哦！</div>' +
         '<button class="ppe-btn" onclick="openPetModal()">200⭐ 重新领养</button>' +
       '</div>';
@@ -3958,11 +4039,11 @@ function renderPetPage() {
     '</div>' +
     // 展示区 - 无边框
     '<div class="pp-showcase">' +
-      '<img src="' + imgSrc + '" alt="' + (pet.name || '') + '" class="idle" draggable="false">' +
+      '<img src="' + imgSrc + '" alt="' + escHtml(pet.name || '') + '" class="idle" draggable="false">' +
     '</div>' +
     // 名字 + 等级
     '<div class="pp-name-row">' +
-      '<span class="pp-pet-name">' + (pet.name || '小宠物') + '</span>' +
+      '<span class="pp-pet-name">' + escHtml(pet.name || '小宠物') + '</span>' +
       '<span class="pp-lv-badge">Lv.' + level + '</span>' +
     '</div>' +
     // 经验条
@@ -4831,7 +4912,7 @@ function generateTasksForDate(dateStr, dow) {
   });
 }
 
-function escHtml(s) { if(!s) return ''; return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function escHtml(s) { if(!s) return ''; return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
 
 // ==================== 数据看板 ====================
 function renderDashboard() {
@@ -5020,8 +5101,8 @@ function renderAdminUsers() {
     } else {
       pending.forEach(function(u) {
         pendingHtml += '<div class="user-row pending">';
-        pendingHtml += '<div class="user-avatar">' + u.avatar + '</div>';
-        pendingHtml += '<div class="user-info"><div class="user-name">' + u.displayName + ' <span class="user-status-tag pending">待审批</span></div>';
+        pendingHtml += '<div class="user-avatar">' + escHtml(u.avatar) + '</div>';
+        pendingHtml += '<div class="user-info"><div class="user-name">' + escHtml(u.displayName) + ' <span class="user-status-tag pending">待审批</span></div>';
         pendingHtml += '<div class="user-meta">@' + u.username + ' · 注册于 ' + (u.createdAt || '') + '</div></div>';
         pendingHtml += '<div class="user-actions">';
         pendingHtml += '<button class="user-btn approve" onclick="approveUser(' + u.id + ')">✓ 批准</button>';
@@ -5040,8 +5121,8 @@ function renderAdminUsers() {
         var rowClass = 'user-row' + (u.status === 'pending' ? ' pending' : '') + (u.status === 'rejected' ? ' rejected' : '');
         var isAdmin = u.role === 'admin';
         allHtml += '<div class="' + rowClass + '">';
-        allHtml += '<div class="user-avatar">' + u.avatar + '</div>';
-        allHtml += '<div class="user-info"><div class="user-name">' + u.displayName;
+        allHtml += '<div class="user-avatar">' + escHtml(u.avatar) + '</div>';
+        allHtml += '<div class="user-info"><div class="user-name">' + escHtml(u.displayName);
         if (isAdmin) allHtml += ' <span class="admin-badge">👑 管理员</span>';
         else allHtml += ' <span class="admin-badge user">普通用户</span>';
         allHtml += ' <span class="user-status-tag ' + u.status + '">' + (u.status === 'pending' ? '待审批' : (u.status === 'approved' ? '已批准' : '已拒绝')) + '</span></div>';
@@ -5126,8 +5207,8 @@ function renderLeaderboard() {
       var isMe = currentUser && u.id === currentUser.id;
       html += '<div class="lb-row' + (isMe ? ' me' : '') + '">';
       html += '<div class="lb-rank ' + rankClass + '">' + u.rank + '</div>';
-      html += '<div class="lb-avatar">' + u.avatar + '</div>';
-      html += '<div class="lb-info"><div class="lb-name">' + u.displayName + (isMe ? ' (我)' : '') + '</div></div>';
+      html += '<div class="lb-avatar">' + escHtml(u.avatar) + '</div>';
+      html += '<div class="lb-info"><div class="lb-name">' + escHtml(u.displayName) + (isMe ? ' (我)' : '') + '</div></div>';
       html += '<div class="lb-points">🔥 连续' + u.streak + '天</div>';
       html += '</div>';
     });
@@ -5170,8 +5251,8 @@ function renderPetLeaderboard() {
       html += '<div class="lb-rank ' + rankClass + '">' + rank + '</div>';
       html += petDisplay;
       html += '<div class="lb-pet-info">';
-      html += '<div class="lb-pet-name">' + p.petName + (isMe ? ' (我)' : '') + '</div>';
-      html += '<div class="lb-pet-owner">' + p.avatar + ' ' + p.displayName + '</div>';
+      html += '<div class="lb-pet-name">' + escHtml(p.petName) + (isMe ? ' (我)' : '') + '</div>';
+      html += '<div class="lb-pet-owner">' + escHtml(p.avatar) + ' ' + escHtml(p.displayName) + '</div>';
       html += '</div>';
       html += '<div class="lb-pet-stats">';
       html += '<div class="lb-pet-stat"><div class="lb-ps-val">Lv.' + p.level + '</div><div class="lb-ps-label">等级</div></div>';
@@ -6335,7 +6416,7 @@ var SCHOOL_REVIEW_DATA = {
 // ==================== 英语看图拼词 ====================
 // ==================== 沪学习知识梳理渲染 ====================
 function escSr(s) {
-  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
 }
 function renderSchoolReview(subjectCode, containerId) {
   var data = SCHOOL_REVIEW_DATA[subjectCode];
@@ -6595,9 +6676,393 @@ var BOOK_STATUS = [
 
 function renderReadingPage(cat) {
   if (!cat) cat = 'bookshelf';
+  appData.readingTab = cat;
   var tabs = document.querySelectorAll('#page-reading .cm-cat-tab');
   tabs.forEach(function(t){ t.classList.toggle('active', t.dataset.cat === cat); });
-  renderBookshelf();
+  if (cat === 'timer') renderReadingTimer();
+  else renderBookshelf();
+}
+
+// ==================== 阅读计时 ====================
+var readingTimerState = { running:false, startTime:0, intervalId:null };
+var readingCalMonth = null;
+
+var PLANT_MONTHS = [
+  { name:'梅花', p:'#e890b0', c:'#8a4a3a', s:'#6a4a3a', img:'meihua.jpg', info:'一月梅花傲雪凌霜。梅花在冷冬纷纷开放，花瓣粉白或粉红，有淡淡清香。它不怕冷，越冷越美，被称为"岁寒三友"之一。', seedDesc:'小圆球形，深褐色，表面有细小的纹路' },
+  { name:'迎春花', p:'#f0d040', c:'#b08020', s:'#7a6a3a', img:'yingchunhua.jpg', info:'二月迎春花金黄小喇叭。它是早春第一个开花的植物，金黄色小花像小喇叭一样。枝条绿绿的，先开花后长叶，告诉大家春天要来了！', seedDesc:'扁平小种子，深褐色，像小瓦片' },
+  { name:'桃花', p:'#f0a8c0', c:'#c06070', s:'#7a4a4a', img:'taohua.jpg', info:'三月桃花粉红满树。桃花是春天的标志，花瓣粉红色，开满整个枝头。桃子开花后结出美味的水果，果肉多汁多。', seedDesc:'大型核果内的坚硬种子，深褐红色表面有纹路' },
+  { name:'樱花', p:'#f0c0d0', c:'#d08090', s:'#7a5a4a', img:'yinghua.jpg', info:'四月樱花淡粉飘落。樱花花瓣淡粉色，开时如云似霞。它来自日本，花期很短只有一周左右，所以要珍惜每一刻的美。', seedDesc:'小型深褐色坚果，表面光滑' },
+  { name:'牡丹', p:'#d04070', c:'#8a2040', s:'#6a3a3a', img:'mudan.jpg', info:'五月牡丹国色天香。牡丹被称为"花王"，花瓣大而艳丽，有红、粉、紫等多种颜色。它喜欢温暖阳光充足的环境，是雍容华贵的象征。', seedDesc:'黑色小圆球，表面有油脂层' },
+  { name:'栀子花', p:'#f5f0d8', c:'#e8c040', s:'#6a5a3a', img:'zhizihua.jpg', info:'六月栀子花洁白清香。栀子花花瓣洁白，香气浓郁。它在初夏开放，香味能飘很远。果实可以做橙黄色的染料，还能泡茶喝。', seedDesc:'小型深褐坚果，有纵棱纹路' },
+  { name:'荷花', p:'#f0a8c0', c:'#e8c040', s:'#6a5a3a', img:'hehua.jpg', info:'七月荷花出淤泥而不染。荷花生长在水中，叶子漂在水面，花茎从泥土里伸出。它代表高洁，古人说"出淤泥而不染"就是赞美它。', seedDesc:'莲蓬型深褐色坚果，头部尖尖的' },
+  { name:'向日葵', p:'#f0c020', c:'#5a3a1a', s:'#5a3a1a', img:'xiangrikui.jpg', info:'八月向日葵阳光灿烂。向日葵大圆脸就是花盘，黄色花瓣围着深褐色花心。它总是朝着太阳的方向转动，所以叫"向日"。种子还能榨出好吃的葵花子！', seedDesc:'水滴形深色种子，有纵棱条纹' },
+  { name:'桂花', p:'#e8c040', c:'#a08020', s:'#7a6a3a', img:'guihua.jpg', info:'九月桂花金桂飘香。桂花花瓣很小，黄色，香味浓郁。中秋节前后开放，满院子都是香味。桂花可以做桂花糕、桂花酒，很香很甜。', seedDesc:'小型深褐色坚果，橄榄型' },
+  { name:'菊花', p:'#e8a050', c:'#c08030', s:'#6a5a3a', img:'juhua.jpg', info:'十月菊花傲霜怒放。菊花在深秋开放，别的花都凋了它还在开。有黄、白、紫等颜色，是重阳节赏菊的主角。古人说"采菊东篱下"就是赞美它。', seedDesc:'小型深褐色坚果，表面有细纹' },
+  { name:'山茶花', p:'#d04050', c:'#8a2030', s:'#7a3a3a', img:'shanchahua.jpg', info:'十一月山茶花深红如火。山茶花在初冬开放，花瓣红色像火一样。它很能抗寒，别的花凋谢了它还在开。叶子绿油油的，很好看。', seedDesc:'不规则坚果，深褐色，多角形' },
+  { name:'水仙', p:'#f5e8a0', c:'#e8a020', s:'#8a7a3a', img:'shuixian.jpg', info:'十二月水仙凌波仙子。水仙用水养就能开花，白色花瓣中间有黄色小碗。它是年宵节的花，过年时家里常养一盆，清香沁人。被称为"凌波仙子"。', seedDesc:'小型深褐色球茎，像小洋葱头' }
+];
+
+function readingPlantThisMonth() {
+  return PLANT_MONTHS[new Date().getMonth()];
+}
+
+function fmtReadingTime(sec) {
+  sec = Math.floor(sec);
+  var h = Math.floor(sec/3600), m = Math.floor((sec%3600)/60), s = sec%60;
+  if (h > 0) return h + '时' + m + '分';
+  if (m > 0) return m + '分' + s + '秒';
+  return s + '秒';
+}
+
+function fmtReadingClock(sec) {
+  sec = Math.floor(sec);
+  var h = Math.floor(sec/3600), m = Math.floor((sec%3600)/60), s = sec%60;
+  return String(h).padStart(2,'0') + ':' + String(m).padStart(2,'0') + ':' + String(s).padStart(2,'0');
+}
+
+function readingDayTotal(dateStr) {
+  return (appData.readingLog||[]).filter(function(s){ return s.date === dateStr && (s.duration||0) >= 600; }).reduce(function(sum,s){ return sum + (s.duration||0); }, 0);
+}
+
+function readingTodayTotal() {
+  return readingDayTotal(todayStr());
+}
+
+function readingAllTimeTotal() {
+  return (appData.readingLog||[]).filter(function(s){ return (s.duration||0) >= 600; }).reduce(function(sum,s){ return sum + (s.duration||0); }, 0);
+}
+
+function readingIsPlantDead() {
+  if (readingAllTimeTotal() === 0) return false;
+  var logs = appData.readingLog || [];
+  var firstDate = logs[0].date;
+  var firstMs = new Date(firstDate + 'T00:00:00').getTime();
+  var todayMs = new Date(todayStr() + 'T00:00:00').getTime();
+  if (Math.floor((todayMs - firstMs) / 86400000) < 2) return false;
+  for (var i = 0; i < 3; i++) {
+    var d = new Date(); d.setDate(d.getDate() - i);
+    var ds = d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+    if (readingDayTotal(ds) >= 1200) return false;
+  }
+  return true;
+}
+
+function readingFlowerData() {
+  var plant = readingPlantThisMonth();
+  if (readingIsPlantDead()) return { stage:-1, name:'枯萎', tip:'连续3天没读满20分钟，' + plant.name + '枯萎了…今天开始继续阅读，它会重新发芽哦！' };
+  var min = Math.floor(readingAllTimeTotal() / 60);
+  if (min < 1) return { stage:0, name:plant.name + '种子', tip:'开始阅读第一分钟，' + plant.name + '种子就会发芽哦~' };
+  if (min < 30) return { stage:1, name:'发芽', tip:'坚持阅读，小芽正在茁壮成长！' };
+  if (min < 90) return { stage:2, name:'小苗', tip:'不错哦，小苗长出了叶子~' };
+  if (min < 200) return { stage:3, name:'花苞', tip:'快了快了，' + plant.name + '花苞马上要绽放！' };
+  if (min < 400) return { stage:4, name:plant.name + '开花', tip:'太棒了，' + plant.name + '已经盛开啦！' };
+  return { stage:5, name:plant.name + '花丛', tip:'你是阅读小达人，花开满园！🌸' };
+}
+
+function readingBloomHeadInner(plant) {
+  var P = plant.p, C = plant.c, pn = plant.name;
+  var p = [];
+  function pt(len, wid) {
+    return 'M0 0C' + (-wid).toFixed(1) + ' ' + (-len*0.12).toFixed(1) + ' ' + (-wid*0.6).toFixed(1) + ' ' + (-len*0.75).toFixed(1) + ' 0 ' + (-len).toFixed(1) + 'C' + (wid*0.6).toFixed(1) + ' ' + (-len*0.75).toFixed(1) + ' ' + wid.toFixed(1) + ' ' + (-len*0.12).toFixed(1) + ' 0 0Z';
+  }
+  function npt(len, wid) {
+    return 'M0 0C' + (-wid).toFixed(1) + ' ' + (-len*0.12).toFixed(1) + ' ' + (-wid*0.5).toFixed(1) + ' ' + (-len*0.8).toFixed(1) + ' ' + (-wid*0.12).toFixed(1) + ' ' + (-len).toFixed(1) + 'Q0 ' + (-len*0.68).toFixed(1) + ' ' + (wid*0.12).toFixed(1) + ' ' + (-len).toFixed(1) + 'C' + (wid*0.5).toFixed(1) + ' ' + (-len*0.8).toFixed(1) + ' ' + wid.toFixed(1) + ' ' + (-len*0.12).toFixed(1) + ' 0 0Z';
+  }
+  function qpt(len, wid) {
+    return 'M0 0C' + (-wid*0.8).toFixed(1) + ' ' + (-len*0.2).toFixed(1) + ' ' + (-wid*0.3).toFixed(1) + ' ' + (-len*0.6).toFixed(1) + ' ' + (-wid*0.1).toFixed(1) + ' ' + (-len).toFixed(1) + 'C0 ' + (-len*0.92).toFixed(1) + ' ' + (wid*0.1).toFixed(1) + ' ' + (-len).toFixed(1) + ' ' + (wid*0.3).toFixed(1) + ' ' + (-len*0.6).toFixed(1) + 'C' + (wid*0.8).toFixed(1) + ' ' + (-len*0.2).toFixed(1) + ' 0 ' + (-len*0.05).toFixed(1) + ' 0 0Z';
+  }
+  function ring(n, fn, len, wid, op, rot) {
+    rot = rot || 0;
+    for (var i = 0; i < n; i++) {
+      var a = (i/n)*360 + rot;
+      p.push('<path d="' + fn(len, wid) + '" fill="' + P + '" opacity="' + op + '" transform="rotate(' + a.toFixed(1) + ')"/>');
+    }
+  }
+  function ctr(r, op) {
+    p.push('<circle cx="0" cy="0" r="' + r + '" fill="' + C + '"' + (op != null ? ' opacity="' + op + '"' : '') + '/>');
+  }
+  function dots(r, n, dr, fill) {
+    for (var i = 0; i < n; i++) {
+      var a = (i/n)*360*Math.PI/180;
+      p.push('<circle cx="' + (Math.cos(a)*r).toFixed(1) + '" cy="' + (Math.sin(a)*r).toFixed(1) + '" r="' + dr + '" fill="' + (fill||C) + '"/>');
+    }
+  }
+  function highlight(r, op) {
+    p.push('<circle cx="0" cy="' + (-r*0.3).toFixed(1) + '" r="' + (r*0.6).toFixed(1) + '" fill="#fff" opacity="' + op + '"/>');
+  }
+
+  if (pn === '\u6898\u82b1') {
+    ring(5, pt, 22, 13, 0.35); ring(5, pt, 18, 11, 0.92, 36);
+    ctr(5); dots(3, 5, 1.3, '#f5d890'); highlight(5, 0.12);
+  } else if (pn === '\u8fce\u6625\u82b1') {
+    ring(6, qpt, 19, 5, 0.92);
+    ctr(4); ctr(2.5, 0.55); highlight(4, 0.15);
+  } else if (pn === '\u6843\u82b1') {
+    ring(5, pt, 25, 16, 0.28); ring(5, pt, 21, 14, 0.9, 36);
+    ctr(6); dots(5, 8, 1.3, '#f5d060'); highlight(6, 0.1);
+  } else if (pn === '\u6a31\u82b1') {
+    ring(5, npt, 23, 15, 0.28); ring(5, npt, 19, 13, 0.9, 36);
+    ctr(5); ctr(3, 0.55); dots(3, 6, 0.8, '#e880a0'); highlight(5, 0.12);
+  } else if (pn === '\u7261\u4e39') {
+    ring(8, pt, 27, 12, 0.22, 22.5); ring(7, pt, 23, 11, 0.45);
+    ring(6, pt, 18, 10, 0.72, 30); ring(5, pt, 12, 8, 0.92, 36);
+    ctr(5); ctr(3, 0.25); highlight(5, 0.08);
+  } else if (pn === '\u6800\u5b50\u82b1') {
+    ring(6, pt, 24, 14, 0.32, 15); ring(6, pt, 20, 12, 0.9, 45);
+    ctr(5); ctr(3, 0.45); highlight(5, 0.12);
+  } else if (pn === '\u8377\u82b1') {
+    ring(8, pt, 28, 11, 0.22, 22.5); ring(6, pt, 23, 10, 0.52);
+    ring(3, pt, 17, 9, 0.9, 60);
+    ctr(5); dots(4, 6, 1.5, '#f5e890'); highlight(5, 0.1);
+  } else if (pn === '\u5411\u65e5\u8475') {
+    ring(16, qpt, 29, 4, 0.9); ring(16, qpt, 25, 3.5, 0.45, 11.25);
+    ctr(11); ctr(8, 0.35); dots(7, 14, 0.8, '#2a1a00'); highlight(11, 0.06);
+  } else if (pn === '\u6842\u82b1') {
+    ring(4, pt, 16, 10, 0.92, 45); ctr(3); highlight(3, 0.15);
+  } else if (pn === '\u83ca\u82b1') {
+    ring(18, qpt, 31, 4, 0.7, 10); ring(18, qpt, 26, 3.5, 0.42, 20);
+    ctr(4); highlight(4, 0.1);
+  } else if (pn === '\u5c71\u8336\u82b1') {
+    ring(7, pt, 24, 13, 0.25, 25.7); ring(6, pt, 20, 12, 0.6);
+    ring(5, pt, 14, 10, 0.92, 36);
+    ctr(4); ctr(2, 0.45); highlight(4, 0.1);
+  } else if (pn === '\u6c34\u4ed9') {
+    ring(6, pt, 24, 13, 0.9);
+    p.push('<path d="M-6 0Q-6 -8 0 -9Q6 -8 6 0Q6 4 0 5Q-6 4 -6 0Z" fill="' + C + '"/>');
+    ctr(3, 0.5); highlight(3, 0.12);
+  } else {
+    ring(8, pt, 23, 11, 0.9); ctr(6); highlight(6, 0.1);
+  }
+  return p.join('');
+}
+
+function readingFlowerSvg(stage) {
+  var plant = readingPlantThisMonth();
+  var W = 140, H = 180;
+  var parts = [];
+  parts.push('<svg viewBox="0 0 ' + W + ' ' + H + '" style="width:100%;height:auto;display:block;" preserveAspectRatio="xMidYMid meet">');
+  parts.push('<ellipse cx="70" cy="173" rx="33" ry="5" fill="#a08868" opacity="0.35"/>');
+  parts.push('<ellipse cx="70" cy="172" rx="25" ry="3" fill="#8a7050" opacity="0.3"/>');
+  if (stage === -1) {
+    parts.push('<path d="M70 172 Q66 145 60 115 Q56 95 52 78" stroke="#9a8a5a" stroke-width="2.5" fill="none" stroke-linecap="round" opacity="0.7"/>');
+    parts.push('<path d="M62 100 Q74 92 80 88" stroke="#9a8a5a" stroke-width="1.8" fill="none" stroke-linecap="round" opacity="0.5"/>');
+    parts.push('<g transform="translate(54,62) scale(0.5) rotate(-25)" opacity="0.3">' + readingBloomHeadInner(plant) + '</g>');
+    parts.push('<circle cx="48" cy="162" r="3" fill="' + plant.p + '" opacity="0.18"/>');
+    parts.push('<circle cx="88" cy="165" r="2.5" fill="' + plant.p + '" opacity="0.15"/>');
+    parts.push('<ellipse cx="65" cy="168" rx="2" ry="1" fill="' + plant.p + '" opacity="0.12"/>');
+  } else if (stage === 0) {
+    parts.push('<ellipse cx="70" cy="170" rx="5" ry="3" fill="' + plant.s + '"/>');
+    parts.push('<path d="M67 169 Q70 167 73 169" stroke="' + plant.c + '" stroke-width="0.7" fill="none" opacity="0.3"/>');
+  } else if (stage === 1) {
+    parts.push('<path d="M70 172 L70 148" stroke="#7a9a3a" stroke-width="2.5" stroke-linecap="round"/>');
+    parts.push('<path d="M70 158 C64 156 58 154 55 150 C58 148 62 149 66 152 Z" fill="#8aaa4a"/>');
+    parts.push('<path d="M70 158 C76 156 82 154 85 150 C82 148 78 149 74 152 Z" fill="#9aba5a"/>');
+  } else if (stage === 2) {
+    parts.push('<path d="M70 172 L70 118" stroke="#6a8a2a" stroke-width="3" stroke-linecap="round"/>');
+    parts.push('<path d="M70 148 C60 144 52 142 48 136 C55 134 62 136 68 142 Z" fill="#7aaa3a"/>');
+    parts.push('<path d="M70 143 C80 139 88 137 92 131 C85 129 78 131 72 137 Z" fill="#8aba4a"/>');
+    parts.push('<path d="M70 128 C63 124 57 122 54 116 C61 114 66 116 70 122 Z" fill="#9aca5a"/>');
+    parts.push('<path d="M70 123 C77 119 83 117 86 111 C79 109 74 111 70 117 Z" fill="#aada6a"/>');
+  } else if (stage === 3) {
+    parts.push('<path d="M70 172 L70 92" stroke="#6a8a2a" stroke-width="3" stroke-linecap="round"/>');
+    parts.push('<path d="M70 142 C60 138 52 136 48 130 C55 128 62 130 68 136 Z" fill="#7aaa3a"/>');
+    parts.push('<path d="M70 132 C80 128 88 126 92 120 C85 118 78 120 72 126 Z" fill="#8aba4a"/>');
+    parts.push('<path d="M70 112 C63 108 57 106 54 100 C61 98 66 100 70 106 Z" fill="#9aca5a"/>');
+    parts.push('<path d="M62 88 C60 82 62 76 70 74 C78 76 80 82 78 88 C76 92 64 92 62 88 Z" fill="#5a8a2a"/>');
+    parts.push('<g transform="translate(70,80) scale(0.5)">' + readingBloomHeadInner(plant) + '</g>');
+  } else if (stage === 4) {
+    parts.push('<path d="M70 172 L70 76" stroke="#6a8a2a" stroke-width="3" stroke-linecap="round"/>');
+    parts.push('<path d="M70 140 C60 136 52 134 48 128 C55 126 62 128 68 134 Z" fill="#7aaa3a"/>');
+    parts.push('<path d="M70 124 C80 120 88 118 92 112 C85 110 78 112 72 118 Z" fill="#8aba4a"/>');
+    parts.push('<path d="M70 104 C63 100 57 98 54 92 C61 90 66 92 70 98 Z" fill="#9aca5a"/>');
+    parts.push('<g transform="translate(70,54) scale(0.8)">' + readingBloomHeadInner(plant) + '</g>');
+  } else {
+    parts.push('<path d="M70 172 L70 58" stroke="#6a8a2a" stroke-width="3" stroke-linecap="round"/>');
+    parts.push('<path d="M70 145 C60 141 52 139 48 133 C55 131 62 133 68 139 Z" fill="#7aaa3a"/>');
+    parts.push('<path d="M70 130 C80 126 88 124 92 118 C85 116 78 118 72 124 Z" fill="#8aba4a"/>');
+    parts.push('<path d="M70 110 C63 106 57 104 54 98 C61 96 66 98 70 104 Z" fill="#9aca5a"/>');
+    parts.push('<path d="M70 92 C77 88 83 86 86 80 C79 78 74 80 70 86 Z" fill="#aada6a"/>');
+    parts.push('<path d="M70 78 Q56 64 44 56" stroke="#6a8a2a" stroke-width="2.5" fill="none" stroke-linecap="round"/>');
+    parts.push('<path d="M70 74 Q84 60 96 54" stroke="#6a8a2a" stroke-width="2.5" fill="none" stroke-linecap="round"/>');
+    parts.push('<circle cx="70" cy="38" r="36" fill="' + plant.p + '" opacity="0.08"/>');
+    parts.push('<g transform="translate(70,38) scale(1.35)">' + readingBloomHeadInner(plant) + '</g>');
+    parts.push('<g transform="translate(44,54) scale(0.45)">' + readingBloomHeadInner(plant) + '</g>');
+    parts.push('<g transform="translate(96,52) scale(0.45)">' + readingBloomHeadInner(plant) + '</g>');
+  }
+  parts.push('</svg>');
+  return parts.join('');
+}
+
+function readingBloomSvg(plant) {
+  var parts = [];
+  parts.push('<svg viewBox="0 0 100 100" style="width:100%;height:100%;display:block;" preserveAspectRatio="xMidYMid meet">');
+  parts.push('<g transform="translate(50,50) scale(1.4)">' + readingBloomHeadInner(plant) + '</g>');
+  parts.push('</svg>');
+  return parts.join('');
+}
+
+function readingToggleSeedPreview() {
+  var el = document.getElementById('rt-seed-preview');
+  if (!el) return;
+  if (el.style.display === 'none' || !el.style.display) {
+    var plant = readingPlantThisMonth();
+    el.innerHTML = '<div class="rt-seed-preview-svg">' + readingBloomSvg(plant) + '</div><div class="rt-seed-preview-desc">' + plant.info + '</div>';
+    el.style.display = 'block';
+  } else {
+    el.style.display = 'none';
+  }
+}
+
+function readingShowAllFlowers() {
+  var curMonth = new Date().getMonth();
+  var html = '<div class="rt-all-flowers-overlay" onclick="if(event.target===this) this.remove()">';
+  html += '<div class="rt-all-flowers-box">';
+  html += '<div class="rt-all-flowers-title">🌸 一年十二月花历</div>';
+  html += '<div class="rt-all-flowers-grid">';
+  PLANT_MONTHS.forEach(function(plant, i) {
+    html += '<div class="rt-all-flower-item' + (i===curMonth?' cur':'') + '">';
+    html += '<div class="rt-all-flower-svg">' + readingBloomSvg(plant) + '</div>';
+    html += '<div class="rt-all-flower-name">' + plant.name + '</div>';
+    html += '<div class="rt-all-flower-month">' + (i+1) + '月</div>';
+    html += '</div>';
+  });
+  html += '</div>';
+  html += '<button class="rt-all-flowers-close" onclick="this.closest(\'.rt-all-flowers-overlay\').remove()">关闭</button>';
+  html += '</div></div>';
+  var div = document.createElement('div');
+  div.innerHTML = html;
+  document.body.appendChild(div.firstChild);
+}
+
+function readingTimerToggle() {
+  if (readingTimerState.running) { readingTimerStop(); return; }
+  var bookSel = document.getElementById('rt-book');
+  if (bookSel && !bookSel.value) { showToast('📖 请先选择一本书再开始阅读哦~', 'warn'); return; }
+  readingTimerStart();
+}
+
+function readingTimerStart() {
+  readingTimerState.running = true;
+  readingTimerState.startTime = Date.now();
+  var btn = document.querySelector('.rt-btn');
+  if (btn) { btn.textContent = '⏹ 停止'; btn.className = 'rt-btn rt-btn-pause'; }
+  readingTimerTick();
+  readingTimerState.intervalId = setInterval(readingTimerTick, 1000);
+}
+
+function readingTimerStop() {
+  if (!readingTimerState.running) return;
+  var dur = Math.floor((Date.now() - readingTimerState.startTime) / 1000);
+  if (dur >= 1) {
+    if (!appData.readingLog) appData.readingLog = [];
+    var bookSel = document.getElementById('rt-book');
+    var now = new Date();
+    var timeStr = String(now.getHours()).padStart(2,'0') + ':' + String(now.getMinutes()).padStart(2,'0');
+    appData.readingLog.push({ date: todayStr(), startTime: timeStr, duration: dur, bookIdx: bookSel ? (parseInt(bookSel.value) || null) : null });
+    saveData(appData);
+    if (dur < 600) showToast('阅读不足10分钟，本次不计入统计哦~ 继续加油！', 'warn');
+    else showToast('本次阅读 ' + fmtReadingTime(dur) + '，太棒了！', 'success');
+  }
+  readingTimerState.running = false;
+  if (readingTimerState.intervalId) { clearInterval(readingTimerState.intervalId); readingTimerState.intervalId = null; }
+  renderReadingTimer();
+}
+
+function readingTimerTick() {
+  var disp = document.getElementById('rt-display');
+  var extra = Math.floor((Date.now() - readingTimerState.startTime) / 1000);
+  if (disp) disp.textContent = fmtReadingTime(readingTodayTotal() + extra);
+}
+
+function readingCalendarHtml(year, month) {
+  var firstDay = new Date(year, month-1, 1);
+  var lastDay = new Date(year, month, 0);
+  var startWd = firstDay.getDay();
+  var daysInMonth = lastDay.getDate();
+  var weekdays = ['日','一','二','三','四','五','六'];
+  var html = '<div class="rt-cal">';
+  weekdays.forEach(function(w){ html += '<div class="rt-cal-hd">' + w + '</div>'; });
+  for (var i = 0; i < startWd; i++) html += '<div class="rt-cal-empty"></div>';
+  var today = todayStr();
+  for (var d = 1; d <= daysInMonth; d++) {
+    var ds = year + '-' + String(month).padStart(2,'0') + '-' + String(d).padStart(2,'0');
+    var total = readingDayTotal(ds);
+    var cls = 'rt-cal-day';
+    if (ds === today) cls += ' rt-cal-today';
+    if (total >= 1200) cls += ' rt-cal-good';
+    else if (total > 0) cls += ' rt-cal-partial';
+    var label = total > 0 ? fmtReadingTime(total).replace(/分$/,'').replace(/秒$/,'') : '';
+    if (total >= 3600) label = Math.floor(total/3600)+'h'+Math.floor((total%3600)/60)+'m';
+    html += '<div class="' + cls + '"><div class="rt-cal-num">' + d + '</div>' + (label ? '<div class="rt-cal-time">' + label + '</div>' : '') + '</div>';
+  }
+  html += '</div>';
+  html += '<div class="rt-cal-legend"><span class="rt-cal-legend-item"><span class="rt-cal-dot" style="background:#e8f5e0;border:1px solid #7ab84a;"></span>达标20分</span><span class="rt-cal-legend-item"><span class="rt-cal-dot" style="background:#fdf6e8;border:1px solid #c4a46a;"></span>未达标</span></div>';
+  return html;
+}
+
+function readingCalShift(delta) {
+  var now = new Date();
+  var cur = readingCalMonth || { year: now.getFullYear(), month: now.getMonth()+1 };
+  cur = { year: cur.year, month: cur.month + delta };
+  if (cur.month < 1) { cur.month = 12; cur.year--; }
+  if (cur.month > 12) { cur.month = 1; cur.year++; }
+  readingCalMonth = cur;
+  var labelEl = document.getElementById('rt-cal-label');
+  if (labelEl) labelEl.textContent = cur.year + '年' + cur.month + '月';
+  var bodyEl = document.getElementById('rt-cal-body');
+  if (bodyEl) bodyEl.innerHTML = readingCalendarHtml(cur.year, cur.month);
+}
+
+function renderReadingTimer() {
+  var el = document.getElementById('reading-content');
+  if (!el) return;
+  if (!appData.readingLog) appData.readingLog = [];
+  var today = todayStr();
+  var todaySessions = appData.readingLog.filter(function(s){ return s.date === today; });
+  var todayTotal = readingTodayTotal();
+  var extra = readingTimerState.running ? Math.floor((Date.now() - readingTimerState.startTime)/1000) : 0;
+  var html = '<div class="sr-wrap">';
+  html += '<div class="rt-card">';
+  html += '<div class="rt-display" id="rt-display">' + fmtReadingTime(todayTotal+extra) + '</div>';
+  html += '<div class="rt-label">今日阅读时长（满10分钟才计入）</div>';
+  if (appData.readingBooks && appData.readingBooks.length > 0) {
+    html += '<select class="rt-select" id="rt-book">';
+    html += '<option value="">选择书籍（可选）</option>';
+    appData.readingBooks.forEach(function(b,i){ html += '<option value="' + i + '">' + escSr(b.title) + '</option>'; });
+    html += '</select>';
+  }
+  var btnText = readingTimerState.running ? '⏹ 停止' : '▶ 开始阅读';
+  var btnCls = readingTimerState.running ? 'rt-btn rt-btn-pause' : 'rt-btn rt-btn-start';
+  html += '<button class="' + btnCls + '" onclick="readingTimerToggle()">' + btnText + '</button>';
+  html += '</div>';
+  if (todaySessions.length > 0) {
+    html += '<div class="rt-sessions">';
+    html += '<div class="rt-sessions-title">今日记录（' + todaySessions.length + '次）</div>';
+    todaySessions.slice().reverse().forEach(function(s){
+      var bn = (s.bookIdx != null && appData.readingBooks[s.bookIdx]) ? escSr(appData.readingBooks[s.bookIdx].title) : '';
+      var counted = (s.duration||0) >= 600;
+      html += '<div class="rt-session-item"><span class="rt-session-time">' + escSr(s.startTime||'') + '</span><span class="rt-session-dur">' + fmtReadingTime(s.duration) + (counted?'':' ⚠') + '</span><span class="rt-session-book">' + bn + '</span></div>';
+    });
+    html += '</div>';
+  }
+  var fd = readingFlowerData();
+  var plant = readingPlantThisMonth();
+  html += '<div class="rt-garden-row">';
+  html += '<div class="rt-flower-card">' + readingFlowerSvg(fd.stage) + '<div class="rt-flower-name">' + fd.name + '</div><div class="rt-flower-tip">' + fd.tip + '</div><div class="rt-flower-info">' + plant.info + '</div><div class="rt-seed-toggle" onclick="readingShowAllFlowers()" style="margin-right:6px;">🌸 全年花历</div><div class="rt-seed-toggle" onclick="readingToggleSeedPreview()">🌸 看看会开什么花</div><div class="rt-seed-preview" id="rt-seed-preview" style="display:none;"></div></div>';
+  html += '<div class="rt-cal-card">';
+  html += '<div class="rt-cal-nav"><button class="rt-cal-nav-btn" onclick="readingCalShift(-1)">◀</button><span class="rt-cal-label" id="rt-cal-label"></span><button class="rt-cal-nav-btn" onclick="readingCalShift(1)">▶</button></div>';
+  html += '<div id="rt-cal-body"></div>';
+  html += '</div>';
+  html += '</div>';
+  html += '</div>';
+  el.innerHTML = html;
+  var now = new Date();
+  var cur = readingCalMonth || { year: now.getFullYear(), month: now.getMonth()+1 };
+  var labelEl = document.getElementById('rt-cal-label');
+  if (labelEl) labelEl.textContent = cur.year + '年' + cur.month + '月';
+  var bodyEl = document.getElementById('rt-cal-body');
+  if (bodyEl) bodyEl.innerHTML = readingCalendarHtml(cur.year, cur.month);
+  if (readingTimerState.running) readingTimerTick();
 }
 
 function renderBookshelf() {
@@ -7683,11 +8148,12 @@ function switchEnglishCat(cat, el) {
     renderSchoolReview('english', 'english-content');
   } else if (cat === 'word') {
     subTabs.style.display = '';
-    var sub = appData.englishSub || 'spell';
+    var sub = appData.englishSub;
+    if (sub !== 'spell' && sub !== 'textbook') sub = 'spell'; // 兜底非法值
     document.getElementById('en-bread-spell').classList.toggle('active', sub === 'spell');
     document.getElementById('en-bread-textbook').classList.toggle('active', sub === 'textbook');
-    if (sub === 'spell') renderSpellGame();
     if (sub === 'textbook') renderTextbookWords();
+    else renderSpellGame();
   } else {
     subTabs.style.display = 'none';
     var names = { grammar:'语法', reading:'阅读', speaking:'口语' };
@@ -7787,8 +8253,9 @@ function renderSpellGame() {
   var tbBanner = spellState.textbookOnly ? '<div style="background:#e0f5ff;border:1px solid #b0d8f0;border-radius:10px;padding:8px 12px;margin-bottom:12px;display:flex;justify-content:space-between;align-items:center;font-size:13px;color:#2080c0;font-weight:600;">📖 课内单词练习（' + getSpellWords().length + ' 个单词）<button class="spell-btn skip" style="padding:4px 12px;font-size:12px;" onclick="exitTextbookOnly()">退出</button></div>' : '';
   var kpBanner = spellState.kpWords ? '<div style="background:#eef5ff;border:1px solid #b0c8e8;border-radius:10px;padding:8px 12px;margin-bottom:12px;display:flex;justify-content:space-between;align-items:center;font-size:13px;color:#4a8ac4;font-weight:600;">🔤 ' + escSr(spellState.kpTitle||'词汇拼写') + '（' + getSpellWords().length + ' 个）<button class="spell-btn skip" style="padding:4px 12px;font-size:12px;" onclick="exitKpSpell()">返回知识梳理</button></div>' : '';
   var cats = ['全部'].concat(getSpellCats());
-  var catBar = cats.map(function(c) {
-    return '<button class="spell-cat-btn' + (c === spellState.cat ? ' active' : '') + '" onclick="setSpellCat(\'' + c + '\')">' + c + '</button>';
+  _spellCatsCache = cats;
+  var catBar = cats.map(function(c, ci) {
+    return '<button class="spell-cat-btn' + (c === spellState.cat ? ' active' : '') + '" onclick="setSpellCatByIndex(' + ci + ')">' + escHtml(c) + '</button>';
   }).join('');
   var words = getSpellWords();
   if (words.length === 0) { el.innerHTML = viewTabs + '<div class="spell-empty">暂无单词</div>'; return; }
@@ -7827,12 +8294,12 @@ function renderSpellGame() {
     '</div></div>' +
     (spellState.wrongOnly || spellState.textbookOnly || spellState.kpWords ? '' : '<div class="spell-cat-bar">' + catBar + '</div>') +
     '<div class="spell-card">' +
-    '<div class="spell-picture" id="spell-picture">' + (w.img ? '<img src="' + w.img + '" style="width:160px;height:160px;object-fit:cover;border-radius:16px;" onerror="this.parentElement.textContent=\'' + w.emoji + '\'">' : w.emoji) + '</div>' +
+    '<div class="spell-picture" id="spell-picture">' + (w.img ? '<img src="' + escHtml(w.img) + '" style="width:160px;height:160px;object-fit:cover;border-radius:16px;" onerror="this.parentElement.textContent=\'' + escHtml(w.emoji) + '\'">' : escHtml(w.emoji)) + '</div>' +
    '<div class="spell-toolbar">' +
      '<button class="spell-tool-btn" onclick="spellSpeak(\'' + w.word.replace(/'/g, "\\'") + '\')">🔊 发音</button>' +
    '</div>' +
     '<div class="spell-hint" id="spell-cn-hint" onclick="toggleSpellCn()">' +
-      (spellState.cnShown ? '🇨🇳 ' + w.cn : '🇨🇳 🔒 点击查看中文') +
+      (spellState.cnShown ? '🇨🇳 ' + escHtml(w.cn) : '🇨🇳 🔒 点击查看中文') +
     '</div>' +
     '<div class="spell-slots">' + slotsHtml + '</div>' +
     '<div class="spell-tiles">' + tilesHtml + '</div>' +
@@ -7857,8 +8324,8 @@ function renderSpellRecited() {
   recited.forEach(function(word) {
     var w = words.find(function(s) { return s.word === word; });
     if (!w) w = { word: word, emoji: '📝', cn: '?', img: '' };
-    var pic = w.img ? '<img src="' + w.img + '" style="width:32px;height:32px;object-fit:cover;border-radius:6px;" onerror="this.style.display=\'none\';this.parentElement.textContent=\'' + w.emoji + '\'">' : w.emoji;
-    html += '<div class="spell-word-card"><div class="swc-emoji">' + pic + '</div><div class="swc-word">' + w.word + '</div><div class="swc-cn">' + w.cn + '</div></div>';
+    var pic = w.img ? '<img src="' + escHtml(w.img) + '" style="width:32px;height:32px;object-fit:cover;border-radius:6px;" onerror="this.style.display=\'none\';this.parentElement.textContent=\'' + escHtml(w.emoji) + '\'">' : escHtml(w.emoji);
+    html += '<div class="spell-word-card"><div class="swc-emoji">' + pic + '</div><div class="swc-word">' + escHtml(w.word) + '</div><div class="swc-cn">' + escHtml(w.cn) + '</div></div>';
   });
   html += '</div>';
   return html;
@@ -7874,8 +8341,8 @@ function renderSpellWrongList() {
     var item = wrong[word];
     var words = appData.spellWords || SPELL_WORDS;
     var found = words.find(function(s) { return s.word === word; });
-    var pic = (found && found.img) ? '<img src="' + found.img + '" style="width:32px;height:32px;object-fit:cover;border-radius:6px;" onerror="this.style.display=\'none\';this.parentElement.textContent=\'' + item.emoji + '\'">' : item.emoji;
-    html += '<div class="spell-word-card wrong"><div class="swc-emoji">' + pic + '</div><div class="swc-word">' + word + '</div><div class="swc-cn">' + item.cn + '</div><div class="swc-count">错 ' + (item.count||1) + ' 次</div></div>';
+    var pic = (found && found.img) ? '<img src="' + escHtml(found.img) + '" style="width:32px;height:32px;object-fit:cover;border-radius:6px;" onerror="this.style.display=\'none\';this.parentElement.textContent=\'' + escHtml(item.emoji) + '\'">' : escHtml(item.emoji);
+    html += '<div class="spell-word-card wrong"><div class="swc-emoji">' + pic + '</div><div class="swc-word">' + escHtml(word) + '</div><div class="swc-cn">' + escHtml(item.cn) + '</div><div class="swc-count">错 ' + (item.count||1) + ' 次</div></div>';
   });
   html += '</div>';
   html += '<div class="spell-btns" style="margin-top:16px;"><button class="spell-btn check" onclick="practiceWrongWords()">📋 开始复习错题</button></div>';
@@ -7904,12 +8371,12 @@ function renderSpellAllWords() {
     catWords.forEach(function(w, i) {
       var realIdx = words.indexOf(w);
       var imgBadge = w.img ? '<span class="spell-img-badge real">📷真实图</span>' : '<span class="spell-img-badge emoji">🔤Emoji</span>';
-      var pic = w.img ? '<img src="' + w.img + '" style="width:40px;height:40px;object-fit:cover;border-radius:8px;" onerror="this.style.display=\'none\';this.parentElement.textContent=\'' + w.emoji + '\'">' : w.emoji;
+      var pic = w.img ? '<img src="' + escHtml(w.img) + '" style="width:40px;height:40px;object-fit:cover;border-radius:8px;" onerror="this.style.display=\'none\';this.parentElement.textContent=\'' + escHtml(w.emoji) + '\'">' : escHtml(w.emoji);
       var isRecited = appData.spellRecited.indexOf(w.word) !== -1;
       var recitedBadge = isRecited ? '<span class="spell-img-badge real">✅已背</span>' : '';
       var isWrong = appData.spellWrong[w.word];
       var wrongBadge = isWrong ? '<span class="spell-img-badge" style="background:#fff0f0;color:#e85555;">📋错' + (isWrong.count||1) + '</span>' : '';
-      html += '<div class="spell-word-card manage"><div class="swc-emoji">' + pic + '</div><div class="swc-word">' + w.word + '</div><div class="swc-cn">' + w.cn + '</div><div style="margin-top:4px;">' + imgBadge + recitedBadge + wrongBadge + '</div><div class="swc-actions"><button class="swc-edit" onclick="openSpellWordModal(' + realIdx + ')">✏️</button><button class="swc-del" onclick="deleteSpellWord(' + realIdx + ')">🗑</button></div></div>';
+      html += '<div class="spell-word-card manage"><div class="swc-emoji">' + pic + '</div><div class="swc-word">' + escHtml(w.word) + '</div><div class="swc-cn">' + escHtml(w.cn) + '</div><div style="margin-top:4px;">' + imgBadge + recitedBadge + wrongBadge + '</div><div class="swc-actions"><button class="swc-edit" onclick="openSpellWordModal(' + realIdx + ')">✏️</button><button class="swc-del" onclick="deleteSpellWord(' + realIdx + ')">🗑</button></div></div>';
     });
     html += '</div></div>';
   });
@@ -7921,7 +8388,7 @@ function openSpellWordModal(idx) {
   var title = document.getElementById('spell-word-modal-title');
   var dl = document.getElementById('sw-cat-list');
   if (dl) {
-    dl.innerHTML = getSpellCats().map(function(c) { return '<option value="' + c + '">'; }).join('');
+    dl.innerHTML = getSpellCats().map(function(c) { return '<option value="' + escHtml(c) + '">'; }).join('');
   }
   if (typeof idx === 'number') {
     var w = appData.spellWords[idx];
@@ -8083,6 +8550,10 @@ function setSpellCat(cat) {
   spellState.cnShown = false;
   renderSpellGame();
 }
+
+// 分类按钮按索引传参（分类名用户可自定义，避免拼进 onclick）
+var _spellCatsCache = [];
+function setSpellCatByIndex(i) { setSpellCat(_spellCatsCache[i]); }
 
 function selectLetter(tileIdx) {
   if (spellState.answered) return;
