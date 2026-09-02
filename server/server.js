@@ -34,7 +34,7 @@ const SESSION_MAX_AGE_DAYS = 30;
 
 // ---- 安全限制 ----
 // 头像白名单（与前端 AUTH_AVATARS 一致，防存储型 XSS）
-const AVATAR_ALLOWLIST = ['👦','👧','😊','🌟','🐱','🐶','🐼','🦊','🐰','🐨','🦄','🐸','🐵','🐯','🦁','🐮','🐷','🐭','🐹','🐻','🐔','🐧','🐦','🦋'];
+const AVATAR_ALLOWLIST = ["img/avatars/avatar1.jpg", "img/avatars/avatar2.jpg", "img/avatars/avatar3.jpg", "img/avatars/avatar4.jpg", "img/avatars/avatar5.jpg", "img/avatars/avatar6.png", "img/avatars/avatar7.png", "img/avatars/avatar8.jpg", "img/avatars/avatar9.jpg", "img/avatars/avatar10.jpg", "img/avatars/avatar11.jpg", "img/avatars/avatar12.jpg"];
 // 用户名：字母/数字/下划线/中文，2-20 位
 const USERNAME_RE = /^[a-zA-Z0-9_一-龥]{2,20}$/;
 const MIN_PASSWORD_LEN = 6;
@@ -56,6 +56,62 @@ const BACKUP_DIR = path.resolve(PROJECT_DIR, process.env.BACKUP_DIR || path.join
 // 单日积分涨幅上限 / 单次保存 streak 最大增幅（防客户端任意刷分）
 const DAILY_POINTS_GAIN_LIMIT = 2000;
 const STREAK_MAX_GAIN_PER_SAVE = 1;
+
+
+// ==================== 验证码 ====================
+const captchaStore = new Map();
+const CAPTCHA_EXPIRE_MS = 5 * 60 * 1000;
+const CAPTCHA_CHARS = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+
+function generateCaptcha() {
+  var text = '';
+  for (var i = 0; i < 4; i++) {
+    text += CAPTCHA_CHARS[Math.floor(Math.random() * CAPTCHA_CHARS.length)];
+  }
+  var id = crypto.randomBytes(16).toString('hex');
+  captchaStore.set(id, { text: text, expires: Date.now() + CAPTCHA_EXPIRE_MS });
+  if (captchaStore.size > 100) {
+    var now = Date.now();
+    for (var [k, v] of captchaStore) {
+      if (v.expires < now) captchaStore.delete(k);
+    }
+  }
+  return { id: id, svg: captchaToSVG(text) };
+}
+
+function captchaToSVG(text) {
+  var colors = ['#e85d5d', '#5d8ae8', '#5da85d', '#e8a85d', '#a85de8', '#5de8c4'];
+  var parts = ['<svg width="120" height="40" xmlns="http://www.w3.org/2000/svg">'];
+  parts.push('<rect width="120" height="40" fill="#f5f0e8" rx="6"/>');
+  for (var i = 0; i < 4; i++) {
+    var x1 = Math.random() * 120, y1 = Math.random() * 40;
+    var x2 = Math.random() * 120, y2 = Math.random() * 40;
+    parts.push('<line x1="' + x1.toFixed(1) + '" y1="' + y1.toFixed(1) + '" x2="' + x2.toFixed(1) + '" y2="' + y2.toFixed(1) + '" stroke="#ddd" stroke-width="1"/>');
+  }
+  for (var i = 0; i < 8; i++) {
+    var cx = Math.random() * 120, cy = Math.random() * 40;
+    parts.push('<circle cx="' + cx.toFixed(1) + '" cy="' + cy.toFixed(1) + '" r="1" fill="#ccc"/>');
+  }
+  for (var i = 0; i < text.length; i++) {
+    var x = 18 + i * 26;
+    var y = 28 + (Math.random() - 0.5) * 6;
+    var rot = (Math.random() - 0.5) * 30;
+    var color = colors[Math.floor(Math.random() * colors.length)];
+    var size = 22 + Math.floor(Math.random() * 4);
+    parts.push('<text x="' + x + '" y="' + y.toFixed(1) + '" font-size="' + size + '" font-family="Arial,sans-serif" font-weight="bold" fill="' + color + '" transform="rotate(' + rot.toFixed(1) + ' ' + x + ' ' + y.toFixed(1) + ')">' + text[i] + '</text>');
+  }
+  parts.push('</svg>');
+  return parts.join('');
+}
+
+function verifyCaptcha(captchaId, userInput) {
+  if (!captchaId || !userInput) return false;
+  var entry = captchaStore.get(captchaId);
+  if (!entry) return false;
+  captchaStore.delete(captchaId);
+  if (Date.now() > entry.expires) return false;
+  return entry.text.toUpperCase() === userInput.trim().toUpperCase();
+}
 
 // ==================== 数据库初始化 ====================
 const db = new DatabaseSync(DB_PATH);
@@ -288,12 +344,16 @@ function syncUserFields(userId, data, pointsBase, baseDate) {
 /** POST /api/register */
 async function handleRegister(req, res) {
   const body = await parseBody(req);
+  // 验证码校验
+  if (!verifyCaptcha(body.captchaId, body.captcha)) {
+    return sendJSON(res, 400, { error: '验证码错误或已过期' });
+  }
   const username = (body.username || '').trim();
   const password = body.password || '';
   // 昵称：去掉危险字符 + 限长（防存储型 XSS，前端渲染仍会转义，此为第一道防线）
   const displayName = (body.displayName || '').replace(/[<>&"'`]/g, '').trim().slice(0, MAX_DISPLAY_NAME_LEN) || '小学霸';
   // 头像：白名单校验，非法值回退默认
-  const avatar = AVATAR_ALLOWLIST.includes(body.avatar) ? body.avatar : '👦';
+  const avatar = AVATAR_ALLOWLIST.includes(body.avatar) ? body.avatar : 'img/avatars/avatar1.jpg';
 
   // 注册节流：同一 IP 间隔限制
   const clientIP = req.socket.remoteAddress || 'unknown';
@@ -375,6 +435,10 @@ async function handleLogin(req, res) {
   }
 
   const body = await parseBody(req);
+  // 验证码校验
+  if (!verifyCaptcha(body.captchaId, body.captcha)) {
+    return sendJSON(res, 400, { error: '验证码错误或已过期' });
+  }
   const username = (body.username || '').trim();
   const password = body.password || '';
 
@@ -785,9 +849,9 @@ function serveStaticFile(req, res) {
   // 根路径 → index.html
   if (req.url === '/' || req.url === '/index.html') {
     try {
-      const html = fs.readFileSync(HTML_FILE, 'utf-8');
-      res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
-      res.end(html);
+     const html = fs.readFileSync(HTML_FILE, 'utf-8');
+      res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'no-cache, no-store, must-revalidate' });
+     res.end(html);
     } catch (e) {
       res.writeHead(404, { 'Content-Type': 'text/plain; charset=utf-8' });
       res.end('找不到 学习工作台.html 文件');
@@ -815,7 +879,7 @@ function serveStaticFile(req, res) {
      }
      try {
        const data = fs.readFileSync(filePath);
-       res.writeHead(200, { 'Content-Type': mime });
+        res.writeHead(200, { 'Content-Type': mime, 'Cache-Control': 'no-cache, no-store, must-revalidate' });
        res.end(data);
      } catch (e) {
        res.writeHead(404, { 'Content-Type': 'text/plain; charset=utf-8' });
@@ -873,6 +937,9 @@ const server = http.createServer(async (req, res) => {
 
   try {
     // API 路由
+    if (pathname === '/api/captcha' && req.method === 'GET') {
+      return sendJSON(res, 200, generateCaptcha());
+    }
     if (pathname === '/api/register' && req.method === 'POST') {
       return await handleRegister(req, res);
     }

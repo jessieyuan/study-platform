@@ -46,6 +46,9 @@
     color: var(--text);
     min-height: 100vh;
     overflow-x: hidden;
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+    -webkit-tap-highlight-color: transparent;
   }
   .page { display: none; }
   .page.active { display: block; animation: fadeUp 0.3s ease; }
@@ -73,14 +76,16 @@
     margin-bottom: 2px;
   }
   .nav-avatar {
-    width: 44px; height: 44px;
-    border-radius: 50%;
-    background: linear-gradient(135deg, #f5c842, #f0a020);
+    width: 52px; height: 52px;
+    border-radius: 12px;
+    background: linear-gradient(145deg, #fde08a, #f0a020);
     display: flex; align-items: center; justify-content: center;
-    font-size: 24px; flex-shrink: 0;
-    border: 2px solid rgba(255,255,255,0.5);
+    font-size: 30px; flex-shrink: 0;
+    border: 3px solid rgba(255,255,255,0.7);
     margin-bottom: 2px; cursor: pointer;
     transition: 0.2s;
+    overflow: hidden;
+    box-shadow: 0 4px 8px rgba(180,120,10,0.3);
   }
   .nav-avatar:hover { transform: scale(1.08); box-shadow: 0 0 16px rgba(240,160,32,0.5); }
   .nav-avatar.boing { animation: avatarBoing 0.6s ease; }
@@ -1197,18 +1202,21 @@
     width:100%; padding:10px 14px; border:2px solid #f0e4c0;
     border-radius:12px; font-size:14px; font-family:inherit;
   }
-  .settings-avatar-grid { display:grid; grid-template-columns:repeat(6,1fr); gap:8px; }
-  .sa-item {
-    width:44px; height:44px; border-radius:12px; border:2px solid #f0e4c0;
-    display:flex; align-items:center; justify-content:center;
-    font-size:22px; cursor:pointer; transition:0.15s;
-  }
-  .sa-item:hover, .sa-item.selected { border-color:#f0a020; background:#fff8e0; transform:scale(1.1); }
+.settings-avatar-grid { display:grid; grid-template-columns:repeat(6,1fr); gap:8px; }
+.sa-item {
+   aspect-ratio:1; border-radius:12px; border:2px solid #f0e4c0;
+   display:flex; align-items:center; justify-content:center; overflow:hidden;
+  font-size:22px; cursor:pointer; transition:0.15s;
+}
+.sa-item img { width:100%; height:100%; border-radius:10px; object-fit:contain; }
+ .sa-item { max-width:48px; width:100%; justify-self:center; }
+ .sa-item:hover, .sa-item.selected { border-color:#f0a020; background:#fff8e0; box-shadow:0 2px 8px rgba(240,160,32,0.3); }
   .settings-preview {
     display:flex; flex-direction:column; align-items:center;
     gap:8px; padding:16px; background:#faf5e8; border-radius:16px;
   }
-  .sp-avatar { font-size:40px; }
+.sp-avatar { font-size:40px; }
+.sp-avatar img { object-fit:contain !important; }
   .sp-name { font-size:16px; font-weight:700; color:#5c4a2e; }
   .settings-save-btn {
     padding:10px 28px; border:none; border-radius:12px;
@@ -1696,7 +1704,7 @@
     .nav-sidebar { width: 48px; }
     .nav-item { width:40px; padding:6px 0; font-size:8px; gap:2px; }
     .nav-item .nav-icon { width:26px; height:26px; border-radius:8px; font-size:14px; }
-    .nav-avatar { width:34px; height:34px; font-size:20px; }
+    .nav-avatar { width:40px; height:40px; font-size:24px; }
     .nav-name { font-size:8px; }
     .nav-pet-btn { width:40px; font-size:7px; }
     .nav-settings-btn { width:40px; font-size:8px; }
@@ -1711,6 +1719,19 @@
     .dash-charts-row { grid-template-columns:1fr; }
     .week-nav { gap:2px; }
     .week-nav-item { padding:4px 8px; font-size:10px; }
+  }
+
+  /* ========== 手机自适应 ========== */
+  @media (max-width: 767px) {
+    /* zoom 整体缩放：按钮/字体/间距等比缩小，微信WebKit支持 */
+    .main { zoom: 0.88; }
+    .auth-card { zoom: 0.9; }
+    .modal, .confirm-dialog, .confirm-box, .pet-modal { zoom: 0.88; }
+  }
+  @media (max-width: 479px) {
+    .main { zoom: 0.8; }
+    .auth-card { zoom: 0.82; }
+    .modal, .confirm-dialog, .confirm-box, .pet-modal { zoom: 0.8; }
   }
 
   /* ========== 登录/注册界面 ========== */
@@ -1739,6 +1760,10 @@
   }
   .auth-input:focus { border-color: #f0a020; outline: none; background: #fff; }
   .auth-input::placeholder { color: #d0c0a0; }
+  .auth-captcha-row { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
+  .auth-captcha-img { flex-shrink: 0; border: 2px solid #f0e4c0; border-radius: 10px; overflow: hidden; cursor: pointer; background: #f5f0e8; }
+  .auth-captcha-img svg { display: block; }
+  .auth-captcha-input { flex: 1; min-width: 0; }
   .auth-btn {
     width: 100%; padding: 12px; border: none; border-radius: 14px;
     font-size: 15px; font-weight: 700; font-family: inherit;
@@ -1753,12 +1778,15 @@
   .auth-toggle a { color: #f0a020; font-weight: 700; cursor: pointer; text-decoration: none; }
   .auth-avatar-row { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; margin: 8px 0 12px; }
   .auth-avatar-pick {
-    width: 36px; height: 36px; border-radius: 50%;
+    width: 50px; height: 50px; border-radius: 12px;
     display: flex; align-items: center; justify-content: center;
-    font-size: 20px; cursor: pointer; border: 2px solid transparent;
-    background: #fff8e0; transition: 0.15s;
+    font-size: 28px; cursor: pointer; border: 2px solid transparent;
+    background: linear-gradient(145deg, #fff8e0, #f5e8c0); transition: 0.15s;
+    box-shadow: 0 3px 6px rgba(180,120,10,0.15);
+    overflow: hidden;
   }
-  .auth-avatar-pick.selected { border-color: #f0a020; background: #fff0c8; transform: scale(1.1); }
+  .auth-avatar-pick:hover { transform: scale(1.08); box-shadow: 0 4px 10px rgba(180,120,10,0.25), inset 0 1px 3px rgba(255,255,255,0.6); }
+  .auth-avatar-pick.selected { border-color: #f0a020; background: linear-gradient(145deg, #fff0c8, #f5d890); transform: scale(1.12); box-shadow: 0 4px 12px rgba(240,160,32,0.4), inset 0 1px 3px rgba(255,255,255,0.6); }
   .auth-reg-fields { display: none; }
   .auth-reg-fields.show { display: block; }
 
@@ -1885,7 +1913,7 @@
   .lb-rank.gold { background: linear-gradient(135deg, #ffd700, #ffb700); color: #fff; }
   .lb-rank.silver { background: linear-gradient(135deg, #d0d0d0, #b0b0b0); color: #fff; }
   .lb-rank.bronze { background: linear-gradient(135deg, #e0a050, #c08030); color: #fff; }
-  .lb-avatar { font-size: 28px; flex-shrink: 0; }
+  .lb-avatar { font-size: 28px; flex-shrink: 0; border-radius: 10px; overflow: hidden; }
   .lb-info { flex: 1; min-width: 0; }
   .lb-name { font-size: 15px; font-weight: 700; color: #5c4a2e; }
   .lb-streak { font-size: 12px; color: #b8a080; }
@@ -1981,7 +2009,7 @@
   }
   .user-row.pending { border-color: #f0a020; background: #fffaef; }
   .user-row.rejected { opacity: 0.6; }
-  .user-avatar { font-size: 24px; flex-shrink: 0; }
+  .user-avatar { font-size: 24px; flex-shrink: 0; border-radius: 10px; overflow: hidden; }
   .user-info { flex: 1; min-width: 0; }
   .user-name { font-size: 14px; font-weight: 700; color: #5c4a2e; }
   .user-meta { font-size: 11px; color: #b8a080; }
@@ -2207,6 +2235,10 @@
     <div class="auth-error" id="auth-error"></div>
     <input class="auth-input" id="auth-username" placeholder="用户名" maxlength="20" autocomplete="off">
     <input class="auth-input" id="auth-password" type="password" placeholder="密码" maxlength="32" autocomplete="off">
+    <div class="auth-captcha-row">
+      <div class="auth-captcha-img" id="auth-captcha-img" onclick="loadCaptcha()" title="点击刷新验证码"></div>
+      <input class="auth-input auth-captcha-input" id="auth-captcha" placeholder="验证码" maxlength="4" autocomplete="off">
+    </div>
     <div class="auth-reg-fields" id="auth-reg-fields">
       <input class="auth-input" id="auth-displayname" placeholder="昵称（如：小明）" maxlength="12" autocomplete="off">
       <div style="font-size:12px;color:#b8a080;margin:6px 0 4px;">选择头像</div>
@@ -2220,7 +2252,7 @@
 <!-- 左侧导航 -->
 <nav class="nav-sidebar">
   <div class="nav-sidebar-header">
-    <div class="nav-avatar" id="nav-avatar" onclick="onAvatarClick()">👦</div>
+    <div class="nav-avatar" id="nav-avatar" onclick="onAvatarClick()"><img src="img/avatars/avatar1.jpg" style="width:46px;height:46px;border-radius:10px;object-fit:cover;"/></div>
     <div class="nav-name" id="nav-name">小学霸</div>
   </div>
   <div class="nav-scroll">
@@ -2562,7 +2594,7 @@
     </div>
     <div class="settings-section">
       <h4>👀 预览效果</h4>
-      <div class="settings-preview"><div class="sp-avatar" id="sp-avatar">👦</div><div class="sp-name" id="sp-name">小学霸</div></div>
+      <div class="settings-preview"><div class="sp-avatar" id="sp-avatar"></div><div class="sp-name" id="sp-name">小学霸</div></div>
     </div>
     <button class="settings-save-btn" onclick="saveProfile()">💾 保存设置</button>
     <div class="admin-save-msg" id="settings-save-msg"></div>
@@ -2757,8 +2789,15 @@ var authToken = localStorage.getItem(TOKEN_KEY) || null;
 var currentUser = null;
 var appData = {};
 var isRegisterMode = false;
-var selectedAuthAvatar = '👦';
-var AUTH_AVATARS = ['👦','👧','😊','🌟','🐱','🐶','🐼','🦊','🐰','🐨','🦄','🐸','🐵','🐯','🦁','🐮','🐷','🐭','🐹','🐻','🐔','🐧','🐦','🦋'];
+var selectedAuthAvatar = 'img/avatars/avatar1.jpg';
+var AUTH_AVATARS = ["img/avatars/avatar1.jpg", "img/avatars/avatar2.jpg", "img/avatars/avatar3.jpg", "img/avatars/avatar4.jpg", "img/avatars/avatar5.jpg", "img/avatars/avatar6.png", "img/avatars/avatar7.png", "img/avatars/avatar8.jpg", "img/avatars/avatar9.jpg", "img/avatars/avatar10.jpg", "img/avatars/avatar11.jpg", "img/avatars/avatar12.jpg"];
+function avatarHtml(a, size) {
+  size = size || 40;
+  if (!a) a = 'img/avatars/avatar1.jpg';
+  if (a.indexOf('img/') === 0) return '<img src="' + a + '" style="width:' + size + 'px;height:' + size + 'px;border-radius:10px;object-fit:cover;"/>';
+  return '<span style="font-size:' + Math.round(size*0.7) + 'px;">' + a + '</span>';
+}
+
 
 function todayStr() {
   var d = new Date();
@@ -2789,7 +2828,8 @@ function toggleAuthMode() {
     submitBtn.textContent = '注册';
     toggleBtn.textContent = '已有账号？去登录';
     renderAuthAvatars();
-  } else {
+    loadCaptcha();
+} else {
     regFields.classList.remove('show');
     submitBtn.textContent = '登录';
     toggleBtn.textContent = '注册新账号';
@@ -2802,7 +2842,7 @@ function renderAuthAvatars() {
   AUTH_AVATARS.forEach(function(a) {
     var el = document.createElement('div');
     el.className = 'auth-avatar-pick' + (a === selectedAuthAvatar ? ' selected' : '');
-    el.textContent = a;
+    el.innerHTML = avatarHtml(a, 40);
     el.onclick = function() {
       selectedAuthAvatar = a;
       document.querySelectorAll('.auth-avatar-pick').forEach(function(e) { e.classList.remove('selected'); });
@@ -2812,22 +2852,35 @@ function renderAuthAvatars() {
   });
 }
 
+function loadCaptcha() {
+  var imgEl = document.getElementById('auth-captcha-img');
+  if (!imgEl) return;
+  imgEl.innerHTML = '<svg width="120" height="40"><text x="60" y="24" text-anchor="middle" fill="#ccc" font-size="13">加载中...</text></svg>';
+  fetch('/api/captcha').then(function(r) { return r.json(); }).then(function(data) {
+    currentCaptchaId = data.id;
+    imgEl.innerHTML = data.svg;
+  }).catch(function() { imgEl.innerHTML = '<svg width="120" height="40"><text x="60" y="24" text-anchor="middle" fill="#e85555" font-size="13">点击重试</text></svg>'; });
+}
+var currentCaptchaId = null;
+
 function handleAuth() {
   var username = document.getElementById('auth-username').value.trim();
   var password = document.getElementById('auth-password').value;
+  var captchaInput = document.getElementById('auth-captcha').value.trim();
   var errorDiv = document.getElementById('auth-error');
   errorDiv.textContent = '';
   if (!username || !password) { errorDiv.textContent = '请输入用户名和密码'; return; }
+  if (!captchaInput) { errorDiv.textContent = '请输入验证码'; return; }
 
   var endpoint = isRegisterMode ? '/api/register' : '/api/login';
-  var payload = { username: username, password: password };
+  var payload = { username: username, password: password, captchaId: currentCaptchaId, captcha: captchaInput };
   if (isRegisterMode) {
     payload.displayName = document.getElementById('auth-displayname').value.trim() || username;
     payload.avatar = selectedAuthAvatar;
   }
 
   apiCall('POST', endpoint, payload).then(function(res) {
-    if (res.error) { errorDiv.textContent = res.error; }
+    if (res.error) { errorDiv.textContent = res.error; loadCaptcha(); document.getElementById('auth-captcha').value = ''; }
     else if (res.pending) {
       // 注册成功但需等待审批
       errorDiv.style.color = '#5a9e3a';
@@ -2878,8 +2931,10 @@ function doLogout() {
 // ---- 自动登录 ----
 function checkAutoLogin() {
   if (!authToken) return;
+  var overlay = document.getElementById('auth-overlay');
+  overlay.classList.add('hidden');
   apiCall('GET', '/api/data').then(function(res) {
-    if (res.error) { localStorage.removeItem(TOKEN_KEY); authToken = null; return; }
+    if (res.error) { localStorage.removeItem(TOKEN_KEY); authToken = null; overlay.classList.remove('hidden'); return; }
     appData = res.data;
     currentUser = res.user || null;
     ensureDataFields();
@@ -2891,9 +2946,8 @@ function checkAutoLogin() {
       appData.pet.todayEarned = 0;
       saveData(appData);
     }
-    document.getElementById('auth-overlay').classList.add('hidden');
     initApp();
-  }).catch(function() {});
+  }).catch(function() { overlay.classList.remove('hidden'); });
 }
 
 function ensureDataFields() {
@@ -4993,11 +5047,11 @@ function renderDashboard() {
 }
 
 // ==================== 设置 ====================
-var AVATAR_OPTIONS=['👦','👧','😊','🌟','🐱','🐶','🐼','🦊','🐰','🐨','🦄','🐸','🐵','🐯','🦁','🐮','🐷','🐭','🐹','🐻','🐔','🐧','🐦','🦋'];
+var AVATAR_OPTIONS=AUTH_AVATARS;
 
 function updateSidebarProfile(){
-  var p=appData.profile||{name:'小学霸',avatar:'👦'};
-  document.getElementById('nav-avatar').textContent=p.avatar;
+  var p=appData.profile||{name:'小学霸',avatar:'img/avatars/avatar1.jpg'};
+  document.getElementById('nav-avatar').innerHTML=avatarHtml(p.avatar, 46);
   var navName=document.getElementById('nav-name');
   navName.textContent=p.name;
   if(currentUser&&currentUser.role==='admin'){
@@ -5008,22 +5062,23 @@ function updateSidebarProfile(){
   }
   document.getElementById('welcome-title').textContent='欢迎回来，'+p.name+'！';
   var wa=document.getElementById('welcome-avatar');
-  if(wa) wa.textContent=p.avatar;
+  if(wa) wa.innerHTML=avatarHtml(p.avatar, 64);
 }
 
 function renderSettings(){
-  var p=appData.profile||{name:'小学霸',avatar:'👦'};
+  var p=appData.profile||{name:'小学霸',avatar:'img/avatars/avatar1.jpg'};
   document.getElementById('settings-name').value=p.name;
   var grid=document.getElementById('settings-avatar-grid');
   grid.innerHTML='';
-  AVATAR_OPTIONS.forEach(function(a){
-    var item=document.createElement('div');
-    item.className='sa-item'+(a===p.avatar?' selected':'');
-    item.textContent=a;
-    item.onclick=function(){document.querySelectorAll('.sa-item').forEach(function(el){el.classList.remove('selected');});item.classList.add('selected');document.getElementById('sp-avatar').textContent=a;};
-    grid.appendChild(item);
-  });
-  document.getElementById('sp-avatar').textContent=p.avatar;
+ AVATAR_OPTIONS.forEach(function(a){
+   var item=document.createElement('div');
+   item.className='sa-item'+(a===p.avatar?' selected':'');
+    item.innerHTML='<img src="'+a+'"/>';
+   item.setAttribute('data-avatar', a);
+   item.onclick=function(){document.querySelectorAll('.sa-item').forEach(function(el){el.classList.remove('selected');});item.classList.add('selected');document.getElementById('sp-avatar').innerHTML=avatarHtml(a, 48);};
+  grid.appendChild(item);
+});
+  document.getElementById('sp-avatar').innerHTML=avatarHtml(p.avatar, 48);
   document.getElementById('sp-name').textContent=p.name;
   document.getElementById('settings-name').oninput=function(){document.getElementById('sp-name').textContent=this.value||'小学霸';};
 }
@@ -5031,7 +5086,7 @@ function renderSettings(){
 function saveProfile(){
   var name=document.getElementById('settings-name').value.trim()||'小学霸';
   var sel=document.querySelector('.sa-item.selected');
-  var avatar=sel?sel.textContent:(appData.profile&&appData.profile.avatar||'👦');
+  var avatar=sel?sel.getAttribute('data-avatar'):(appData.profile&&appData.profile.avatar||'img/avatars/avatar1.jpg');
   if(!appData.profile)appData.profile={};
   appData.profile.name=name;appData.profile.avatar=avatar;
   saveData(appData);updateSidebarProfile();
@@ -5101,7 +5156,7 @@ function renderAdminUsers() {
     } else {
       pending.forEach(function(u) {
         pendingHtml += '<div class="user-row pending">';
-        pendingHtml += '<div class="user-avatar">' + escHtml(u.avatar) + '</div>';
+        pendingHtml += '<div class="user-avatar">' + avatarHtml(u.avatar, 28) + '</div>';
         pendingHtml += '<div class="user-info"><div class="user-name">' + escHtml(u.displayName) + ' <span class="user-status-tag pending">待审批</span></div>';
         pendingHtml += '<div class="user-meta">@' + u.username + ' · 注册于 ' + (u.createdAt || '') + '</div></div>';
         pendingHtml += '<div class="user-actions">';
@@ -5121,7 +5176,7 @@ function renderAdminUsers() {
         var rowClass = 'user-row' + (u.status === 'pending' ? ' pending' : '') + (u.status === 'rejected' ? ' rejected' : '');
         var isAdmin = u.role === 'admin';
         allHtml += '<div class="' + rowClass + '">';
-        allHtml += '<div class="user-avatar">' + escHtml(u.avatar) + '</div>';
+        allHtml += '<div class="user-avatar">' + avatarHtml(u.avatar, 28) + '</div>';
         allHtml += '<div class="user-info"><div class="user-name">' + escHtml(u.displayName);
         if (isAdmin) allHtml += ' <span class="admin-badge">👑 管理员</span>';
         else allHtml += ' <span class="admin-badge user">普通用户</span>';
@@ -5207,7 +5262,7 @@ function renderLeaderboard() {
       var isMe = currentUser && u.id === currentUser.id;
       html += '<div class="lb-row' + (isMe ? ' me' : '') + '">';
       html += '<div class="lb-rank ' + rankClass + '">' + u.rank + '</div>';
-      html += '<div class="lb-avatar">' + escHtml(u.avatar) + '</div>';
+      html += '<div class="lb-avatar">' + avatarHtml(u.avatar, 28) + '</div>';
       html += '<div class="lb-info"><div class="lb-name">' + escHtml(u.displayName) + (isMe ? ' (我)' : '') + '</div></div>';
       html += '<div class="lb-points">🔥 连续' + u.streak + '天</div>';
       html += '</div>';
@@ -5252,7 +5307,7 @@ function renderPetLeaderboard() {
       html += petDisplay;
       html += '<div class="lb-pet-info">';
       html += '<div class="lb-pet-name">' + escHtml(p.petName) + (isMe ? ' (我)' : '') + '</div>';
-      html += '<div class="lb-pet-owner">' + escHtml(p.avatar) + ' ' + escHtml(p.displayName) + '</div>';
+      html += '<div class="lb-pet-owner">' + avatarHtml(p.avatar, 24) + ' ' + escHtml(p.displayName) + '</div>';
       html += '</div>';
       html += '<div class="lb-pet-stats">';
       html += '<div class="lb-pet-stat"><div class="lb-ps-val">Lv.' + p.level + '</div><div class="lb-ps-label">等级</div></div>';
@@ -9035,6 +9090,7 @@ if (g2048Board) {
 
 
 // 页面加载时尝试自动登录
+loadCaptcha();
 checkAutoLogin();
 
 // ==================== 成语板块 ====================
