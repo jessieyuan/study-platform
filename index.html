@@ -2881,6 +2881,7 @@ function loadCaptcha() {
   if (!imgEl) return;
   imgEl.innerHTML = '<svg width="120" height="40"><text x="60" y="24" text-anchor="middle" fill="#ccc" font-size="13">加载中...</text></svg>';
   fetch('/api/captcha').then(function(r) { return r.json(); }).then(function(data) {
+    if (data.error) { imgEl.innerHTML = '<svg width="120" height="40"><text x="60" y="24" text-anchor="middle" fill="#e85555" font-size="13">点击重试</text></svg>'; return; }
     currentCaptchaId = data.id;
     imgEl.innerHTML = data.svg;
   }).catch(function() { imgEl.innerHTML = '<svg width="120" height="40"><text x="60" y="24" text-anchor="middle" fill="#e85555" font-size="13">点击重试</text></svg>'; });
