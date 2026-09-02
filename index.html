@@ -2120,15 +2120,22 @@
   .game2048-msg.win { color:#7bc043; }
   .game2048-msg.over { color:#e85555; }
   .game2048-board {
-    display:grid; grid-template-columns:repeat(4, 72px); grid-template-rows:repeat(4, 72px);
+    position:relative; display:grid; grid-template-columns:repeat(4, 72px); grid-template-rows:repeat(4, 72px);
     gap:8px; padding:10px; background:#bbada0; border-radius:12px; touch-action:none;
   }
-  .g2048-cell {
-    display:flex; align-items:center; justify-content:center; border-radius:8px;
-    font-size:34px; font-weight:800; transition:all 0.12s; background:#cdc1b4;
+  .g2048-bg-cell { background:#cdc1b4; border-radius:8px; }
+  .g2048-tile-layer { position:absolute; top:10px; left:10px; pointer-events:none; }
+ .g2048-tile {
+   position:absolute; width:72px; height:72px;
+    transition:transform 0.18s ease-out;
   }
+  .g2048-tile-inner {
+    width:100%; height:100%;
+    display:flex; align-items:center; justify-content:center; border-radius:8px;
+    font-size:34px; font-weight:800;
+ }
 
-  /* 凑十消消 */
+ /* 凑十消消 */
   .m10-board { display:grid; gap:8px; max-width:420px; margin:0 auto; padding:14px; background:#fff; border-radius:16px; box-shadow:0 2px 12px rgba(180,130,20,0.06); }
   .m10-cell {
     width:60px; height:60px; border-radius:12px; display:flex; align-items:center; justify-content:center;
@@ -2146,16 +2153,17 @@
     .m10-board { max-width:360px; }
   }
 
-  .g2048-cell.empty { background:#cdc1b4; }
-  @keyframes g2048Appear { 0% { transform: scale(0); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
-  @keyframes g2048Merge { 0% { transform: scale(1); } 50% { transform: scale(1.2); } 100% { transform: scale(1); } }
-  .g2048-cell.appear { animation: g2048Appear 0.18s ease-out; }
-  .g2048-cell.merge { animation: g2048Merge 0.2s ease-out; }
-  .game2048-hint { font-size:15px; color:var(--text-secondary); }
-  @media (max-width:479px) {
-    .game2048-board { grid-template-columns:repeat(4, 62px); grid-template-rows:repeat(4, 62px); }
-    .g2048-cell { font-size:28px; }
-  }
+  @keyframes g2048Appear { 0% { transform: scale(0); } 60% { transform: scale(1.15); } 100% { transform: scale(1); } }
+ @keyframes g2048Merge { 0% { transform: scale(1); } 35% { transform: scale(1.3); box-shadow:0 0 16px rgba(240,160,32,0.5); } 100% { transform: scale(1); } }
+  .g2048-tile-inner.appear { animation: g2048Appear 0.25s ease-out; }
+  .g2048-tile-inner.merge { animation: g2048Merge 0.3s ease-out; }
+ .game2048-hint { font-size:15px; color:var(--text-secondary); }
+ @media (max-width:479px) {
+   .game2048-board { grid-template-columns:repeat(4, 62px); grid-template-rows:repeat(4, 62px); }
+   .g2048-bg-cell { width:62px; height:62px; }
+    .g2048-tile { width:62px; height:62px; }
+    .g2048-tile-inner { font-size:28px; }
+ }
 
   /* ========== 数独 ========== */
   .sudoku-info { font-size:12px; color:var(--text-secondary); margin-bottom:12px; display:flex; gap:16px; flex-wrap:wrap; }
@@ -2291,7 +2299,7 @@
     <span>数学</span>
   </a>
   <a href="#" class="nav-item" data-page="english" onclick="switchPage('english',this)">
-    <span>英语乐园</span>
+    <span>英语</span>
   </a>
   <a href="#" class="nav-item" data-page="sport" onclick="switchPage('sport',this)">
     <span>体育</span>
@@ -2954,6 +2962,7 @@ function onAuthSuccess(res) {
 function doLogout() {
   apiCall('POST', '/api/logout').catch(function(){}).then(function() {
     localStorage.removeItem(TOKEN_KEY);
+    localStorage.removeItem('last-page');
     location.reload();
   });
 }
@@ -4350,6 +4359,7 @@ document.getElementById('adopt-success-overlay').addEventListener('click', funct
 
 // ==================== 页面路由 ====================
 function switchPage(pageName, el) {
+  try { localStorage.setItem('last-page', pageName); } catch(e) {}
   document.querySelectorAll('.page').forEach(function(p) { p.classList.remove('active'); });
   document.querySelectorAll('.nav-item').forEach(function(n) { n.classList.remove('active'); });
   var page = document.getElementById('page-' + pageName);
@@ -5357,7 +5367,9 @@ function renderPetLeaderboard() {
 function initApp() {
   updateSidebarProfile();
   updatePetUI();
-  renderHomePage();
+  var _lastPage = localStorage.getItem('last-page') || 'home';
+  var _navEl = document.querySelector('.nav-item[data-page="' + _lastPage + '"]') || document.querySelector('.nav-item[data-page="home"]');
+  switchPage(_lastPage, _navEl);
   // 管理员显示用户管理tab
   var atabUsers = document.getElementById('atab-users');
   if (atabUsers) {
@@ -5865,7 +5877,8 @@ function switchMathTab(tab, el) {
   document.getElementById('math-tab-merge10').style.display = tab === 'merge10' ? '' : 'none';
   if (tab === 'calc') renderMathPage();
   if (tab === 'sudoku') { renderSudokuSizes(); renderSudokuLevels(); if (sudokuGame.solution.length === 0) newSudokuGame(); }
-  if (tab === 'g2048' && g2048.grid.length === 0) init2048();
+ if (tab === 'g2048' && g2048.grid.length === 0) init2048();
+  if (tab === 'g2048' && g2048.grid.length > 0) render2048();
   if (tab === 'merge10' && merge10.grid.length === 0) initMerge10();
 }
 
@@ -6504,24 +6517,31 @@ function escSr(s) {
   return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
 }
 
-function speakEnglish(text) {
-  if (!window.speechSynthesis || !text) return;
-  window.speechSynthesis.cancel();
-  var u = new SpeechSynthesisUtterance(text);
-  u.lang = "en-US";
-  u.rate = 0.9;
-  var voices = window.speechSynthesis.getVoices();
-  for (var i = 0; i < voices.length; i++) {
-    if (voices[i].lang === "en-US") { u.voice = voices[i]; break; }
-  }
-  window.speechSynthesis.speak(u);
+var _srVoices = [];
+function _srLoadVoices() { if ('speechSynthesis' in window) _srVoices = speechSynthesis.getVoices(); }
+_srLoadVoices();
+if ('speechSynthesis' in window) speechSynthesis.onvoiceschanged = _srLoadVoices;
+function speakEnglish(text, slow) {
+  if (!('speechSynthesis' in window) || !text) return;
+  speechSynthesis.cancel();
+  if (!_srVoices || _srVoices.length === 0) _srVoices = speechSynthesis.getVoices();
+  var clean = text.replace(/\s*\/\s*/g, '. ').replace(/\.\s*\.+/g, '. ').trim();
+  var u = new SpeechSynthesisUtterance(clean);
+  u.lang = 'en-US';
+  u.rate = slow ? 0.5 : 0.7;
+  var enUS = _srVoices.filter(function(v) { return v.lang === 'en-US' || v.lang === 'en_US'; });
+  var preferred = enUS.find(function(v) { return /samantha|google|microsoft|alex|david|zira|karen/i.test(v.name); });
+  var v = preferred || enUS[0] || _srVoices.find(function(v) { return v.lang && v.lang.indexOf('en') === 0; });
+  if (v) u.voice = v;
+  speechSynthesis.speak(u);
 }
 function extractEnglish(text) {
-  var m = text.match(/^([\s\S]*?)[\u4e00-\u9fff\uff00-\uffef]/);
+  var m = text.match(/^([a-zA-Z][\s\S]*?)[\u4e00-\u9fff\uff00-\uffef]/);
   if (m) return m[1].trim();
-  if (/[a-zA-Z]/.test(text)) return text.trim();
+  if (/^[a-zA-Z]/.test(text)) return text.trim();
   return "";
 }
+
 function renderSchoolReview(subjectCode, containerId) {
   var data = SCHOOL_REVIEW_DATA[subjectCode];
   var container = document.getElementById(containerId);
@@ -8228,7 +8248,7 @@ function spellSpeak(word, slow) {
   if (!_spellVoices || _spellVoices.length === 0) _spellVoices = speechSynthesis.getVoices();
   var u = new SpeechSynthesisUtterance(word);
   u.lang = 'en-US';
-  u.rate = slow ? 0.5 : 0.8;
+  u.rate = slow ? 0.5 : 0.7;
   // 优先选 en-US 自然语音，避免用中文语音或特效语音
   var enUS = _spellVoices.filter(function(v) { return v.lang === 'en-US' || v.lang === 'en_US'; });
   // 偏好自然语音名（Samantha / Google / Microsoft / Alex）
@@ -8803,15 +8823,12 @@ function renderSudokuLevels() {
   var sz = sk().size || 4;
   var cfg = SUDOKU_CONFIG[sz];
   var curDiff = (sk().diff && sk().diff[sz]) || 0;
-  var unlocked = (sk().unlocked && sk().unlocked[sz]) || 0;
   cfg.diffs.forEach(function(d, i) {
     var btn = document.createElement('button');
     btn.className = 'unit-menu-btn';
     if (i === curDiff) btn.classList.add('active');
-    if (i > unlocked) btn.classList.add('locked');
     btn.textContent = d.name;
     btn.onclick = function() {
-      if (i > unlocked) return;
       if (!sk().diff) sk().diff = {};
       sk().diff[sz] = i; saveData(appData); renderSudokuLevels(); newSudokuGame();
     };
@@ -8823,7 +8840,7 @@ function renderSudokuLevels() {
     var wins = (sk().wins && sk().wins[k]) || 0;
     var bt = sk().bestTime && sk().bestTime[k];
     var btStr = bt ? Math.floor(bt/60) + ':' + String(bt%60).padStart(2,'0') : '无';
-    info.innerHTML = '<span>当前: <b>' + cfg.name + ' ' + cfg.diffs[curDiff].name + '</b></span><span>完成: <b>' + wins + '/' + SUDOKU_WINS_TO_UNLOCK + '</b></span><span>最佳: <b>' + btStr + '</b></span>';
+    info.innerHTML = '<span>当前: <b>' + cfg.name + ' ' + cfg.diffs[curDiff].name + '</b></span><span>完成: <b>' + wins + ' 次</b></span><span>最佳: <b>' + btStr + '</b></span>';
   }
 }
 
@@ -8950,18 +8967,10 @@ function checkSudokuComplete() {
     sk().wins[k] = (sk().wins[k] || 0) + 1;
     var isBest = !sk().bestTime[k] || elapsed < sk().bestTime[k];
     if (isBest) sk().bestTime[k] = elapsed;
-    if (!sk().unlocked) sk().unlocked = {};
-    var unlocked = sk().unlocked[sz2] || 0;
-    var leveledUp = false;
-    if (sk().wins[k] >= SUDOKU_WINS_TO_UNLOCK && di === unlocked && unlocked < SUDOKU_CONFIG[sz2].diffs.length - 1) {
-      sk().unlocked[sz2] = unlocked + 1;
-      leveledUp = true;
-    }
     saveData(appData);
     var timeStr = Math.floor(elapsed/60) + ':' + String(elapsed%60).padStart(2,'0');
     var msg = '\u2728 完成了！用时 ' + timeStr;
     if (isBest) msg += ' 新纪录！';
-    if (leveledUp) msg += ' 解锁 ' + SUDOKU_CONFIG[sz2].diffs[unlocked + 1].name + '难度！';
     msgEl.textContent = msg;
     msgEl.className = 'sudoku-msg ok';
     renderSudokuLevels();
@@ -8973,12 +8982,33 @@ function checkSudokuComplete() {
 
 
 // ==================== 2048 游戏 ====================
-var g2048 = { grid: [], score: 0, won: false, over: false, mergedCells: [], newCell: null };
+var g2048 = {
+  grid: [], score: 0, won: false, over: false,
+  tiles: {}, nextId: 1,
+  _animating: false,
+};
+
+function g2048Colors(val) {
+  var colors = {2:'#eee4da',4:'#ede0c6',8:'#f2b179',16:'#f59563',32:'#f67c5f',64:'#f65e3b',128:'#edcf72',256:'#edcc61',512:'#edc850',1024:'#edc53f',2048:'#edc22e'};
+  var tc = {2:'#776e65',4:'#776e65'};
+  return { bg: colors[val] || '#3c3a32', color: tc[val] || '#f9f6f2', shadow: val >= 128 ? '0 0 8px ' + (colors[val] || '#3c3a32') : '', fs: val >= 1024 ? '26px' : (val >= 128 ? '30px' : '') };
+}
+
+function g2048TilePos(row, col) {
+  var board = document.getElementById('g2048-board');
+  var cell = board ? board.querySelector('.g2048-bg-cell') : null;
+  var cs = cell ? cell.offsetWidth : 72;
+  var gap = 8;
+  return 'translate(' + (col * (cs + gap)) + 'px,' + (row * (cs + gap)) + 'px)';
+}
 
 function init2048() {
-  g2048.grid = [];
-  for (var i = 0; i < 4; i++) { g2048.grid.push([0,0,0,0]); }
-  g2048.score = 0; g2048.won = false; g2048.over = false; g2048.mergedCells = []; g2048.newCell = null;
+  g2048.grid = [[0,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,0]];
+  g2048.score = 0; g2048.won = false; g2048.over = false;
+  g2048.tiles = {}; g2048.nextId = 1;
+  g2048._animating = false;
+  var board = document.getElementById('g2048-board');
+  if (board) board.innerHTML = '';
   add2048Tile(); add2048Tile();
   render2048();
 }
@@ -8988,87 +9018,108 @@ function add2048Tile() {
   for (var r = 0; r < 4; r++) for (var c = 0; c < 4; c++) if (g2048.grid[r][c] === 0) empty.push([r,c]);
   if (empty.length === 0) return;
   var pos = empty[Math.floor(Math.random() * empty.length)];
-  g2048.grid[pos[0]][pos[1]] = Math.random() < 0.9 ? 2 : 4;
-  g2048.newCell = pos;
+  var val = Math.random() < 0.9 ? 2 : 4;
+  g2048.grid[pos[0]][pos[1]] = val;
+  var id = g2048.nextId++;
+  g2048.tiles[id] = { id: id, val: val, row: pos[0], col: pos[1], isNew: true };
 }
 
 function move2048(dir) {
-  if (g2048.over) return;
+  if (g2048.over || g2048._animating) return;
+
   var oldGrid = g2048.grid.map(function(r) { return r.slice(); });
-  var moved = false;
+  var oldPos = {};
+  for (var id in g2048.tiles) { oldPos[id] = { row: g2048.tiles[id].row, col: g2048.tiles[id].col }; }
+
   var scoreGain = 0;
-  var g = g2048.grid;
+  var newGrid = [[0,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,0]];
+  var mergeOps = [];
+
+  function findTileAt(r, c) {
+    for (var id in g2048.tiles) {
+      if (g2048.tiles[id].row === r && g2048.tiles[id].col === c) return id;
+    }
+    return null;
+  }
 
   if (dir === 'left' || dir === 'right') {
     for (var r = 0; r < 4; r++) {
-      var row = g[r].slice();
-      if (dir === 'right') row.reverse();
-      var merged = [false,false,false,false];
-      var newRow = [0,0,0,0];
-      var pos = 0;
+      var rowTiles = [];
       for (var c = 0; c < 4; c++) {
-        if (row[c] === 0) continue;
-        if (pos > 0 && newRow[pos-1] === row[c] && !merged[pos-1]) {
-          newRow[pos-1] *= 2;
-          scoreGain += newRow[pos-1];
-          merged[pos-1] = true;
-        } else {
-          newRow[pos] = row[c]; pos++;
-        }
+        var tid = findTileAt(r, c);
+        if (tid) rowTiles.push(g2048.tiles[tid]);
       }
-      if (dir === 'right') newRow.reverse();
-      g[r] = newRow;
+      if (dir === 'right') rowTiles.reverse();
+      var nc = (dir === 'right') ? 3 : 0;
+      var step = (dir === 'right') ? -1 : 1;
+      for (var i = 0; i < rowTiles.length; i++) {
+        if (i + 1 < rowTiles.length && rowTiles[i].val === rowTiles[i+1].val) {
+          var nv = rowTiles[i].val * 2;
+          rowTiles[i].row = r; rowTiles[i].col = nc;
+          rowTiles[i+1].row = r; rowTiles[i+1].col = nc;
+          rowTiles[i].val = nv;
+          scoreGain += nv;
+          newGrid[r][nc] = nv;
+          mergeOps.push({ survivorId: rowTiles[i].id, removedId: rowTiles[i+1].id, newVal: nv });
+          i++;
+        } else {
+          rowTiles[i].row = r; rowTiles[i].col = nc;
+          newGrid[r][nc] = rowTiles[i].val;
+        }
+        nc += step;
+      }
     }
   } else {
     for (var c = 0; c < 4; c++) {
-      var col = [g[0][c], g[1][c], g[2][c], g[3][c]];
-      if (dir === 'down') col.reverse();
-      var merged2 = [false,false,false,false];
-      var newCol = [0,0,0,0];
-      var p = 0;
+      var colTiles = [];
       for (var r = 0; r < 4; r++) {
-        if (col[r] === 0) continue;
-        if (p > 0 && newCol[p-1] === col[r] && !merged2[p-1]) {
-          newCol[p-1] *= 2;
-          scoreGain += newCol[p-1];
-          merged2[p-1] = true;
-        } else {
-          newCol[p] = col[r]; p++;
-        }
+        var tid2 = findTileAt(r, c);
+        if (tid2) colTiles.push(g2048.tiles[tid2]);
       }
-      if (dir === 'down') newCol.reverse();
-      for (var r = 0; r < 4; r++) g[r][c] = newCol[r];
+      if (dir === 'down') colTiles.reverse();
+      var nr = (dir === 'down') ? 3 : 0;
+      var step2 = (dir === 'down') ? -1 : 1;
+      for (var i = 0; i < colTiles.length; i++) {
+        if (i + 1 < colTiles.length && colTiles[i].val === colTiles[i+1].val) {
+          var nv2 = colTiles[i].val * 2;
+          colTiles[i].row = nr; colTiles[i].col = c;
+          colTiles[i+1].row = nr; colTiles[i+1].col = c;
+          colTiles[i].val = nv2;
+          scoreGain += nv2;
+          newGrid[nr][c] = nv2;
+          mergeOps.push({ survivorId: colTiles[i].id, removedId: colTiles[i+1].id, newVal: nv2 });
+          i++;
+        } else {
+          colTiles[i].row = nr; colTiles[i].col = c;
+          newGrid[nr][c] = colTiles[i].val;
+        }
+        nr += step2;
+      }
     }
   }
 
-  // Check if moved
-  for (var r = 0; r < 4; r++) for (var c = 0; c < 4; c++) if (g[r][c] !== oldGrid[r][c]) moved = true;
-  if (!moved) return;
-
-  // Detect merged cells
-  g2048.mergedCells = [];
-  for (var r = 0; r < 4; r++) for (var c = 0; c < 4; c++) {
-    if (g[r][c] > 0 && oldGrid[r][c] > 0 && g[r][c] > oldGrid[r][c]) g2048.mergedCells.push([r, c]);
+  var moved = false;
+  for (var r = 0; r < 4; r++) for (var c = 0; c < 4; c++) if (newGrid[r][c] !== oldGrid[r][c]) moved = true;
+  if (!moved) {
+    for (var id in g2048.tiles) {
+      g2048.tiles[id].row = oldPos[id].row;
+      g2048.tiles[id].col = oldPos[id].col;
+    }
+    return;
   }
-  g2048.newCell = null;
 
+  g2048.grid = newGrid;
   g2048.score += scoreGain;
   add2048Tile();
 
-  // Check win
   if (!g2048.won) {
-    for (var r = 0; r < 4; r++) for (var c = 0; c < 4; c++) if (g[r][c] >= 2048) g2048.won = true;
+    for (var r = 0; r < 4; r++) for (var c = 0; c < 4; c++) if (g2048.grid[r][c] >= 2048) g2048.won = true;
   }
-  // Check game over
   g2048.over = !can2048Move();
+  if (g2048.score > (appData.best2048 || 0)) { appData.best2048 = g2048.score; saveData(appData); }
 
-  // Best score
-  if (g2048.score > (appData.best2048 || 0)) {
-    appData.best2048 = g2048.score;
-    saveData(appData);
-  }
-
-  render2048();
+  if (mergeOps.length > 0) g2048._animating = true;
+  render2048(mergeOps);
 }
 
 function can2048Move() {
@@ -9081,32 +9132,80 @@ function can2048Move() {
   return false;
 }
 
-function render2048() {
+function render2048(mergeOps) {
+  mergeOps = mergeOps || [];
   var board = document.getElementById('g2048-board');
   if (!board) return;
-  board.innerHTML = '';
-  for (var r = 0; r < 4; r++) for (var c = 0; c < 4; c++) {
-    var val = g2048.grid[r][c];
-    var cell = document.createElement('div');
-    var cls = 'g2048-cell';
-    if (val === 0) cls += ' empty';
-    if (g2048.mergedCells) { for (var m = 0; m < g2048.mergedCells.length; m++) { if (g2048.mergedCells[m][0] === r && g2048.mergedCells[m][1] === c) { cls += ' merge'; break; } } }
-    if (g2048.newCell && g2048.newCell[0] === r && g2048.newCell[1] === c) cls += ' appear';
-    cell.className = cls;
-    if (val > 0) {
-      cell.textContent = val;
-      var colors = {2:'#eee4da',4:'#ede0c6',8:'#f2b179',16:'#f59563',32:'#f67c5f',64:'#f65e3b',128:'#edcf72',256:'#edcc61',512:'#edc850',1024:'#edc53f',2048:'#edc22e'};
-      var tc = {2:'#776e65',4:'#776e65'};
-      cell.style.background = colors[val] || '#3c3a32';
-      cell.style.color = tc[val] || '#f9f6f2';
-      if (val >= 128) cell.style.boxShadow = '0 0 8px ' + (colors[val] || '#3c3a32');
-      if (val >= 1024) cell.style.fontSize = '26px';
-      else if (val >= 128) cell.style.fontSize = '30px';
-    }
-    board.appendChild(cell);
+
+  if (!board.querySelector('.g2048-bg-cell')) {
+    var bg = '';
+    for (var i = 0; i < 16; i++) bg += '<div class="g2048-bg-cell"></div>';
+    bg += '<div class="g2048-tile-layer" id="g2048-tile-layer"></div>';
+    board.innerHTML = bg;
   }
-  g2048.mergedCells = [];
-  g2048.newCell = null;
+
+  var tileLayer = document.getElementById('g2048-tile-layer');
+  if (!tileLayer) return;
+
+  var hasMerge = mergeOps.length > 0;
+  var slideDelay = hasMerge ? 0.18 : 0;
+
+  for (var id in g2048.tiles) {
+    var tile = g2048.tiles[id];
+    var el = document.getElementById('g2048-tile-' + id);
+    if (!el) {
+      el = document.createElement('div');
+      el.id = 'g2048-tile-' + id;
+      el.className = 'g2048-tile';
+      el.style.transform = g2048TilePos(tile.row, tile.col);
+
+      var inner = document.createElement('div');
+      inner.className = 'g2048-tile-inner';
+      inner.textContent = tile.val;
+      var ci = g2048Colors(tile.val);
+      inner.style.background = ci.bg; inner.style.color = ci.color;
+      if (ci.shadow) inner.style.boxShadow = ci.shadow;
+      if (ci.fs) inner.style.fontSize = ci.fs;
+
+      if (tile.isNew) {
+        inner.style.animation = 'g2048Appear 0.25s ease-out ' + slideDelay + 's both';
+        delete tile.isNew;
+      }
+
+      el.appendChild(inner);
+      tileLayer.appendChild(el);
+    } else {
+      el.style.transform = g2048TilePos(tile.row, tile.col);
+    }
+  }
+
+  if (hasMerge) {
+    (function(ops) {
+      setTimeout(function() {
+        ops.forEach(function(m) {
+          var re = document.getElementById('g2048-tile-' + m.removedId);
+          if (re) re.remove();
+          delete g2048.tiles[m.removedId];
+
+          var se = document.getElementById('g2048-tile-' + m.survivorId);
+          if (se) {
+            var inner = se.querySelector('.g2048-tile-inner');
+            if (inner) {
+              inner.textContent = m.newVal;
+              var ci2 = g2048Colors(m.newVal);
+              inner.style.background = ci2.bg; inner.style.color = ci2.color;
+              inner.style.boxShadow = ci2.shadow || '';
+              inner.style.fontSize = ci2.fs || '';
+              inner.classList.add('merge');
+              (function(node) { setTimeout(function() { node.classList.remove('merge'); }, 300); })(inner);
+            }
+          }
+        });
+        g2048._animating = false;
+      }, 180);
+    })(mergeOps);
+  }
+
   var scoreEl = document.getElementById('g2048-score');
   if (scoreEl) scoreEl.textContent = g2048.score;
   var bestEl = document.getElementById('g2048-best');
@@ -9114,7 +9213,7 @@ function render2048() {
   var msgEl = document.getElementById('g2048-msg');
   if (msgEl) {
     if (g2048.over) { msgEl.textContent = '游戏结束！得分 ' + g2048.score; msgEl.className = 'game2048-msg over'; }
-    else if (g2048.won) { msgEl.textContent = '🎉 2048 达成！继续挑战更高分！'; msgEl.className = 'game2048-msg win'; }
+    else if (g2048.won) { msgEl.textContent = '\uD83C\uDF89 2048 达成！继续挑战更高分！'; msgEl.className = 'game2048-msg win'; }
     else { msgEl.textContent = ''; msgEl.className = 'game2048-msg'; }
   }
 }
@@ -9142,8 +9241,6 @@ if (g2048Board) {
     g2048_tsx = undefined;
   }, { passive: true });
 }
-
-
 // 页面加载时尝试自动登录
 loadCaptcha();
 checkAutoLogin();
