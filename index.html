@@ -1726,6 +1726,7 @@
     /* zoom 整体缩放：按钮/字体/间距等比缩小，微信WebKit支持 */
     .main { zoom: 0.88; }
     .auth-card { zoom: 0.9; }
+    .auth-overlay { align-items: flex-start; padding-top: 12vh; }
     .modal, .confirm-dialog, .confirm-box, .pet-modal { zoom: 0.88; }
   }
   @media (max-width: 479px) {
@@ -1739,7 +1740,9 @@
     position: fixed; inset: 0; z-index: 9999;
     background: linear-gradient(180deg, #fff9e6 0%, #fef5d4 60%, #fdf0c0 100%);
     display: flex; align-items: center; justify-content: center;
-    animation: fadeUp 0.4s ease;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    animation: fadeUp 0.3s ease;
   }
   .auth-overlay.hidden { display: none; }
   .auth-card {
@@ -2264,6 +2267,7 @@
     <button class="auth-btn secondary" id="auth-toggle-btn" onclick="toggleAuthMode()">注册新账号</button>
   </div>
 </div>
+<script>(function(){if(localStorage.getItem("summer-growth-camp-token"))document.getElementById("auth-overlay").classList.add("hidden");})();</script>
 
 <!-- 左侧导航 -->
 <nav class="nav-sidebar">
