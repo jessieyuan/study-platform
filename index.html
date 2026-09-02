@@ -1410,6 +1410,10 @@
   .sr-kp-title { font-size:16px; font-weight:700; color:#5c4a2e; }
   .sr-kp-items { background:#faf5e8; border-radius:10px; padding:10px 14px; margin-bottom:12px; line-height:1.9; }
   .sr-kp-item { font-size:13px; color:#6b5a3e; }
+  .sr-kp-item-en { display:flex; align-items:center; flex-wrap:wrap; }
+  .sr-speak-btn { display:inline-flex; align-items:center; justify-content:center; width:22px; height:22px; border:none; border-radius:50%; background:#f0e4c0; cursor:pointer; margin-right:6px; color:#c08020; font-size:12px; flex-shrink:0; transition:0.15s; }
+  .sr-speak-btn:hover { background:#f5a623; color:#fff; }
+  .sr-speak-btn:active { transform:scale(0.85); }
   .sr-q-list { display:flex; flex-direction:column; gap:8px; }
   .sr-q-item { background:#f9f6ef; border-radius:10px; padding:10px 14px; border-left:3px solid #e0d0a0; }
   .sr-q-item.q-medium_high { border-left-color:#f0a020; }
@@ -2286,7 +2290,7 @@
     <span>数学</span>
   </a>
   <a href="#" class="nav-item" data-page="english" onclick="switchPage('english',this)">
-    <span>英语</span>
+    <span>英语乐园</span>
   </a>
   <a href="#" class="nav-item" data-page="sport" onclick="switchPage('sport',this)">
     <span>体育</span>
@@ -2498,7 +2502,7 @@
 <main class="main">
   <div class="chinese-menu">
     <div class="cm-bread">
-      <span class="breadcrumb-label">🔤 英语 ›</span>
+      <span class="breadcrumb-label">英语乐园 ›</span>
     </div>
     <div class="cm-cat-tabs">
       <button class="cm-cat-tab active" data-cat="school" onclick="switchEnglishCat('school',this)">校内巩固</button>
@@ -6498,6 +6502,25 @@ var SCHOOL_REVIEW_DATA = {
 function escSr(s) {
   return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
 }
+
+function speakEnglish(text) {
+  if (!window.speechSynthesis || !text) return;
+  window.speechSynthesis.cancel();
+  var u = new SpeechSynthesisUtterance(text);
+  u.lang = "en-US";
+  u.rate = 0.9;
+  var voices = window.speechSynthesis.getVoices();
+  for (var i = 0; i < voices.length; i++) {
+    if (voices[i].lang === "en-US") { u.voice = voices[i]; break; }
+  }
+  window.speechSynthesis.speak(u);
+}
+function extractEnglish(text) {
+  var m = text.match(/^([\s\S]*?)[\u4e00-\u9fff\uff00-\uffef]/);
+  if (m) return m[1].trim();
+  if (/[a-zA-Z]/.test(text)) return text.trim();
+  return "";
+}
 function renderSchoolReview(subjectCode, containerId) {
   var data = SCHOOL_REVIEW_DATA[subjectCode];
   var container = document.getElementById(containerId);
@@ -6512,6 +6535,11 @@ function renderSchoolReview(subjectCode, containerId) {
   var unit = units[unitIdx];
   var cards = unit.knowledgePoints.map(function(kp, ki) {
     var itemsHtml = kp.items.length ? kp.items.map(function(it) {
+      if (subjectCode === 'english') {
+        var enText = extractEnglish(it);
+        var speakBtn = enText ? '<button class="sr-speak-btn" data-text="' + escSr(enText) + '" onclick="speakEnglish(this.dataset.text)" title="发音">🔊</button>' : '';
+        return '<div class="sr-kp-item sr-kp-item-en">' + speakBtn + escSr(it) + '</div>';
+      }
       return '<div class="sr-kp-item">· ' + escSr(it) + '</div>';
     }).join('') : '<div class="sr-kp-item" style="color:#b8a080;">暂无条目</div>';
     var spellBtn = (subjectCode === 'english' && /词汇/.test(kp.type) && kp.items.length) ? '<button class="sr-spell-btn" onclick="startKpSpell(\'english\',\'' + containerId + '\',' + unitIdx + ',' + ki + ')">🔤 拼写练习</button>' : '';
@@ -6524,6 +6552,7 @@ function renderSchoolReview(subjectCode, containerId) {
         '<div class="sr-q-answer">' +
           '<button class="sr-q-reveal" onclick="toggleSrAnswer(\'' + revealId + '\',this)">查看答案</button>' +
           '<span class="sr-q-ans-text" id="' + revealId + '" style="display:none;">' + escSr(q.answer) + '</span>' +
+          (subjectCode === 'english' && extractEnglish(q.answer) ? '<button class="sr-speak-btn" data-text="' + escSr(extractEnglish(q.answer)) + '" onclick="speakEnglish(this.dataset.text)" title="发音">🔊</button>' : '') +
         '</div>' +
       '</div>';
     }).join('');
