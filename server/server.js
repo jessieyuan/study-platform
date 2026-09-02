@@ -60,6 +60,8 @@ const STREAK_MAX_GAIN_PER_SAVE = 1;
 
 // ==================== 验证码 ====================
 const captchaStore = new Map();
+const captchaRateByIP = new Map();
+const CAPTCHA_RATE_MS = 2000; // 同 IP 至少间隔 2 秒
 const CAPTCHA_EXPIRE_MS = 5 * 60 * 1000;
 const CAPTCHA_CHARS = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
 
@@ -122,7 +124,7 @@ db.exec(`
     password_hash TEXT NOT NULL,
     password_salt TEXT NOT NULL,
     display_name  TEXT DEFAULT '小学霸',
-    avatar        TEXT DEFAULT '👦',
+    avatar        TEXT DEFAULT 'img/avatars/avatar1.jpg',
     points        INTEGER DEFAULT 200,
     streak        INTEGER DEFAULT 0,
     last_active   TEXT,
@@ -293,7 +295,7 @@ function defaultUserData() {
     streak: 0,
     points: 200,
     lastActive: todayStr(),
-    profile: { name: '小学霸', avatar: '👦' },
+    profile: { name: '小学霸', avatar: 'img/avatars/avatar1.jpg' },
     pet: { owned: false, style: 'pokemon', petId: 0, name: '', boughtDate: null, lastFedDate: null, lastBathDate: null, lastExerciseDate: null, lastPlayDate: null, clothes: 'default', alive: true, todayEarned: 0, level: 1, xp: 0 },
     subjectTabs: { chinese: 'daily', math: 'daily', english: 'daily', sport: 'daily', reading: 'daily', labor: 'daily' },
     studyProgress: {},
@@ -331,7 +333,7 @@ function syncUserFields(userId, data, pointsBase, baseDate) {
     data.points || 0,
     data.streak || 0,
     (data.profile && data.profile.name) || '小学霸',
-    (data.profile && data.profile.avatar) || '👦',
+    (data.profile && data.profile.avatar) || 'img/avatars/avatar1.jpg',
     data.lastActive || null,
     pointsBase,
     baseDate,
@@ -449,13 +451,13 @@ async function handleLogin(req, res) {
   const user = db.prepare('SELECT * FROM users WHERE username = ?').get(username);
   if (!user) {
     recordLoginFail(clientIP, failRec);
-    return sendJSON(res, 401, { error: '用户名不存在' });
+    return sendJSON(res, 401, { error: '用户名或密码错误' });
   }
 
   const hash = hashPassword(password, user.password_salt);
   if (hash !== user.password_hash) {
     recordLoginFail(clientIP, failRec);
-    return sendJSON(res, 401, { error: '密码错误' });
+    return sendJSON(res, 401, { error: '用户名或密码错误' });
   }
 
   // 登录成功，清除该 IP 的失败计数
@@ -548,6 +550,13 @@ async function handleSaveData(req, res) {
   if (newStreak < 0) newStreak = 0;
   if (newStreak > userRow.streak + STREAK_MAX_GAIN_PER_SAVE) newStreak = userRow.streak + STREAK_MAX_GAIN_PER_SAVE;
   body.streak = newStreak;
+
+  // 头像白名单校验：防止存储型 XSS
+  if (body.profile && body.profile.avatar) {
+    if (!AVATAR_ALLOWLIST.includes(body.profile.avatar)) {
+      body.profile.avatar = 'img/avatars/avatar1.jpg';
+    }
+  }
 
   const dataStr = JSON.stringify(body);
 
@@ -769,7 +778,9 @@ async function handleAdminUpdateUser(req, res) {
     db.prepare('UPDATE users SET leaderboard_access = ? WHERE id = ?').run(body.leaderboardAccess ? 1 : 0, userId);
   }
   if (body.groups !== undefined) {
-    db.prepare('UPDATE users SET groups = ? WHERE id = ?').run(JSON.stringify(body.groups), userId);
+    const validGroups = (Array.isArray(body.groups) && body.groups.every(g => typeof g === 'string'))
+      ? body.groups : [];
+    db.prepare('UPDATE users SET groups = ? WHERE id = ?').run(JSON.stringify(validGroups), userId);
   }
   
   sendJSON(res, 200, { ok: true });
@@ -909,7 +920,7 @@ function serveStaticFile(req, res) {
       }
       try {
         const data = fs.readFileSync(filePath);
-        res.writeHead(200, { 'Content-Type': mime });
+        res.writeHead(200, { 'Content-Type': mime, 'Cache-Control': 'no-cache, no-store, must-revalidate' });
         res.end(data);
       } catch (e) {
         res.writeHead(404, { 'Content-Type': 'text/plain; charset=utf-8' });
@@ -938,6 +949,16 @@ const server = http.createServer(async (req, res) => {
   try {
     // API 路由
     if (pathname === '/api/captcha' && req.method === 'GET') {
+      const cIP = req.socket.remoteAddress || 'unknown';
+      const lastCap = captchaRateByIP.get(cIP) || 0;
+      if (Date.now() - lastCap < CAPTCHA_RATE_MS) {
+        return sendJSON(res, 429, { error: '请求太频繁' });
+      }
+      captchaRateByIP.set(cIP, Date.now());
+      if (captchaRateByIP.size > 500) {
+        const now = Date.now();
+        for (const [k, v] of captchaRateByIP) { if (now - v > 60000) captchaRateByIP.delete(k); }
+      }
       return sendJSON(res, 200, generateCaptcha());
     }
     if (pathname === '/api/register' && req.method === 'POST') {
