@@ -2295,10 +2295,12 @@
  /* 搭建网格地面 */
  .geo-build-grid { position:absolute; top:50%; left:50%; transform:translate(-50%,-50%) rotateX(90deg); display:grid; grid-template-columns:repeat(6,56px); grid-template-rows:repeat(5,56px); gap:4px; }
  .geo-build-cell { width:56px; height:56px; background:rgba(180,200,220,0.15); border:1px dashed rgba(180,200,220,0.4); cursor:pointer; transition:0.1s; position:relative; }
- .geo-build-cell:hover { background:rgba(240,160,32,0.35); border:2px solid rgba(240,160,32,0.7); }
- .geo-build-cell.has-cube { background:transparent; border:none; cursor:pointer; }
- .geo-build-cell.placement-hint { background:rgba(100,200,100,0.25); border-color:rgba(100,200,100,0.6); }
- .geo-build-cube { position:absolute; width:56px; height:56px; transform-style:preserve-3d; cursor:pointer; }
+.geo-build-cell { touch-action:manipulation; }
+.geo-build-cell:hover { background:rgba(240,160,32,0.35); border:2px solid rgba(240,160,32,0.7); }
+.geo-build-cell.has-cube { background:transparent; border:none; cursor:pointer; }
+.geo-build-cell.placement-hint { background:rgba(100,200,100,0.25); border-color:rgba(100,200,100,0.6); }
+.geo-build-cube { position:absolute; width:56px; height:56px; transform-style:preserve-3d; cursor:pointer; }
+.geo-build-cube { touch-action:manipulation; }
  .geo-build-cube .face { position:absolute; width:56px; height:56px; border:1.5px solid rgba(0,0,0,0.15); }
  .geo-build-cube .f-front { background:rgba(255,150,100,0.88); transform:translateZ(28px); }
  .geo-build-cube .f-back { background:rgba(255,110,70,0.88); transform:rotateY(180deg) translateZ(28px); }
@@ -6400,6 +6402,25 @@ function gridToPos(col, row, layer) {
   return {x:x, y:y, z:z};
 }
 
+function geoAttachTap(el, handler) {
+  var touchMoved = false, touchHandled = false;
+  el.addEventListener('touchstart', function() { touchMoved = false; }, {passive:true});
+  el.addEventListener('touchmove', function() { touchMoved = true; }, {passive:true});
+  el.addEventListener('touchend', function(e) {
+    if (touchMoved) return;
+    e.preventDefault();
+    e.stopPropagation();
+    touchHandled = true;
+    setTimeout(function() { touchHandled = false; }, 300);
+    handler.call(el, e);
+  });
+  el.addEventListener('click', function(e) {
+    e.stopPropagation();
+    if (touchHandled) return;
+    handler.call(el, e);
+  });
+}
+
 function renderBuildCubes() {
   var stage = document.getElementById('geo-build-stage');
   if (!stage) return;
@@ -6414,8 +6435,7 @@ function renderBuildCubes() {
       cell.className = 'geo-build-cell';
       cell.setAttribute('data-col', c);
       cell.setAttribute('data-row', r);
-      cell.onclick = function(e) {
-        e.stopPropagation();
+      geoAttachTap(cell, function(e) {
         var col = parseInt(this.getAttribute('data-col'));
         var row = parseInt(this.getAttribute('data-row'));
         if (buildMode === 'add') {
@@ -6424,7 +6444,7 @@ function renderBuildCubes() {
           renderBuildCubes();
           updateBuildInfo();
         }
-      };
+      });
       grid.appendChild(cell);
     }
   }
@@ -6440,20 +6460,18 @@ function renderBuildCubes() {
     div.style.transform = 'translate(-50%,-50%) translate3d(' + pos.x + 'px,' + pos.y + 'px,' + pos.z + 'px)';
     div.setAttribute('data-id', c.id);
     div.innerHTML = geoShapeHtml('cube');
-    div.onclick = function(e) {
-      e.stopPropagation();
+    geoAttachTap(div, function(e) {
       if (buildMode === 'del') {
         buildCubes = buildCubes.filter(function(b){return b.id!==c.id;});
         renderBuildCubes();
         updateBuildInfo();
       } else {
-        // add mode: always stack on top
         var topLayer = maxLayerAt(c.col, c.row);
         addBuildCube(c.col, c.row, topLayer + 1);
         renderBuildCubes();
         updateBuildInfo();
       }
-    };
+    });
     stage.appendChild(div);
   });
 
@@ -6571,8 +6589,8 @@ function initGeoDrag(sceneId, getDragging, setDragging, getRot, setRot, getAutoR
   if (!scene) return;
   
   function onDown(e) {
-    if (e.target.closest('.geo-shape')) return;
-    setDragging(true);
+   if (e.target.closest('.geo-shape') || e.target.closest('.geo-build-cell')) return;
+   setDragging(true);
     var p = e.touches ? e.touches[0] : e;
     var sx = p.clientX, sy = p.clientY;
     var rx = getRot().x, ry = getRot().y;
