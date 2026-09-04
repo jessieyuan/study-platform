@@ -61,7 +61,7 @@ const STREAK_MAX_GAIN_PER_SAVE = 1;
 // ==================== 验证码 ====================
 const captchaStore = new Map();
 const captchaRateByIP = new Map();
-const CAPTCHA_RATE_MS = 2000; // 同 IP 至少间隔 2 秒
+const CAPTCHA_RATE_MS = 500; // 同 IP 至少间隔 0.5 秒
 const CAPTCHA_EXPIRE_MS = 5 * 60 * 1000;
 const CAPTCHA_CHARS = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
 
@@ -182,6 +182,20 @@ if (firstUser) {
 
 // 迁移：管理员默认拥有排行榜权限
 db.exec(`UPDATE users SET leaderboard_access = 1 WHERE role = 'admin'`);
+// 做题记录表：每个用户+科目+课程只保留最新一条
+db.exec(`
+  CREATE TABLE IF NOT EXISTS exercise_records (
+    user_id     INTEGER NOT NULL,
+    subject     TEXT NOT NULL,
+    lesson_id   TEXT NOT NULL,
+    score       INTEGER NOT NULL,
+    total       INTEGER NOT NULL,
+    wrong       TEXT DEFAULT '[]',
+    created_at  TEXT DEFAULT (datetime('now','localtime')),
+    PRIMARY KEY (user_id, subject, lesson_id),
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+  )
+`);
 
 // ==================== 工具函数 ====================
 
@@ -569,10 +583,43 @@ async function handleSaveData(req, res) {
   // 同步关键字段到 users 表
   syncUserFields(userId, body, pointsBase, today);
 
-  sendJSON(res, 200, { ok: true });
+ sendJSON(res, 200, { ok: true });
 }
 
 /** GET /api/leaderboard */
+/** POST /api/records/exercise — 保存做题记录（只保留最新一条） */
+async function handleSaveExercise(req, res) {
+  const userId = getAuthUserId(req);
+ if (!userId) return sendJSON(res, 401, { error: '未登录' });
+ const body = await parseBody(req);
+ const { subject, lesson_id, score, total, wrong } = body;
+  if (!subject || !lesson_id || typeof score !== 'number' || typeof total !== 'number') {
+    return sendJSON(res, 400, { error: '参数缺失' });
+  }
+  const wrongStr = JSON.stringify(wrong || []);
+  db.prepare(`
+    INSERT INTO exercise_records (user_id, subject, lesson_id, score, total, wrong, created_at)
+    VALUES (?, ?, ?, ?, ?, ?, datetime('now','localtime'))
+    ON CONFLICT(user_id, subject, lesson_id) DO UPDATE SET
+      score = excluded.score, total = excluded.total, wrong = excluded.wrong, created_at = excluded.created_at
+  `).run(userId, subject, lesson_id, score, total, wrongStr);
+  sendJSON(res, 200, { ok: true });
+}
+
+/** GET /api/records/exercise — 获取当前用户所有做题记录 */
+async function handleGetExercise(req, res) {
+  const userId = getAuthUserId(req);
+  if (!userId) return sendJSON(res, 401, { error: '未登录' });
+  const rows = db.prepare(`SELECT subject, lesson_id, score, total, wrong, created_at FROM exercise_records WHERE user_id = ?`).all(userId);
+  const records = {};
+  for (const r of rows) {
+    const key = r.subject + ':' + r.lesson_id;
+    records[key] = { score: r.score, total: r.total, wrong: JSON.parse(r.wrong || '[]'), created_at: r.created_at };
+  }
+  sendJSON(res, 200, { records });
+}
+
+ /** GET /api/leaderboard */
 async function handleLeaderboard(req, res) {
   const userId = getAuthUserId(req);
   const currentUser = userId ? db.prepare('SELECT id, role, leaderboard_access, groups FROM users WHERE id = ?').get(userId) : null;
@@ -973,10 +1020,16 @@ const server = http.createServer(async (req, res) => {
     if (pathname === '/api/data' && req.method === 'GET') {
       return await handleGetData(req, res);
     }
-    if (pathname === '/api/data' && req.method === 'POST') {
-      return await handleSaveData(req, res);
+   if (pathname === '/api/data' && req.method === 'POST') {
+     return await handleSaveData(req, res);
+   }
+    if (pathname === '/api/records/exercise' && req.method === 'POST') {
+      return await handleSaveExercise(req, res);
     }
-    if (pathname === '/api/leaderboard' && req.method === 'GET') {
+    if (pathname === '/api/records/exercise' && req.method === 'GET') {
+      return await handleGetExercise(req, res);
+    }
+   if (pathname === '/api/leaderboard' && req.method === 'GET') {
       return await handleLeaderboard(req, res);
     }
     if (pathname === '/api/leaderboard/pets' && req.method === 'GET') {

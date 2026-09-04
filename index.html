@@ -1397,6 +1397,7 @@
   .l-sub { font-size:11px; color:#b8a080; margin-top:2px; }
   .l-badge { font-size:10px; padding:2px 8px; border-radius:8px; font-weight:600; flex-shrink:0; }
  .l-badge.done { background:#e6faf7; color:#5bc0a8; }
+.l-badge.quiz { background:#fff0e0; color:#f0a020; border:1px solid #f0d8a0; }
   /* 沪学习知识梳理卡片 */
   .sr-wrap { max-width:900px; margin:0 auto; }
   .sr-unit-row { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:14px; }
@@ -1427,8 +1428,31 @@
   .sr-q-answer { margin-top:6px; display:flex; align-items:flex-start; gap:6px; }
   .sr-q-reveal { font-size:12px; padding:3px 12px; border-radius:8px; border:1.5px solid #f0a020; background:#fff; color:#f0a020; cursor:pointer; font-weight:600; font-family:inherit; flex-shrink:0; }
   .sr-q-reveal:hover { background:#fff8e0; }
-  .sr-q-ans-text { font-size:13px; color:#5a9e3a; font-weight:600; line-height:1.6; padding:3px 0; }
-  .sr-empty { text-align:center; color:#b8a080; padding:40px 0; font-size:14px; }
+ .sr-q-ans-text { font-size:13px; color:#5a9e3a; font-weight:600; line-height:1.6; padding:3px 0; }
+ .sr-blank { display:inline-block; min-width:48px; padding:1px 8px; margin:0 2px; border-bottom:2px solid #f0a020; text-align:center; color:#f0a020; font-weight:600; border-radius:3px; }
+ .sr-blank.filled { color:#5c4a2e; border-bottom-color:#7bc043; background:#f0f8e0; }
+ .sr-blank.correct { color:#7bc043; border-bottom-color:#7bc043; background:#e6faf7; }
+ .sr-blank.wrong { color:#e85555; border-bottom-color:#e85555; background:#fff0f0; }
+ .sr-q-options { display:flex; flex-wrap:wrap; gap:6px; margin-top:8px; }
+ .sr-blank-opts { display:flex; flex-wrap:wrap; align-items:center; gap:5px; margin-top:5px; }
+ .sr-blank-label { font-size:13px; font-weight:700; color:#f0a020; margin-right:2px; flex-shrink:0; }
+  .sr-option-btn { padding:4px 14px; border-radius:8px; border:1.5px solid #e0d8c0; background:#faf5e8; font-size:13px; color:#6b5a3e; cursor:pointer; font-family:inherit; transition:0.15s; }
+ .sr-option-btn:hover { border-color:#f0a020; background:#fff8e0; transform:translateY(-1px); }
+ .sr-option-btn:active { transform:translateY(0); }
+ .sr-grade-btn { font-size:12px; padding:4px 14px; border-radius:8px; border:1.5px solid #f0a020; background:#fff8e0; color:#f0a020; cursor:pointer; font-weight:600; font-family:inherit; flex-shrink:0; }
+ .sr-grade-btn:hover { background:#f0a020; color:#fff; }
+ .sr-grade-result { font-size:13px; font-weight:600; }
+ .sr-hist-btn { font-size:12px; padding:3px 12px; border-radius:8px; border:1.5px solid #d0c8b0; background:#fff; color:#8a7a5a; cursor:pointer; font-weight:600; font-family:inherit; flex-shrink:0; }
+ .sr-hist-btn:hover { border-color:#f0a020; color:#f0a020; }
+ .sr-word-build { min-height:44px; padding:8px 10px; background:#f5f8ff; border:2px dashed #b8d0f0; border-radius:10px; display:flex; flex-wrap:wrap; gap:6px; align-items:center; margin-bottom:8px; }
+ .sr-word-build:empty::before { content:'点击下方单词组成答案…'; color:#b8c8d8; font-size:13px; }
+ .sr-build-tile { padding:5px 14px; border-radius:8px; background:#5b9bd5; color:#fff; font-size:14px; font-weight:600; cursor:pointer; transition:0.15s; }
+ .sr-build-tile:hover { background:#4a8ac4; }
+ .sr-word-pool { display:flex; flex-wrap:wrap; gap:6px; margin-bottom:8px; }
+ .sr-word-tile { padding:5px 14px; border-radius:8px; border:1.5px solid #d0d8e0; background:#fff; font-size:14px; color:#5c6a7e; cursor:pointer; transition:0.15s; }
+ .sr-word-tile:hover { border-color:#5b9bd5; background:#f0f6ff; transform:translateY(-1px); }
+ .sr-word-tile.used { opacity:0.3; pointer-events:none; }
+ .sr-empty { text-align:center; color:#b8a080; padding:40px 0; font-size:14px; }
   .sr-spell-btn { margin-bottom:12px; padding:8px 18px; border-radius:12px; border:none; background:linear-gradient(135deg,#5b9bd5,#4a8ac4); color:#fff; font-size:14px; font-weight:700; cursor:pointer; font-family:inherit; transition:0.2s; box-shadow:0 2px 8px rgba(74,138,196,0.3); }
   .sr-spell-btn:hover { transform:translateY(-1px); box-shadow:0 4px 12px rgba(74,138,196,0.4); }
   .sport-record-card { background:#fff; border-radius:16px; padding:16px 18px; margin-bottom:14px; box-shadow:0 3px 14px rgba(0,0,0,0.05); }
@@ -2158,6 +2182,142 @@
   .g2048-tile-inner.appear { animation: g2048Appear 0.25s ease-out; }
   .g2048-tile-inner.merge { animation: g2048Merge 0.3s ease-out; }
  .game2048-hint { font-size:15px; color:var(--text-secondary); }
+ /* ========== 3D几何 ========== */
+ .geo-wrap { display:flex; flex-direction:column; align-items:center; gap:12px; padding:8px 0; }
+ .geo-toolbar { display:flex; flex-wrap:wrap; align-items:center; gap:8px; max-width:600px; }
+ .geo-toolbar-label { font-size:14px; font-weight:700; color:#5c4a2e; }
+ .geo-add-btn { padding:8px 14px; border:2px solid #f0e4c0; border-radius:10px; background:#fff8e0; font-size:14px; font-family:inherit; color:#5c4a2e; cursor:pointer; transition:0.15s; }
+ .geo-add-btn:hover { border-color:#f0a020; background:#fff0c8; transform:translateY(-2px); }
+ .geo-add-btn:active { transform:translateY(0); }
+ .geo-spacer { flex:1; }
+ .geo-ctrl-btn { padding:8px 14px; border:2px solid #d0c0a0; border-radius:10px; background:#f5f0e8; font-size:14px; font-family:inherit; color:#5c4a2e; cursor:pointer; transition:0.15s; }
+ .geo-ctrl-btn:hover { border-color:#f0a020; }
+ .geo-ctrl-btn.active { background:#f0a020; color:#fff; border-color:#f0a020; }
+ .geo-ctrl-btn.geo-clear { color:#e8554d; border-color:#e8c0bc; }
+ .geo-info { font-size:13px; color:#b8a080; text-align:center; }
+ .geo-scene {
+   width:100%; max-width:880px; height:700px; perspective:1600px;
+   background:linear-gradient(180deg,#f5f8fc 0%,#e8f0f8 60%,#d8e8f5 100%);
+   border-radius:16px; overflow:hidden; cursor:grab; user-select:none;
+   border:2px solid #f0e4c0; position:relative;
+ }
+ .geo-scene:active { cursor:grabbing; }
+ .geo-stage { will-change:transform;
+   position:absolute; top:50%; left:50%; width:0; height:0;
+   transform-style:preserve-3d; transform:translate(-50%,-50%) rotateX(-20deg) rotateY(0deg);
+   transition:transform 0.1s linear;
+ }
+ .geo-stage.auto-rotate { animation:geoAutoRotate 8s linear infinite; }
+ @keyframes geoAutoRotate { from { transform:translate(-50%,-50%) rotateX(-20deg) rotateY(0deg); } to { transform:translate(-50%,-50%) rotateX(-20deg) rotateY(360deg); } }
+ .geo-shape { position:absolute; transform-style:preserve-3d; cursor:pointer; transition:transform 0.2s; }
+ .geo-shape:hover { outline:2px solid rgba(240,160,32,0.6); outline-offset:2px; }
+ .geo-shape.selected .face { border-color:rgba(240,160,32,0.8) !important; }
+ .geo-shape .geo-del { position:absolute; top:-10px; right:-10px; width:22px; height:22px; border-radius:50%; background:#e8554d; color:#fff; border:none; font-size:14px; cursor:pointer; display:none; z-index:100; }
+ .geo-shape.selected .geo-del { display:block; }
+
+ /* 正方体 */
+ .geo-cube { width:80px; height:80px; }
+ .geo-cube .face { position:absolute; width:80px; height:80px; border:2px solid rgba(0,0,0,0.12); transition:transform 0.8s cubic-bezier(0.4,0,0.2,1); }
+ .geo-cube .f-front { background:rgba(255,140,100,0.85); transform:translateZ(40px); }
+ .geo-cube .f-back { background:rgba(255,110,70,0.85); transform:rotateY(180deg) translateZ(40px); }
+ .geo-cube .f-right { background:rgba(255,160,120,0.85); transform:rotateY(90deg) translateZ(40px); }
+ .geo-cube .f-left { background:rgba(255,100,60,0.85); transform:rotateY(-90deg) translateZ(40px); }
+ .geo-cube .f-top { background:rgba(255,190,150,0.85); transform:rotateX(90deg) translateZ(40px); }
+ .geo-cube .f-bottom { background:rgba(200,80,40,0.85); transform:rotateX(-90deg) translateZ(40px); }
+ .geo-cube.exploded .f-front { transform:translateZ(70px) !important; }
+ .geo-cube.exploded .f-back { transform:rotateY(180deg) translateZ(70px) !important; }
+ .geo-cube.exploded .f-right { transform:rotateY(90deg) translateZ(70px) !important; }
+ .geo-cube.exploded .f-left { transform:rotateY(-90deg) translateZ(70px) !important; }
+ .geo-cube.exploded .f-top { transform:rotateX(90deg) translateZ(70px) !important; }
+ .geo-cube.exploded .f-bottom { transform:rotateX(-90deg) translateZ(70px) !important; }
+
+ .geo-cuboid { width:100px; height:60px; }
+ .geo-cuboid .face { position:absolute; border:2px solid rgba(0,0,0,0.12); transition:transform 0.8s cubic-bezier(0.4,0,0.2,1); }
+ .geo-cuboid .f-front { width:100px; height:60px; background:rgba(100,180,255,0.85); transform:translateZ(30px); }
+ .geo-cuboid .f-back { width:100px; height:60px; background:rgba(70,150,235,0.85); transform:rotateY(180deg) translateZ(30px); }
+ .geo-cuboid .f-right { width:60px; height:60px; left:20px; background:rgba(130,200,255,0.85); transform:rotateY(90deg) translateZ(50px); }
+ .geo-cuboid .f-left { width:60px; height:60px; left:20px; background:rgba(60,140,220,0.85); transform:rotateY(-90deg) translateZ(50px); }
+ .geo-cuboid .f-top { width:100px; height:60px; background:rgba(160,215,255,0.85); transform:rotateX(90deg) translateZ(30px); }
+ .geo-cuboid .f-bottom { width:100px; height:60px; background:rgba(50,130,210,0.85); transform:rotateX(-90deg) translateZ(30px); }
+ .geo-cuboid.exploded .f-front { transform:translateZ(55px) !important; }
+ .geo-cuboid.exploded .f-back { transform:rotateY(180deg) translateZ(55px) !important; }
+ .geo-cuboid.exploded .f-right { transform:rotateY(90deg) translateZ(75px) !important; }
+ .geo-cuboid.exploded .f-left { transform:rotateY(-90deg) translateZ(75px) !important; }
+ .geo-cuboid.exploded .f-top { transform:rotateX(90deg) translateZ(55px) !important; }
+ .geo-cuboid.exploded .f-bottom { transform:rotateX(-90deg) translateZ(55px) !important; }
+
+ .geo-cylinder { width:80px; height:100px; }
+ .geo-cylinder .cyl-side { position:absolute; width:22px; height:100px; top:0; left:29px; background:linear-gradient(90deg,rgba(80,180,80,0.7),rgba(120,220,120,0.95) 50%,rgba(80,180,80,0.7)); transition:transform 0.8s cubic-bezier(0.4,0,0.2,1); }
+ .geo-cylinder .cyl-top { position:absolute; width:80px; height:80px; border-radius:50%; background:rgba(140,230,140,0.9); top:-40px; transform:rotateX(90deg); transition:top 0.8s ease,transform 0.8s ease; }
+ .geo-cylinder .cyl-bottom { position:absolute; width:80px; height:80px; border-radius:50%; background:rgba(70,170,70,0.9); top:60px; transform:rotateX(90deg); transition:top 0.8s ease,transform 0.8s ease; }
+ .geo-cylinder.exploded .cyl-side { transform:rotateY(var(--angle)) translateZ(65px) !important; }
+ .geo-cylinder.exploded .cyl-top { top:-75px !important; }
+ .geo-cylinder.exploded .cyl-bottom { top:95px !important; }
+
+ .geo-cone { width:80px; height:100px; }
+ .geo-cone .cone-side { position:absolute; width:22px; height:108px; top:0; left:29px; clip-path:polygon(50% 0%,0% 100%,100% 100%); transform-origin:50% 0%; background:rgba(220,160,60,0.9); transition:transform 0.8s cubic-bezier(0.4,0,0.2,1),opacity 0.4s; }
+ .geo-cone .cone-bottom { position:absolute; width:80px; height:80px; border-radius:50%; background:rgba(200,140,40,0.85); top:60px; left:0; transform:rotateX(90deg); transition:top 0.8s ease; }
+ .geo-cone.exploded .cone-side { transform:rotateY(var(--angle)) rotateX(55deg) !important; }
+ .geo-cone.exploded .cone-bottom { top:100px !important; }
+
+ .geo-sphere { width:80px; height:80px; }
+ .geo-sphere .sph-disk { position:absolute; width:80px; height:80px; border-radius:50%; background:radial-gradient(circle at 40% 40%, rgba(255,200,230,0.18) 0%, rgba(220,100,180,0.18) 60%, rgba(180,60,140,0.05) 90%, transparent 100%); transition:transform 0.8s cubic-bezier(0.4,0,0.2,1); }
+ .geo-sphere .sph-ring { position:absolute; width:80px; height:80px; border-radius:50%; border:1.5px solid rgba(255,200,230,0.25); box-sizing:border-box; transition:transform 0.8s cubic-bezier(0.4,0,0.2,1),border-color 0.4s; }
+ .geo-sphere.exploded .sph-disk { transform:var(--rt) translateZ(45px) scale(1.1) !important; }
+ .geo-sphere.exploded .sph-ring { transform:var(--rt) translateZ(45px) !important; border-color:rgba(255,200,230,0.7) !important; }
+
+ .geo-pyramid { width:80px; height:80px; }
+ .geo-pyramid .pyr-face { position:absolute; width:80px; height:81px; top:0; left:0; clip-path:polygon(50% 0%,0% 100%,100% 100%); transform-origin:50% 0%; transition:transform 0.8s cubic-bezier(0.4,0,0.2,1); }
+ .geo-pyramid .pyr-front { background:rgba(160,100,220,0.9); transform:rotateX(29.7deg); }
+ .geo-pyramid .pyr-right { background:rgba(130,70,200,0.9); transform:rotateY(90deg) rotateX(29.7deg); }
+ .geo-pyramid .pyr-left { background:rgba(190,130,240,0.9); transform:rotateY(-90deg) rotateX(29.7deg); }
+ .geo-pyramid .pyr-back { background:rgba(110,50,180,0.9); transform:rotateY(180deg) rotateX(29.7deg); }
+ .geo-pyramid .pyr-bottom { position:absolute; width:80px; height:80px; background:rgba(90,40,150,0.85); top:30px; left:0; transform:rotateX(-90deg); transition:top 0.8s ease,transform 0.8s ease; }
+ .geo-pyramid.exploded .pyr-front { transform:rotateX(55deg) !important; }
+ .geo-pyramid.exploded .pyr-right { transform:rotateY(90deg) rotateX(55deg) !important; }
+ .geo-pyramid.exploded .pyr-left { transform:rotateY(-90deg) rotateX(55deg) !important; }
+ .geo-pyramid.exploded .pyr-back { transform:rotateY(180deg) rotateX(55deg) !important; }
+ .geo-pyramid.exploded .pyr-bottom { top:55px !important; }
+
+ 
+
+ /* 地面网格 */
+ .geo-grid { position:absolute; top:50%; left:50%; width:300px; height:300px; transform:translate(-50%,-50%) rotateX(90deg); background-image:linear-gradient(rgba(180,200,220,0.3) 1px,transparent 1px),linear-gradient(90deg,rgba(180,200,220,0.3) 1px,transparent 1px); background-size:30px 30px; border:1px solid rgba(180,200,220,0.4); }
+
+
+ .geo-sub-tabs { display:flex; gap:4px; align-items:center; justify-content:center; margin-bottom:4px; }
+ .geo-sub-tabs .breadcrumb-item { cursor:pointer; padding:4px 12px; border-radius:8px; font-size:15px; font-weight:700; color:#8a7a5a; transition:0.15s; }
+ .geo-sub-tabs .breadcrumb-item:hover { background:#fff0c8; }
+ .geo-sub-tabs .breadcrumb-item.active { color:#f0a020; background:#fff8e0; }
+ .geo-panel { display:flex; flex-direction:column; align-items:center; gap:12px; }
+
+
+ /* 搭建网格地面 */
+ .geo-build-grid { position:absolute; top:50%; left:50%; transform:translate(-50%,-50%) rotateX(90deg); display:grid; grid-template-columns:repeat(6,56px); grid-template-rows:repeat(5,56px); gap:4px; }
+ .geo-build-cell { width:56px; height:56px; background:rgba(180,200,220,0.15); border:1px dashed rgba(180,200,220,0.4); cursor:pointer; transition:0.1s; position:relative; }
+ .geo-build-cell:hover { background:rgba(240,160,32,0.35); border:2px solid rgba(240,160,32,0.7); }
+ .geo-build-cell.has-cube { background:transparent; border:none; cursor:pointer; }
+ .geo-build-cell.placement-hint { background:rgba(100,200,100,0.25); border-color:rgba(100,200,100,0.6); }
+ .geo-build-cube { position:absolute; width:56px; height:56px; transform-style:preserve-3d; cursor:pointer; }
+ .geo-build-cube .face { position:absolute; width:56px; height:56px; border:1.5px solid rgba(0,0,0,0.15); }
+ .geo-build-cube .f-front { background:rgba(255,150,100,0.88); transform:translateZ(28px); }
+ .geo-build-cube .f-back { background:rgba(255,110,70,0.88); transform:rotateY(180deg) translateZ(28px); }
+ .geo-build-cube .f-right { background:rgba(255,170,120,0.88); transform:rotateY(90deg) translateZ(28px); }
+ .geo-build-cube .f-left { background:rgba(255,100,60,0.88); transform:rotateY(-90deg) translateZ(28px); }
+ .geo-build-cube .f-top { background:rgba(255,190,140,0.88); transform:rotateX(90deg) translateZ(28px); }
+ .geo-build-cube .f-bottom { background:rgba(200,80,40,0.88); transform:rotateX(-90deg) translateZ(28px); }
+ .geo-build-cube.selected .face { border-color:rgba(240,160,32,0.8) !important; border-width:2.5px; }
+ .geo-build-cube .geo-del-mark { position:absolute; top:-8px; right:-8px; width:20px; height:20px; border-radius:50%; background:#e8554d; color:#fff; font-size:12px; display:none; align-items:center; justify-content:center; z-index:100; }
+ .geo-build-cube.selected .geo-del-mark { display:flex; }
+ .geo-mode-btn.active { background:#f0a020; color:#fff; border-color:#f0a020; }
+
+#geo-build-stage { top:72% !important; }
+ /* 手机适配 */
+ @media(max-width:767px) {
+   .geo-scene { height:520px; }
+   .geo-add-btn { padding:6px 10px; font-size:13px; }
+ }
+
  @media (max-width:479px) {
    .game2048-board { grid-template-columns:repeat(4, 62px); grid-template-rows:repeat(4, 62px); }
    .g2048-bg-cell { width:62px; height:62px; }
@@ -2234,14 +2394,21 @@
   .idiom-record-info { font-size:12px; color:var(--text-secondary); min-width:90px; text-align:right; }
   @media (max-width:767px) {
     .idiom-grid { grid-template-columns:1fr; }
-    .idiom-quiz-opts { grid-template-columns:1fr; }
-  }
+   .idiom-quiz-opts { grid-template-columns:1fr; }
+ }
+  .toast-container{position:fixed;top:16px;left:50%;transform:translateX(-50%);z-index:99999;display:flex;flex-direction:column;gap:8px;pointer-events:none}
+  .toast{pointer-events:auto;min-width:200px;max-width:86vw;padding:12px 22px;border-radius:14px;font-size:14px;font-weight:600;text-align:center;box-shadow:0 6px 24px rgba(0,0,0,0.12);opacity:0;transform:translateY(-16px);transition:all .3s cubic-bezier(.34,1.56,.64,1);display:flex;align-items:center;gap:8px;justify-content:center}
+  .toast.show{opacity:1;transform:translateY(0)}
+  .toast.success{background:linear-gradient(135deg,#d1fae5,#a7f3d0);color:#1a6b3f;border:1px solid #7bc043}
+  .toast.error{background:linear-gradient(135deg,#fee2e2,#fecaca);color:#991b1b;border:1px solid #e85555}
+  .toast.info{background:linear-gradient(135deg,#fef3c7,#fde68a);color:#92400e;border:1px solid #f0a020}
 </style>
 </head>
 <body>
 
 <div id="global-error" style="display:none;background:#ffe0e0;color:#c00;padding:8px 14px;text-align:center;font-size:13px;position:fixed;top:0;left:0;right:0;z-index:9999;"></div>
 
+<div class="toast-container" id="toast-container"></div>
 <!-- ========== 登录/注册界面 ========== -->
 <div class="auth-overlay" id="auth-overlay">
   <div class="auth-card">
@@ -2417,6 +2584,8 @@
       <span class="breadcrumb-item" onclick="switchMathTab('g2048',this)">2048</span>
       <span class="breadcrumb-sep">|</span>
       <span class="breadcrumb-item" onclick="switchMathTab('merge10',this)">凑十消消</span>
+      <span class="breadcrumb-sep">|</span>
+      <span class="breadcrumb-item" onclick="switchMathTab('geometry',this)">几何</span>
     </div>
     <div id="math-sudoku-filters" style="display:none;">
       <div class="cm-unit-row" id="sudoku-size-selector"></div>
@@ -2504,6 +2673,49 @@
       <div class="game2048-hint">点击两个数字，凑成10就消除！</div>
     </div>
   </div>
+  <div id="math-tab-geometry" style="display:none;">
+    <div class="geo-wrap">
+      <div class="geo-sub-tabs">
+        <span class="breadcrumb-item active" onclick="switchGeoSub('build',this)">🧱 正方形搭建</span>
+        <span class="breadcrumb-sep">|</span>
+        <span class="breadcrumb-item" onclick="switchGeoSub('view3d',this)">🔄 几何图像3D旋转</span>
+      </div>
+      <!-- 正方形搭建 -->
+      <div id="geo-build" class="geo-panel">
+        <div class="geo-toolbar">
+          <span class="geo-toolbar-label">搭建模式：</span>
+          <button class="geo-add-btn" id="geo-mode-add" onclick="setBuildMode('add')">🧊 放置方块</button>
+          <button class="geo-add-btn" id="geo-mode-del" onclick="setBuildMode('del')">✕ 删除方块</button>
+          <span class="geo-spacer"></span>
+          <button class="geo-ctrl-btn" id="geo-build-rotate-btn" onclick="toggleGeoBuildRotate()">🔄 自动旋转</button>
+          <button class="geo-ctrl-btn geo-clear" onclick="clearBuildCubes()">🗑 清空</button>
+        </div>
+        <div class="geo-info" id="geo-build-info">点击地面网格放置方块，点击已有方块可向上叠加。拖拽画面旋转视角。</div>
+        <div class="geo-scene" id="geo-build-scene">
+          <div class="geo-stage" id="geo-build-stage"></div>
+        </div>
+      </div>
+      <!-- 几何图像3D旋转 -->
+      <div id="geo-view3d" class="geo-panel" style="display:none;">
+        <div class="geo-toolbar">
+          <span class="geo-toolbar-label">选择图形：</span>
+          <button class="geo-add-btn" onclick="setView3dShape('cube')">🧊 正方体</button>
+          <button class="geo-add-btn" onclick="setView3dShape('cuboid')">📦 长方体</button>
+          <button class="geo-add-btn" onclick="setView3dShape('cylinder')">🥫 圆柱</button>
+          <button class="geo-add-btn" onclick="setView3dShape('cone')">🍦 圆锥</button>
+          <button class="geo-add-btn" onclick="setView3dShape('sphere')">⚪ 球</button>
+          <button class="geo-add-btn" onclick="setView3dShape('pyramid')">🔺 四棱锥</button>
+          <span class="geo-spacer"></span>
+          <button class="geo-ctrl-btn" id="geo-explode-btn" onclick="toggleExplode()">📦 展开分解</button>
+          <button class="geo-ctrl-btn" id="geo-view-rotate-btn" onclick="toggleGeoViewRotate()">🔄 自动旋转</button>
+        </div>
+        <div class="geo-info" id="geo-view-info">选择一个图形查看3D效果，拖拽可旋转</div>
+        <div class="geo-scene" id="geo-view-scene">
+          <div class="geo-stage" id="geo-view-stage"></div>
+        </div>
+      </div>
+    </div>
+  </div>
 </main></div>
 
 <!-- 英语 -->
@@ -2534,10 +2746,10 @@
 <main class="main">
   <div class="chinese-menu">
     <div class="cm-bread"><span class="breadcrumb-label">⚽ 体育 ›</span></div>
-    <div class="cm-cat-tabs">
-      <button class="cm-cat-tab active" data-cat="skills" onclick="renderSportPage('skills',this)">技能学习</button>
-      <button class="cm-cat-tab" data-cat="records" onclick="renderSportPage('records',this)">运动记录</button>
-    </div>
+   <div class="cm-cat-tabs">
+      <button class="cm-cat-tab active" data-cat="records" onclick="renderSportPage('records',this)">运动记录</button>
+      <button class="cm-cat-tab" data-cat="skills" onclick="renderSportPage('skills',this)">技能学习</button>
+   </div>
   </div>
   <div id="sport-content"></div>
 </main></div>
@@ -2816,6 +3028,22 @@ window.onerror = function(msg, url, line, col, err) {
   if (el) { el.textContent = '⚠ JS错误: ' + msg + ' (行' + line + ')'; el.style.display = 'block'; }
   return false;
 };
+
+function showToast(msg, type) {
+  type = type || 'info';
+  var container = document.getElementById('toast-container');
+  if (!container) return;
+  var icons = { success: '🎉', error: '⚠️', info: '💡' };
+  var toast = document.createElement('div');
+  toast.className = 'toast ' + type;
+  toast.innerHTML = '<span>' + (icons[type] || '' ) + '</span><span>' + msg + '</span>';
+  container.appendChild(toast);
+  requestAnimationFrame(function() { toast.classList.add('show'); });
+  setTimeout(function() {
+    toast.classList.remove('show');
+    setTimeout(function() { if (toast.parentNode) toast.parentNode.removeChild(toast); }, 300);
+  }, 2500);
+}
 // ==================== 账号与数据管理 ====================
 var TOKEN_KEY = 'summer-growth-camp-token';
 var authToken = localStorage.getItem(TOKEN_KEY) || null;
@@ -2894,10 +3122,13 @@ function loadCaptcha() {
   if (!imgEl) return;
   imgEl.innerHTML = '<svg width="120" height="40"><text x="60" y="24" text-anchor="middle" fill="#ccc" font-size="13">加载中...</text></svg>';
   fetch('/api/captcha').then(function(r) { return r.json(); }).then(function(data) {
-    if (data.error) { imgEl.innerHTML = '<svg width="120" height="40"><text x="60" y="24" text-anchor="middle" fill="#e85555" font-size="13">点击重试</text></svg>'; return; }
+    if (data.error) {
+      if (data.error.indexOf('频繁') !== -1) { setTimeout(loadCaptcha, 600); return; }
+      imgEl.innerHTML = '<svg width="120" height="40"><text x="60" y="24" text-anchor="middle" fill="#e85555" font-size="13">点击重试</text></svg>'; return;
+    }
     currentCaptchaId = data.id;
     imgEl.innerHTML = data.svg;
-  }).catch(function() { imgEl.innerHTML = '<svg width="120" height="40"><text x="60" y="24" text-anchor="middle" fill="#e85555" font-size="13">点击重试</text></svg>'; });
+  }).catch(function() { setTimeout(loadCaptcha, 600); });
 }
 var currentCaptchaId = null;
 
@@ -2955,8 +3186,9 @@ function onAuthSuccess(res) {
     appData.pet.todayEarned = 0;
     saveData(appData);
   }
-  document.getElementById('auth-overlay').classList.add('hidden');
-  initApp();
+document.getElementById('auth-overlay').classList.add('hidden');
+initApp();
+ loadExerciseRecords();
 }
 
 function doLogout() {
@@ -2973,7 +3205,7 @@ function checkAutoLogin() {
   var overlay = document.getElementById('auth-overlay');
   overlay.classList.add('hidden');
   apiCall('GET', '/api/data').then(function(res) {
-    if (res.error) { localStorage.removeItem(TOKEN_KEY); authToken = null; overlay.classList.remove('hidden'); return; }
+    if (res.error) { localStorage.removeItem(TOKEN_KEY); authToken = null; overlay.classList.remove('hidden'); loadCaptcha(); return; }
     appData = res.data;
     currentUser = res.user || null;
     ensureDataFields();
@@ -2985,8 +3217,9 @@ function checkAutoLogin() {
       appData.pet.todayEarned = 0;
       saveData(appData);
     }
-    initApp();
-  }).catch(function() { overlay.classList.remove('hidden'); });
+    try { initApp(); } catch(e) { console.error('[autoLogin] initApp error:', e); }
+    try { loadExerciseRecords(); } catch(e) { console.error('[autoLogin] loadExRec error:', e); }
+  }).catch(function(e) { console.error('[autoLogin] catch:', e); overlay.classList.remove('hidden'); loadCaptcha(); });
 }
 
 function ensureDataFields() {
@@ -3017,35 +3250,30 @@ if (appData.englishSub !== 'spell' && appData.englishSub !== 'textbook') appData
   if (!appData.spellRecited) appData.spellRecited = []; // 已背单词
   if (!appData.spellWrong) appData.spellWrong = {}; // 错题本 { word: {emoji,cn,count,lastWrong} }
  if (!appData.sportRecords) appData.sportRecords = {};
- if (!appData.sportCat) appData.sportCat = 'skills';
+ if (!appData.sportCat) appData.sportCat = 'records';
 if (!appData.readingBooks) appData.readingBooks = [];
 if (!appData.readingLog) appData.readingLog = [];
 if (!appData.readingTab) appData.readingTab = 'bookshelf';
-if (!appData.spellWords) appData.spellWords = SPELL_WORDS.map(function(w) { return {cat:w.cat,emoji:w.emoji,word:w.word,cn:w.cn,img:w.img||''}; });
 if (!appData.laborRecords) appData.laborRecords = [];
-if (appData.spellWords && appData.spellWords.length === 0) {
-   appData.spellWords = SPELL_WORDS.map(function(w) { return {cat:w.cat,emoji:w.emoji,word:w.word,cn:w.cn,img:w.img||''}; });
- }
-  // 合并新增的 SPELL_WORDS 到已有用户数据（按 word 去重）
-  if (appData.spellWords && appData.spellWords.length > 0) {
-    var _existing = {};
-    appData.spellWords.forEach(function(w) { _existing[(w.word||'').toLowerCase()] = true; });
-   SPELL_WORDS.forEach(function(w) {
-     if (!_existing[(w.word||'').toLowerCase()]) {
-       appData.spellWords.push({cat:w.cat, emoji:w.emoji, word:w.word, cn:w.cn, img:w.img||''});
-       _existing[(w.word||'').toLowerCase()] = true;
-     }
-   });
- }
-  // 同步分类名称（修复旧数据中 剑二 前缀分类 → 合并到对应主题）
-  if (appData.spellWords && appData.spellWords.length > 0) {
-    var _catMap = {};
-    SPELL_WORDS.forEach(function(w) { _catMap[(w.word||'').toLowerCase()] = w.cat; });
+  // 迁移旧 spellWords → spellCustom（只存用户自定义增删改，默认词表从全局 SPELL_WORDS 动态读取）
+  if (appData.spellWords && appData.spellWords.length > 0 && !appData.spellCustom) {
+    var _sw = {}; SPELL_WORDS.forEach(function(w) { _sw[(w.cat||'')+'|'+(w.word||'').toLowerCase()] = w; });
+    var _uw = {}; appData.spellWords.forEach(function(w) { _uw[(w.cat||'')+'|'+(w.word||'').toLowerCase()] = w; });
+    var _added = [], _removed = [], _edits = {};
+    var _seen = {};
+    SPELL_WORDS.forEach(function(w) { var k = (w.cat||'')+'|'+(w.word||'').toLowerCase(); if (!_uw[k]) _removed.push(k); });
     appData.spellWords.forEach(function(w) {
-      var _newCat = _catMap[(w.word||'').toLowerCase()];
-      if (_newCat && w.cat !== _newCat) w.cat = _newCat;
+      var k = (w.cat||'')+'|'+(w.word||'').toLowerCase(); var orig = _sw[k];
+      if (!orig) { _added.push(w); }
+      else if (_seen[k]) { _added.push(w); }
+      else if (orig.emoji !== w.emoji || orig.cn !== w.cn || (orig.img||'') !== (w.img||'')) { _edits[k] = w; _seen[k] = true; }
+      else { _seen[k] = true; }
     });
+    appData.spellCustom = { added: _added, removed: _removed, edits: _edits };
+    delete appData.spellWords;
   }
+ if (!appData.spellCustom) appData.spellCustom = { added: [], removed: [], edits: {} };
+
 }
 
 // ---- 数据保存（防抖API同步） ----
@@ -3074,6 +3302,28 @@ window.addEventListener('pagehide', function() {
   }
 });
 
+var exerciseRecords = {};
+function loadExerciseRecords() {
+  if (!authToken) { console.log('[exercise] no authToken, skip load'); return; }
+  apiCall('GET', '/api/records/exercise').then(function(res) {
+    console.log('[exercise] load result:', JSON.stringify(res));
+    if (res.records) exerciseRecords = res.records;
+    var cp = document.getElementById('page-chinese'); if (cp && cp.classList.contains('active')) renderChinesePage();
+  }).catch(function(e) { console.error('[exercise] load error:', e); });
+}
+function saveExerciseRecord(subject, lessonId, score, total, wrong) {
+  exerciseRecords[subject + ':' + lessonId] = { score: score, total: total, wrong: wrong || [], created_at: new Date().toLocaleString() };
+  if (!authToken) { console.log('[exercise] no authToken, skip save'); return; }
+  fetch('/api/records/exercise', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + authToken },
+    body: JSON.stringify({ subject: subject, lesson_id: lessonId, score: score, total: total, wrong: wrong || [] }),
+    keepalive: true
+  }).then(function(r) { return r.json(); }).then(function(res) {
+    console.log('[exercise] save result:', JSON.stringify(res));
+    if (res.ok) showToast('答题记录已保存', 'success');
+  }).catch(function(e) { console.error('[exercise] save error:', e); showToast('记录保存失败', 'error'); });
+}
 function recalcStreak() {
   if (!appData.tasks || !Array.isArray(appData.tasks)) return;
   var streak = 0;
@@ -3132,84 +3382,84 @@ var LESSONS = [
     keywords:[{w:'邸',py:'dǐ',desc:'高级官员的住所'},{w:'熏',py:'xūn',desc:'（气味）接触物体，使变颜色或沾上气味'},{w:'醉',py:'zuì',desc:'沉迷，过分爱好'},{w:'汴州',py:'biàn zhōu',desc:'北宋都城，今河南开封'}],
     annotation:'诗人通过描写南宋统治者沉迷歌舞、贪图享乐的情景，表达了对国家前途的深切忧虑。',
     translation:'青山之外还有青山，高楼之外还有高楼，西湖上的歌舞什么时候才能停止？暖洋洋的风把游人吹得醉醺醺的，简直把杭州当成了汴州。',
-    quiz:[{q:'"题临安邸"中"邸"是什么意思？',opts:['高级官员的住所','普通的房屋','城门'],ans:0},{q:'这首诗表达了诗人怎样的感情？',opts:['喜悦','忧虑','愤怒'],ans:1}] },
+    quiz:[{q:'"题临安邸"中"邸"是什么意思？',opts:['高级官员的住所','普通的房屋','城门'],ans:0,exp:'邸指高级官员的住所。诗人在临安的旅店墙壁上题写了这首诗。'},{q:'这首诗表达了诗人怎样的感情？',opts:['喜悦','忧虑','愤怒'],ans:1,exp:'诗人看到南宋统治者沉迷歌舞，对国家前途深感忧虑。'},{q:'"直把杭州当汴州"暗示了什么？',opts:['南宋统治者忘记国耻','杭州和汴州很像','诗人喜欢杭州'],ans:0,exp:'汴州是北宋都城（今开封），已被金人占领。诗人讽刺统治者忘记故土。'},{q:'"暖风熏得游人醉"中"熏"的意思是？',opts:['烧火','吹拂使人陶醉','烟熏'],ans:1,exp:'熏在这里是吹拂、熏陶之意，形容暖风让人沉醉其中。'}] },
   { id:'l2', unit:1, type:'古诗', title:'示儿', pinyin:'shì ér', author:'陆游',
     content:'死去元知万事空，\n但悲不见九州同。\n王师北定中原日，\n家祭无忘告乃翁。',
     contentPinyin:'sǐ qù yuán zhī wàn shì kōng\ndàn bēi bù jiàn jiǔ zhōu tóng\nwáng shī běi dìng zhōng yuán rì\njiā jì wú wàng gào nǎi wēng',
     keywords:[{w:'元',py:'yuán',desc:'本来'},{w:'但',py:'dàn',desc:'只是'},{w:'九州',py:'jiǔ zhōu',desc:'指中国'},{w:'乃翁',py:'nǎi wēng',desc:'你们的父亲'}],
     annotation:'这是陆游的绝笔诗，表达了他至死不忘收复中原的爱国情怀。',
     translation:'我本来知道人死后万事皆空，只是悲伤没有看到国家统一。当朝廷军队收复中原的那一天，家祭时不要忘记告诉你们的父亲。',
-    quiz:[{q:'陆游写这首诗时是什么心情？',opts:['开心','悲伤遗憾','愤怒'],ans:1},{q:'"乃翁"指谁？',opts:['陆游自己','陆游的父亲','皇帝'],ans:0}] },
+    quiz:[{q:'陆游写这首诗时是什么心情？',opts:['开心','悲伤遗憾','愤怒'],ans:1,exp:'这是陆游的绝笔诗，至死不忘收复中原，充满遗憾和期盼。'},{q:'"乃翁"指谁？',opts:['陆游自己','陆游的父亲','皇帝'],ans:0,exp:'乃翁意为"你们的父亲"，指陆游自己。'},{q:'"九州同"是什么意思？',opts:['九州合并','国家统一','九州人很多'],ans:1,exp:'九州代指中国，同指统一，意为国家统一。'},{q:'"王师北定中原日"指什么？',opts:['朝廷军队收复中原','国王出巡','北方打仗'],ans:0,exp:'王师指宋朝军队，意为朝廷军队收复中原的那一天。'}] },
   { id:'l3', unit:1, type:'古诗', title:'己亥杂诗', pinyin:'jǐ hài zá shī', author:'龚自珍',
     content:'九州生气恃风雷，\n万马齐喑究可哀。\n我劝天公重抖擞，\n不拘一格降人才。',
     contentPinyin:'jiǔ zhōu shēng qì shì fēng léi\nwàn mǎ qí yīn jiū kě āi\nwǒ quàn tiān gōng chóng dǒu sǒu\nbù jū yī gé jiàng rén cái',
     keywords:[{w:'恃',py:'shì',desc:'依靠'},{w:'喑',py:'yīn',desc:'哑，无声'},{w:'抖擞',py:'dǒu sǒu',desc:'振作精神'},{w:'拘',py:'jū',desc:'限制'}],
     annotation:'诗人渴望社会变革，希望能有大批人才涌现，为国家带来生机。',
     translation:'中国要有生气必须依靠风雷激荡的改革，万马齐喑的局面实在令人悲哀。我希望天公重新振作精神，不拘一格地降下各种人才。',
-    quiz:[{q:'"万马齐喑"中"喑"的意思是？',opts:['哑、无声','黑暗','快速'],ans:0},{q:'诗人希望什么？',opts:['打仗','出现大批人才','下大雨'],ans:1}] },
+    quiz:[{q:'"万马齐喑"中"喑"的意思是？',opts:['哑、无声','黑暗','快速'],ans:0,exp:'喑意为哑、无声，比喻当时社会沉闷、人才被压抑。'},{q:'诗人希望什么？',opts:['打仗','出现大批人才','下大雨'],ans:1,exp:'诗人希望天公不拘一格降下人才，改变沉闷的局面。'},{q:'"不拘一格"的意思是？',opts:['不要规矩','不拘泥于一种标准','一种格式'],ans:1,exp:'拘是限制，意为不要局限于一种标准，要让各种人才涌现。'},{q:'这首诗的作者是谁？',opts:['龚自珍','李白','杜甫'],ans:0,exp:'龚自珍，清代思想家、文学家，著有《己亥杂诗》315首。'}] },
   { id:'l4', unit:2, type:'日积月累', title:'日积月累·惜时', pinyin:'rì jī yuè lěi', author:'',
     content:'不饱食以终日，不弃功于寸阴。\n——葛洪\n\n盛年不重来，一日难再晨。\n及时当勉励，岁月不待人。\n——陶渊明\n\n莫等闲，白了少年头，空悲切。\n——岳飞',
     contentPinyin:'bù bǎo shí yǐ zhōng rì, bù qì gōng yú cùn yīn\n——gě hóng\n\nshèng nián bù chóng lái, yī rì nán zài chén\njí shí dāng miǎn lì, suì yuè bú dài rén\n——táo yuān míng\n\nmò děng xián, bái le shào nián tóu, kōng bēi qiè\n——yuè fēi',
     keywords:[{w:'寸阴',py:'cùn yīn',desc:'短暂的时间'},{w:'盛年',py:'shèng nián',desc:'壮年'},{w:'勉励',py:'miǎn lì',desc:'劝勉鼓励'},{w:'等闲',py:'děng xián',desc:'轻易、随便'}],
     annotation:'这几则名言都告诉我们要珍惜时间，不要虚度光阴。',
     translation:'不要整天吃饱了饭什么事也不做，不要浪费一分一秒的时间。壮年不会再来，一天不会有两个早晨。要及时努力，岁月不等人。不要轻易地让少年时光白白流逝，到老了才空自悲伤。',
-    quiz:[{q:'"寸阴"指什么？',opts:['一尺长','短暂的时间','阴暗'],ans:1},{q:'"盛年不重来"出自谁？',opts:['岳飞','葛洪','陶渊明'],ans:2}] },
+    quiz:[{q:'"寸阴"指什么？',opts:['一尺长','短暂的时间','阴暗'],ans:1,exp:'寸阴比喻极短的时间，古人用日影移动一寸来比喻时间短暂。'},{q:'"盛年不重来"出自谁？',opts:['岳飞','葛洪','陶渊明'],ans:2,exp:'出自陶渊明《杂诗》，意为壮年不会再来。'},{q:'"不弃功于寸阴"的意思是？',opts:['不要在短暂时间里放弃努力','一寸长的功夫','不要丢掉功夫'],ans:0,exp:'意为不要在极短的时间里放弃努力，要珍惜每一分每一秒。'},{q:'"莫等闲"中"等闲"的意思是？',opts:['等待','轻易、随便','空闲'],ans:1,exp:'等闲意为轻易、随便，莫等闲就是不要轻易虚度光阴。'}] },
   { id:'l5', unit:3, type:'古诗', title:'山居秋暝', pinyin:'shān jū qiū míng', author:'王维',
     content:'空山新雨后，天气晚来秋。\n明月松间照，清泉石上流。\n竹喧归浣女，莲动下渔舟。\n随意春芳歇，王孙自可留。',
     contentPinyin:'kōng shān xīn yǔ hòu, tiān qì wǎn lái qiū\nmíng yuè sōng jiān zhào, qīng quán shí shàng liú\nzhú xuān guī huàn nǚ, lián dòng xià yú zhōu\nsuí yì chūn fāng xiē, wáng sūn zì kě liú',
     keywords:[{w:'暝',py:'míng',desc:'日落，天色将晚'},{w:'浣女',py:'huàn nǚ',desc:'洗衣服的女子'},{w:'歇',py:'xiē',desc:'凋谢'},{w:'王孙',py:'wáng sūn',desc:'原指贵族子弟，这里指诗人自己'}],
     annotation:'诗人描绘了秋雨初晴后山村的旖旎风光，表达了对田园生活的热爱。',
     translation:'空旷的山中刚下过一场雨，傍晚时分天气已经有了秋意。明亮的月光洒在松林间，清澈的泉水在石头上流淌。竹林里传来洗衣女子归来的喧笑声，莲叶晃动是渔船顺流而下。任凭春天的花草凋谢，我仍可以留在山中。',
-    quiz:[{q:'"山居秋暝"的作者是谁？',opts:['李白','王维','杜甫'],ans:1},{q:'"暝"是什么意思？',opts:['明亮','日落、天色将晚','眼睛'],ans:1}] },
+    quiz:[{q:'"山居秋暝"的作者是谁？',opts:['李白','王维','杜甫'],ans:1,exp:'王维，唐代诗人，有"诗佛"之称，擅长山水田园诗。'},{q:'"暝"是什么意思？',opts:['明亮','日落、天色将晚','眼睛'],ans:1,exp:'暝指日落、天色将晚。秋暝即秋天的傍晚。'},{q:'"清泉石上流"描写了什么？',opts:['泉水在石头上流淌','石头在流动','泉水很清澈'],ans:0,exp:'描绘了山间清澈的泉水在石头上流淌的宁静画面。'},{q:'这首诗表达了诗人怎样的情感？',opts:['对田园生活的喜爱','对官场的向往','对战争的厌恶'],ans:0,exp:'诗人描绘了秋雨后的山村美景，表达了对田园生活的热爱和留恋。'}] },
   { id:'l6', unit:3, type:'古诗', title:'枫桥夜泊', pinyin:'fēng qiáo yè bó', author:'张继',
     content:'月落乌啼霜满天，\n江枫渔火对愁眠。\n姑苏城外寒山寺，\n夜半钟声到客船。',
     contentPinyin:'yuè luò wū tí shuāng mǎn tiān\njiāng fēng yú huǒ duì chóu mián\ngū sū chéng wài hán shān sì\nyè bàn zhōng shēng dào kè chuán',
     keywords:[{w:'泊',py:'bó',desc:'停船靠岸'},{w:'愁眠',py:'chóu mián',desc:'怀着忧愁入睡'},{w:'姑苏',py:'gū sū',desc:'苏州的别称'},{w:'寒山寺',py:'hán shān sì',desc:'苏州城外的寺庙'}],
     annotation:'诗人夜泊枫桥，通过描写秋夜的景色和钟声，表达了旅途中的孤独和愁思。',
     translation:'月亮落下去了，乌鸦啼叫，寒霜漫天。江边的枫树和渔船上的灯火，陪伴着忧愁入睡的人。姑苏城外的寒山寺里，半夜敲响的钟声传到了客船上。',
-    quiz:[{q:'"姑苏"指哪里？',opts:['杭州','苏州','南京'],ans:1},{q:'诗中描写了什么季节？',opts:['春天','夏天','秋天'],ans:2}] },
+    quiz:[{q:'"姑苏"指哪里？',opts:['杭州','苏州','南京'],ans:1,exp:'姑苏是苏州的别称，因姑苏山而得名。'},{q:'诗中描写了什么季节？',opts:['春天','夏天','秋天'],ans:2,exp:'"霜满天"是秋天的特征，描写的是深秋夜景。'},{q:'"夜半钟声到客船"表达了什么？',opts:['旅人的孤独愁思','钟声很好听','寺庙很近'],ans:0,exp:'半夜钟声传到客船，衬托了诗人旅途中的孤独与忧愁。'},{q:'"对愁眠"中"愁眠"的意思是？',opts:['愁得睡不着','怀着忧愁入睡','睡眠不好'],ans:1,exp:'愁眠意为怀着忧愁入睡，形容诗人旅途中的愁苦心情。'}] },
   { id:'l7', unit:4, type:'古诗', title:'长相思', pinyin:'zhǎng xiāng sī', author:'纳兰性德',
     content:'山一程，水一程，\n身向榆关那畔行，夜深千帐灯。\n风一更，雪一更，\n聒碎乡心梦不成，故园无此声。',
     contentPinyin:'shān yī chéng, shuǐ yī chéng\nshēn xiàng yú guān nà pàn xíng, yè shēn qiān zhàng dēng\nfēng yī gēng, xuě yī gēng\nguō suì xiāng xīn mèng bù chéng, gù yuán wú cǐ shēng',
     keywords:[{w:'榆关',py:'yú guān',desc:'山海关'},{w:'聒',py:'guō',desc:'声音嘈杂'},{w:'乡心',py:'xiāng xīn',desc:'思念故乡的心'},{w:'故园',py:'gù yuán',desc:'故乡'}],
     annotation:'词人跟随军队远征，描写了行军途中的艰辛和对故乡的深切思念。',
     translation:'走过一程又一程的山，涉过一程又一程的水，朝着山海关那边行进。夜深了，千万顶帐篷里还亮着灯。风刮了一更又一更，雪下了一更又一更，嘈杂的风雪声搅碎了思乡的心，连梦也做不成。故乡没有这种声音啊。',
-    quiz:[{q:'"榆关"指什么？',opts:['榆林','山海关','玉门关'],ans:1},{q:'这首词表达了什么感情？',opts:['喜悦','思乡','愤怒'],ans:1}] },
+    quiz:[{q:'"榆关"指什么？',opts:['榆林','山海关','玉门关'],ans:1,exp:'榆关即山海关，是长城东端的重要关隘。'},{q:'这首词表达了什么感情？',opts:['喜悦','思乡','愤怒'],ans:1,exp:'词人随军远征，风雪声中思乡情切，表达了深切的思乡之情。'},{q:'"聒碎乡心"中"聒"的意思是？',opts:['吵闹、声音嘈杂','割破','寒冷'],ans:0,exp:'聒意为声音嘈杂，风雪声吵得人思乡之心碎裂，梦也做不成。'},{q:'"故园无此声"暗示了什么？',opts:['故乡很安静','故乡没有风雪','诗人想念故乡'],ans:2,exp:'说故乡没有这种风雪声，暗示诗人身在异乡、心系故园。'}] },
   { id:'l8', unit:4, type:'古诗', title:'蝉', pinyin:'chán', author:'虞世南',
     content:'垂緌饮清露，\n流响出疏桐。\n居高声自远，\n非是藉秋风。',
     contentPinyin:'chuí ruí yǐn qīng lù\nliú xiǎng chū shū tóng\njū gāo shēng zì yuǎn\nfēi shì jiè qiū fēng',
     keywords:[{w:'緌',py:'ruí',desc:'帽带，指蝉的触须'},{w:'藉',py:'jiè',desc:'凭借'},{w:'疏',py:'shū',desc:'稀疏'}],
     annotation:'诗人借蝉表达：品德高尚的人不必借助外力，自然会声名远扬。',
     translation:'蝉垂下触须饮着清露，响亮的鸣叫声从稀疏的梧桐树中传出。身居高处，声音自然传得远，并不是凭借秋风的力量。',
-    quiz:[{q:'诗人借蝉表达了什么道理？',opts:['蝉很好吃','品德高尚的人自然有名声','蝉很吵'],ans:1}] },
+    quiz:[{q:'诗人借蝉表达了什么道理？',opts:['蝉很好吃','品德高尚的人自然有名声','蝉很吵'],ans:1,exp:'蝉居高处声音自远，比喻品德高尚者不需外力，自然声名远扬。'},{q:'"非是藉秋风"中"藉"的意思是？',opts:['借着、凭借','踩踏','编织'],ans:0,exp:'藉意为凭借，全句意为并非凭借秋风的力量传远。'},{q:'"垂緌饮清露"描写了蝉的什么？',opts:['蝉喝露水，品格高洁','蝉口渴了','蝉在喝水'],ans:0,exp:'緌是蝉的触须，饮清露象征高洁的品格，是咏物喻人的手法。'},{q:'这首诗的作者是？',opts:['虞世南','骆宾王','李商隐'],ans:0,exp:'虞世南，初唐书法家、文学家，与欧阳询等并称"初唐四杰"。'}] },
   { id:'l9', unit:5, type:'日积月累', title:'日积月累·勤俭', pinyin:'qín jiǎn', author:'',
     content:'一粥一饭，当思来处不易；\n半丝半缕，恒念物力维艰。\n——朱柏庐《朱子家训》\n\n由俭入奢易，由奢入俭难。\n——司马光\n\n取之有度，用之有节，则常足。\n——《资治通鉴》',
     contentPinyin:'yī zhōu yī fàn, dāng sī lái chù bù yì\nbàn sī bàn lǚ, héng niàn wù lì wéi jiān\n——zhū bǎi lú zhū zǐ jiā xùn\n\nyóu jiǎn rù shē yì, yóu shē rù jiǎn nán\n——sī mǎ guāng\n\nqǔ zhī yǒu dù, yòng zhī yǒu jié, zé cháng zú\n——zī zhì tōng jiàn',
     keywords:[{w:'恒',py:'héng',desc:'经常'},{w:'维艰',py:'wéi jiān',desc:'很艰难'},{w:'奢',py:'shē',desc:'奢侈'},{w:'度',py:'dù',desc:'限度'}],
     annotation:'这些格言教导我们要勤俭节约，珍惜劳动成果。',
     translation:'一粒米一碗饭，应当想到它来之不易；半根丝半缕线，经常想到物资的艰难。从节俭到奢侈容易，从奢侈到节俭困难。索取有限度，使用有节制，就常常能满足。',
-    quiz:[{q:'"由俭入奢易"下一句是？',opts:['由奢入俭难','由奢入俭易','由俭入俭难'],ans:0}] },
+    quiz:[{q:'"由俭入奢易"下一句是？',opts:['由奢入俭难','由奢入俭易','由俭入俭难'],ans:0,exp:'司马光的名言，意为从节俭到奢侈容易，从奢侈回到节俭就难了。'},{q:'"一粥一饭，当思来处不易"出自哪本书？',opts:['《朱子家训》','《论语》','《三字经》'],ans:0,exp:'出自朱柏庐《朱子家训》，教导人们珍惜粮食。'},{q:'"取之有度，用之有节"的意思是？',opts:['索取有限度，使用有节制','取东西要有尺度','用东西要有节奏'],ans:0,exp:'意为索取和使用资源都要有节制，这样才能长足。'},{q:'这些格言的共同主题是什么？',opts:['勤俭节约','读书学习','珍惜时间'],ans:0,exp:'三则格言都强调勤俭节约、珍惜劳动成果。'}] },
   { id:'l10', unit:6, type:'古诗', title:'渔歌子', pinyin:'yú gē zǐ', author:'张志和',
     content:'西塞山前白鹭飞，\n桃花流水鳜鱼肥。\n青箬笠，绿蓑衣，\n斜风细雨不须归。',
     contentPinyin:'xī sāi shān qián bái lù fēi\ntáo huā liú shuǐ guì yú féi\nqīng ruò lì, lǜ suō yī\nxié fēng xì yǔ bù xū guī',
     keywords:[{w:'鳜鱼',py:'guì yú',desc:'一种美味的淡水鱼'},{w:'箬笠',py:'ruò lì',desc:'竹叶编的帽子'},{w:'蓑衣',py:'suō yī',desc:'草编的雨衣'}],
     annotation:'这首词描绘了江南水乡春汛期的优美风光和渔人的生活，表达了对自然美景的热爱。',
     translation:'西塞山前白鹭在飞翔，桃花盛开，江水上涨，鳜鱼正肥美。戴着青色斗笠，穿着绿色蓑衣，在斜风细雨中钓鱼，不用急着回家。',
-    quiz:[{q:'"鳜鱼"是什么？',opts:['一种鸟','一种美味淡水鱼','一种花'],ans:1}] },
+    quiz:[{q:'"鳜鱼"是什么？',opts:['一种鸟','一种美味淡水鱼','一种花'],ans:1,exp:'鳜鱼是一种珍贵的淡水鱼，肉质鲜美，又称桂鱼。'},{q:'"青箬笠，绿蓑衣"描写的是谁？',opts:['渔夫','农夫','诗人'],ans:0,exp:'箬笠是竹叶斗笠，蓑衣是草编雨衣，描写渔夫的装扮。'},{q:'"斜风细雨不须归"表达了什么？',opts:['渔人沉醉美景不愿归去','风太大回不去','渔夫没有家'],ans:0,exp:'渔人被江南春雨美景吸引，不急于回家，表现了悠然自得。'},{q:'这首词描写的是什么季节？',opts:['春天','夏天','秋天'],ans:0,exp:'"桃花流水"点明是春天，桃花盛开、江水上涨的时节。'}] },
   { id:'l11', unit:7, type:'古诗', title:'观书有感', pinyin:'guān shū yǒu gǎn', author:'朱熹',
     content:'半亩方塘一鉴开，\n天光云影共徘徊。\n问渠那得清如许？\n为有源头活水来。',
     contentPinyin:'bàn mǔ fāng táng yī jiàn kāi\ntiān guāng yún yǐng gòng pái huái\nwèn qú nà dé qīng rú xǔ\nwèi yǒu yuán tóu huó shuǐ lái',
     keywords:[{w:'鉴',py:'jiàn',desc:'镜子'},{w:'徘徊',py:'pái huái',desc:'来回移动'},{w:'渠',py:'qú',desc:'它'},{w:'活水',py:'huó shuǐ',desc:'流动的水'}],
     annotation:'诗人借方塘比喻人的心智，说明只有不断学习新知识，思想才能保持清明。',
     translation:'半亩大的方形池塘像一面镜子打开，天光和云影在水中来回移动。要问它为什么这样清澈？因为有源头的活水不断流来。',
-    quiz:[{q:'这首诗用"方塘"比喻什么？',opts:['池塘','人的心智','镜子'],ans:1},{q:'"为有源头活水来"告诉我们什么？',opts:['多喝水','不断学习','经常洗东西'],ans:1}] },
+    quiz:[{q:'这首诗用"方塘"比喻什么？',opts:['池塘','人的心智','镜子'],ans:1,exp:'方塘比喻人的心智，池水清澈比喻思想清明。'},{q:'"为有源头活水来"告诉我们什么？',opts:['多喝水','不断学习','经常洗东西'],ans:1,exp:'活水比喻不断学习新知识，心智才能保持清明活跃。'},{q:'"天光云影共徘徊"描写了什么？',opts:['天光云影在水中倒映移动','天上云在飘','光影在跳舞'],ans:0,exp:'描写池塘水面映照天光和云影来回移动的美景。'},{q:'这首诗的作者是谁？',opts:['朱熹','苏轼','王安石'],ans:0,exp:'朱熹，南宋理学家，这首诗用比喻说理，强调不断学习的重要性。'}] },
   { id:'l12', unit:7, type:'日积月累', title:'日积月累·读书', pinyin:'dú shū míng yán', author:'',
     content:'读书破万卷，下笔如有神。\n——杜甫\n\n书犹药也，善读之可以医愚。\n——刘向\n\n旧书不厌百回读，熟读深思子自知。\n——苏轼',
     contentPinyin:'dú shū pò wàn juàn, xià bǐ rú yǒu shén\n——dù fǔ\n\nshū yóu yào yě, shàn dú zhī kě yǐ yī yú\n——liú xiàng\n\njiù shū bù yàn bǎi huí dú, shú dú shēn sī zǐ zì zhī\n——sū shì',
     keywords:[{w:'犹',py:'yóu',desc:'如同'},{w:'善',py:'shàn',desc:'善于'},{w:'医愚',py:'yī yú',desc:'医治愚昧'},{w:'厌',py:'yàn',desc:'满足'}],
     annotation:'这些名言都强调了读书的重要性，鼓励大家多读书、读好书。',
     translation:'读了很多书，写起文章来就像有神助一样。书就像药一样，善于读它可以医治愚昧。旧书不满足于读一百遍，熟读深思后你自己就会明白其中的道理。',
-    quiz:[{q:'"书犹药也"是谁说的？',opts:['杜甫','刘向','苏轼'],ans:1}] },
+    quiz:[{q:'"书犹药也"是谁说的？',opts:['杜甫','刘向','苏轼'],ans:1,exp:'刘向西汉学者，意为书就像药一样，善于读书可以医治愚昧。'},{q:'"读书破万卷"的下一句是？',opts:['下笔如有神','熟读深思','善读医愚'],ans:0,exp:'杜甫名句，意为读了很多书后写文章就像有神助。'},{q:'"旧书不厌百回读"是谁说的？',opts:['杜甫','刘向','苏轼'],ans:2,exp:'苏轼名句，意为经典好书读一百遍也不满足，熟读深思自能领悟。'},{q:'这些名言的共同主题是？',opts:['读书的重要性','节约的重要性','时间的重要性'],ans:0,exp:'三则名言都强调要多读书、善读书、反复读经典。'}] },
   { id:'l13', unit:8, type:'古诗', title:'墨梅', pinyin:'mò méi', author:'王冕',
     content:'吾家洗砚池头树，\n朵朵花开淡墨痕。\n不要人夸好颜色，\n只留清气满乾坤。',
     contentPinyin:'wú jiā xǐ yàn chí tóu shù\nduǒ duǒ huā kāi dàn mò hén\nbù yào rén kuā hǎo yán sè\nzhǐ liú qīng qì mǎn qián kūn',
@@ -3268,8 +3518,9 @@ function renderFangxiePage() {
   });
   navHtml += '</div>';
   navHtml += '<div style="display:flex;gap:8px;margin-bottom:14px;">';
-  navHtml += '<button style="padding:6px 16px;border-radius:20px;font-size:13px;font-weight:600;cursor:pointer;border:2px solid #f0a020;background:#fff8e0;color:#f0a020;transition:0.2s;font-family:inherit;" onclick="checkFangxieAnswers()">检查答案</button>';
+  navHtml += '<button style="padding:6px 16px;border-radius:20px;font-size:13px;font-weight:600;cursor:pointer;border:2px solid #f0a020;background:#fff8e0;color:#f0a020;transition:0.2s;font-family:inherit;" onclick="checkFangxieAnswers()">📝 智能批改</button>';
   navHtml += '<button style="padding:6px 16px;border-radius:20px;font-size:13px;font-weight:600;cursor:pointer;border:2px solid #e8e0d0;background:#fff;color:#8a7a5a;transition:0.2s;font-family:inherit;" onclick="toggleFangxieAnswers()">' + (fangxieShowAnswers ? '隐藏答案' : '显示答案') + '</button>';
+  navHtml += '<button style="padding:6px 16px;border-radius:20px;font-size:13px;font-weight:600;cursor:pointer;border:2px solid #e8e0d0;background:#fff;color:#8a7a5a;transition:0.2s;font-family:inherit;" onclick="showExerciseHistory(\'fangxie:u' + fangxieUnit + '\')">📜 记录</button>';
   navHtml += '</div>';
   
   var u = FANGXIE_DATA[fangxieUnit];
@@ -3294,7 +3545,7 @@ function renderFangxiePage() {
       // 仿写填空
       ex.blanks.forEach(function(blank, bi) {
         html += '<div style="font-size:14px;color:#5c4a2e;line-height:2.4;padding:4px 8px;background:#fafbff;border-radius:6px;margin-bottom:8px;border:1px solid #eef2f7;">';
-        html += renderFangxieBlank(blank, exId, bi);
+        html += renderFangxieBlank(blank, exId, bi, ex.pattern);
         html += '</div>';
       });
       html += '</div>';
@@ -3304,10 +3555,11 @@ function renderFangxiePage() {
   });
   
   html += '</div>';
+  html += '<div style="text-align:center;margin-top:20px;padding-bottom:20px;"><button style="padding:10px 32px;border-radius:25px;font-size:16px;font-weight:700;cursor:pointer;border:none;background:linear-gradient(135deg,#f0a020,#f5c842);color:#fff;transition:0.2s;font-family:inherit;box-shadow:0 4px 16px rgba(240,160,32,0.3);" onclick="checkFangxieAnswers()">📝 提交批改</button></div>';
   container.innerHTML = html;
 }
 
-function renderFangxieBlank(str, exId, lineIdx) {
+function renderFangxieBlank(str, exId, lineIdx, pattern) {
   var parts = str.split(/[〔〕]/);
   var result = '';
   var answers = [];
@@ -3328,22 +3580,79 @@ function renderFangxieBlank(str, exId, lineIdx) {
     }
   }
   // 下方加练习输入框
-  result += '<div style="margin-top:6px;"><input type="text" placeholder="自己试着写一写" style="width:100%;padding:6px 10px;border:1.5px solid #f0e4c0;border-radius:8px;font-size:14px;font-family:inherit;color:#5c4a2e;outline:none;background:#fafbff;" onfocus="this.style.borderColor=\'#f0a020\'" onblur="this.style.borderColor=\'#f0e4c0\'" data-ref="' + escHtml(answers.join(' / ')) + '"></div>';
+  result += '<div style="margin-top:6px;"><input type="text" placeholder="自己试着写一写" autocomplete="off" autocapitalize="off" spellcheck="false" value="" style="width:100%;padding:6px 10px;border:1.5px solid #f0e4c0;border-radius:8px;font-size:14px;font-family:inherit;color:#5c4a2e;outline:none;background:#fafbff;" onfocus="this.style.borderColor=\'#f0a020\'" onblur="this.style.borderColor=\'#f0e4c0\'" data-ref="' + escHtml(answers.join(' / ')) + '" data-pattern="' + escHtml(pattern || '') + '"></div>';
+  result += '<div class="fx-grade-result" style="margin-top:4px;font-size:12px;min-height:0;"></div>';
   return result;
 }
 
 function checkFangxieAnswers() {
   var inputs = document.querySelectorAll('#chinese-content input[data-ref]');
-  var filled = 0;
+  var correct = 0, filled = 0, total = inputs.length;
+  var wrongArr = [];
   inputs.forEach(function(inp) {
-    if (inp.value.trim() !== '') filled++;
+    var resultDiv = inp.parentElement.nextElementSibling;
+    if (!resultDiv || !resultDiv.classList.contains('fx-grade-result')) {
+      resultDiv = inp.closest('div').parentElement.querySelector('.fx-grade-result');
+    }
+    var text = inp.value.trim();
+    if (!text) {
+      if (resultDiv) { resultDiv.innerHTML = '<span style="color:#b8a080;">⬚ 未填写</span>'; resultDiv.style.minHeight = '18px'; }
+      return;
+    }
+    filled++;
+    var ref = inp.getAttribute('data-ref') || '';
+    var pattern = inp.getAttribute('data-pattern') || '';
+    var grade = gradeFangxieSentence(text, ref, pattern);
+    if (resultDiv) {
+      resultDiv.style.minHeight = '18px';
+      if (grade.pass) {
+        resultDiv.innerHTML = '<span style="color:#7bc043;">✓ ' + grade.reason + '</span>';
+      } else {
+        resultDiv.innerHTML = '<span style="color:#e85555;">✗ ' + grade.reason + '</span>';
+      }
+    }
+    if (grade.pass) {
+      correct++;
+    } else {
+      wrongArr.push({ q: ref, yourAns: text, correctAns: ref });
+    }
   });
-  var total = inputs.length;
   if (filled === 0) {
     showToast('还没有填写哦，先试着写一写吧~', 'info');
-  } else {
-    showToast('已填写 ' + filled + '/' + total + ' 题，继续加油！写完后可以点"显示参考答案"对照一下~', 'success');
+    return;
   }
+  if (correct === filled && filled === total) {
+    showToast('🎉 全部批改通过！太棒了！+5⭐', 'success');
+    appData.points += 5;
+    saveData(appData);
+    burstStars();
+  } else if (correct === filled) {
+    showToast('已填写的 ' + filled + ' 题全部通过！还有 ' + (total - filled) + ' 题未填写~', 'success');
+  } else {
+    showToast('批改完成：' + correct + '/' + filled + ' 题通过，红色标注的需修改~', 'info');
+  }
+  saveExerciseRecord('chinese', 'fangxie:u' + fangxieUnit, correct, total, wrongArr);
+}
+
+function gradeFangxieSentence(text, refAnswer, pattern) {
+  if (!text || text.length < 4) return { pass: false, reason: '句子太短了，再写长一点' };
+  if (text.length > 120) return { pass: false, reason: '句子太长了' };
+  var hasEllipsis = (pattern || '').indexOf('…') !== -1 || (pattern || '').indexOf('×') !== -1;
+  if (hasEllipsis) {
+    var patternKeywords = (pattern || '').replace(/（.*?）/g, '').split(/[…×]/).map(function(s) { return s.trim(); }).filter(function(s) { return s.length >= 1 && /[\u4e00-\u9fa5]/.test(s); });
+    var uniqueKw = [];
+    patternKeywords.forEach(function(pk) { if (uniqueKw.indexOf(pk) === -1) uniqueKw.push(pk); });
+    var missingKw = uniqueKw.filter(function(pk) { return text.indexOf(pk) === -1; });
+    if (missingKw.length > 0) return { pass: false, reason: '句式需要包含：' + missingKw.join('、') };
+  }
+  var hasPunctuation = /[。！？]$/.test(text);
+  if (!hasPunctuation) return { pass: false, reason: '句末需要标点符号（。！？）' };
+  var stripped = text.replace(/[，。！？、\s]/g, '');
+  var repeats = /^([\u4e00-\u9fa5])\1+$/.test(stripped);
+  if (repeats) return { pass: false, reason: '不能只重复同一个字哦' };
+  var chineseChars = (text.match(/[\u4e00-\u9fa5]/g) || []).length;
+  if (chineseChars < 4) return { pass: false, reason: '中文内容太少了' };
+  return { pass: true, reason: '符合要求，语句通顺！' };
 }
 
 function toggleFangxieAnswers() {
@@ -3432,12 +3741,16 @@ function renderChinesePage() {
   var listHtml = progressHtml + '<div class="lesson-list">';
   filtered.forEach(function(l, i) {
     var recited = appData.recitedLessons.indexOf(l.id) !== -1;
-    var active = appData.selectedLessonId === l.id;
-    listHtml += '<div class="lesson-item'+(recited?' recited':'')+(active?' active':'')+'" onclick="selectLesson(\''+l.id+'\')">'+
-      '<span class="l-num">'+(i+1)+'</span>'+
-      '<div class="l-info"><div class="l-title">'+l.title+'</div><div class="l-sub">'+l.author+(l.author?' · ':'')+l.type+'</div></div>'+
-      (recited ? '<span class="l-badge done">✓已背完</span>' : '<span class="l-badge todo">未背诵</span>')+
-      '</div>';
+   var exRec = exerciseRecords['chinese:' + l.id];
+   var dictRec = exerciseRecords['chinese:dict:' + l.id];
+   var active = appData.selectedLessonId === l.id;
+   listHtml += '<div class="lesson-item'+(recited?' recited':'')+(active?' active':'')+'" onclick="selectLesson(\''+l.id+'\')">'+
+     '<span class="l-num">'+(i+1)+'</span>'+
+     '<div class="l-info"><div class="l-title">'+l.title+'</div><div class="l-sub">'+l.author+(l.author?' · ':'')+l.type+'</div></div>'+
+     (recited ? '<span class="l-badge done">✓已背完</span>' : '<span class="l-badge todo">未背诵</span>')+
+     (dictRec ? '<span class="l-badge quiz" style="background:#e8f4e8;color:#5a8a5a;">默'+dictRec.score+'/'+dictRec.total+'</span>' : '')+
+     (exRec ? '<span class="l-badge quiz">'+exRec.score+'/'+exRec.total+'</span>' : '')+
+     '</div>';
   });
   listHtml += '</div>';
   if (filtered.length === 0) listHtml = '<div class="lesson-list"><div class="lesson-empty" style="text-align:center;color:#b8a080;padding:20px;">本单元暂无该类型内容</div></div>';
@@ -3481,6 +3794,7 @@ function renderLessonCard(lesson) {
   var mode = appData.currentLessonMode || 'read';
   // 每次重渲染卡片重置闯关状态（防跨课文污染 / 重复奖励）
   quizAnswers = {};
+  quizWrong = {};
   quizRewarded = false;
 
   var allInUnit = LESSONS.filter(function(l) { return l.unit === lesson.unit && l.type === lesson.type; });
@@ -3532,22 +3846,28 @@ function renderLessonCard(lesson) {
       }
       return line;
     });
-    contentHtml = '<div class="bc-content" style="font-size:22px;">'+blankLines.join('<br>')+'</div>'+
-      '<div id="dictation-result" class="dictation-result"></div>'+
-      '<div style="text-align:center;margin-top:12px;">'+
-        '<button class="check-reading-btn" onclick="checkDictation()">✅ 检查默写</button>&nbsp;'+
-        '<button class="btn btn-cancel" onclick="resetDictation()">🔄 重新默写</button>'+
-      '</div>';
-  } else if (mode === 'quiz') {
-    contentHtml = '<div id="quiz-area">'+lesson.quiz.map(function(q, qi) {
-      return '<div class="quiz-card"><div class="quiz-q">'+(qi+1)+'. '+q.q+'</div>'+
-        q.opts.map(function(opt, oi) {
-          return '<button class="quiz-opt" onclick="answerQuiz('+qi+','+oi+',this)">'+'ABCD'[oi]+'. '+opt+'</button>';
-        }).join('')+
-        '</div>';
-    }).join('') + '</div>' +
-      '<div class="quiz-score" id="quiz-score" style="display:none;"></div>';
-  }
+   var dictRec = exerciseRecords['chinese:dict:' + lesson.id];
+   var dictScoreHtml = dictRec ? '<div style="text-align:center;font-size:13px;color:#b08020;margin-bottom:6px;">上次默写：'+dictRec.score+'/'+dictRec.total+'</div>' : '';
+   contentHtml = dictScoreHtml + '<div class="bc-content" style="font-size:22px;">'+blankLines.join('<br>')+'</div>'+
+    '<div id="dictation-result" class="dictation-result"></div>'+
+    '<div style="text-align:center;margin-top:12px;">'+
+      '<button class="unit-menu-btn" style="font-size:12px;margin-bottom:8px;" onclick="showExerciseHistory(\'dict:'+lesson.id+'\')">📜 历史默写记录</button>'+
+      '<button class="check-reading-btn" onclick="checkDictation()">✅ 检查默写</button>&nbsp;'+
+      '<button class="btn btn-cancel" onclick="resetDictation()">🔄 重新默写</button>'+
+    '</div>';
+ } else if (mode === 'quiz') {
+   var lastRec = exerciseRecords['chinese:' + lesson.id];
+   var lastScoreHtml = lastRec ? '<div style="text-align:center;font-size:13px;color:#b08020;margin-bottom:6px;">上次得分：'+lastRec.score+'/'+lastRec.total+'</div>' : '';
+   var historyBtn = '<div style="text-align:center;margin-bottom:10px;"><button class="unit-menu-btn" style="font-size:12px;" onclick="showExerciseHistory(\''+lesson.id+'\')">📜 历史答题记录</button></div>';
+   contentHtml = lastScoreHtml + historyBtn + '<div id="quiz-area">'+lesson.quiz.map(function(q, qi) {
+     return '<div class="quiz-card"><div class="quiz-q">'+(qi+1)+'. '+q.q+'</div>'+
+       q.opts.map(function(opt, oi) {
+         return '<button class="quiz-opt" onclick="answerQuiz('+qi+','+oi+',this)">'+'ABCD'[oi]+'. '+opt+'</button>';
+       }).join('')+
+       '</div>';
+   }).join('') + '</div>' +
+     '<div class="quiz-score" id="quiz-score" style="display:none;"></div>';
+ }
 
   return '<div class="bc-header"><div class="bc-title">'+lesson.title+'</div>'+
     '<div class="bc-title-pinyin">'+lesson.pinyin+'</div>'+
@@ -3626,9 +3946,10 @@ function markLessonRecited(id) {
 }
 
 var quizAnswers = {};
+var quizWrong = {};
 var quizRewarded = false; // 当前课文全对奖励是否已发放
 function answerQuiz(qi, oi, el) {
-  if (quizAnswers[qi] !== undefined) return; // 每题只能答一次
+  if (quizAnswers[qi] !== undefined) return;
   var lesson = LESSONS.find(function(l) { return l.id === appData.selectedLessonId; });
   if (!lesson) return;
   var q = lesson.quiz[qi];
@@ -3640,30 +3961,101 @@ function answerQuiz(qi, oi, el) {
     if (Array.from(parent.querySelectorAll('.quiz-opt')).indexOf(btn) === q.ans) btn.classList.add('correct');
   });
   quizAnswers[qi] = oi === q.ans;
-  // Check if all done
+  if (!quizAnswers[qi]) {
+    quizWrong[qi] = { q: q.q, yourAns: q.opts[oi], correctAns: q.opts[q.ans], exp: q.exp || '' };
+  }
   if (Object.keys(quizAnswers).length >= lesson.quiz.length) {
     var correct = Object.values(quizAnswers).filter(function(v) { return v; }).length;
     var total = lesson.quiz.length;
+    var wrongArr = Object.keys(quizWrong).map(function(k){ return quizWrong[k]; });
+    saveExerciseRecord('chinese', lesson.id, correct, total, wrongArr);
     var scoreEl = document.getElementById('quiz-score');
     scoreEl.style.display = 'block';
+    var html = '';
     if (correct === total) {
       scoreEl.className = 'quiz-score great';
-      scoreEl.textContent = '🎉 太棒了！全对！+10⭐';
-      if (!quizRewarded) {
-        quizRewarded = true;
-        appData.points += 10;
-        saveData(appData);
-        burstStars();
-      }
+      html = '🎉 太棒了！全对！+10⭐';
+      if (!quizRewarded) { quizRewarded = true; appData.points += 10; saveData(appData); burstStars(); }
     } else if (correct >= total/2) {
       scoreEl.className = 'quiz-score good';
-      scoreEl.textContent = '👍 答对 '+correct+'/'+total+'，不错哦！';
+      html = '👍 答对 '+correct+'/'+total+'，不错哦！';
     } else {
       scoreEl.className = 'quiz-score';
       scoreEl.style.color = '#e85555';
-      scoreEl.textContent = '💪 答对 '+correct+'/'+total+'，再试试吧！';
+      html = '💪 答对 '+correct+'/'+total+'，再试试吧！';
     }
+    if (wrongArr.length > 0) {
+      html += '<div style="margin-top:10px;text-align:left;font-size:13px;color:#888;">';
+      wrongArr.forEach(function(w) {
+        html += '<div style="margin-bottom:6px;padding:6px 10px;background:#fff8f0;border-radius:8px;">';
+        html += '<div style="font-weight:700;color:#5c4a2e;">✗ '+w.q+'</div>';
+        html += '<div style="color:#e85555;">你选：'+w.yourAns+'</div>';
+        html += '<div style="color:#7bc043;">正确：'+w.correctAns+'</div>';
+        if (w.exp) html += '<div style="color:#888;margin-top:2px;">'+w.exp+'</div>';
+        html += '</div>';
+      });
+      html += '</div>';
+    }
+    html += '<button class="check-reading-btn" style="margin-top:10px;" onclick="retryQuiz()">🔄 再来一次</button>';
+    scoreEl.innerHTML = html;
   }
+}
+function retryQuiz() {
+  quizAnswers = {};
+  quizWrong = {};
+  quizRewarded = false;
+  renderChinesePage();
+}
+
+function showExerciseHistory(lessonId, subject) {
+  var subj = subject || 'chinese';
+  var fullKey = subj + ':' + lessonId;
+  var rec = exerciseRecords[fullKey];
+  if (!rec) {
+    var prefix = fullKey + ':';
+    var matched = [];
+    var keys = Object.keys(exerciseRecords);
+    for (var k = 0; k < keys.length; k++) {
+      if (keys[k].indexOf(prefix) === 0) matched.push(exerciseRecords[keys[k]]);
+    }
+    if (matched.length === 0) { showToast('暂无答题记录', 'info'); return; }
+    var totScore = 0, totTotal = 0, allWrong = [];
+    matched.forEach(function(r) { totScore += r.score || 0; totTotal += r.total || 0; if (r.wrong) allWrong = allWrong.concat(r.wrong); });
+    rec = { score: totScore, total: totTotal, wrong: allWrong, created_at: matched[matched.length - 1].created_at || '' };
+  }
+  var pct = Math.round(rec.score / rec.total * 100);
+  var gradeColor = pct >= 75 ? '#7bc043' : pct >= 50 ? '#f0a020' : '#e85555';
+  var gradeText = pct === 100 ? '🎉 全对！太棒了！' : pct >= 75 ? '👍 不错哦！' : pct >= 50 ? '💪 继续加油！' : '📚 多练习一下~';
+  var html = '<div style="text-align:center;margin-bottom:14px;">';
+  html += '<div style="font-size:32px;font-weight:800;color:'+gradeColor+';">'+rec.score+'<span style="font-size:18px;color:#bbb;">/'+rec.total+'</span></div>';
+  html += '<div style="font-size:13px;color:#888;margin-top:4px;">正确率 '+pct+'% · '+gradeText+'</div>';
+  html += '<div style="font-size:12px;color:#bbb;margin-top:2px;">'+(rec.created_at||'')+'</div>';
+  html += '</div>';
+  var wrong = rec.wrong || [];
+  if (wrong.length > 0) {
+    html += '<div style="font-size:13px;font-weight:700;color:#5c4a2e;margin-bottom:8px;">错题回顾（'+wrong.length+'题）</div>';
+    wrong.forEach(function(w, i) {
+      html += '<div style="margin-bottom:8px;padding:10px 12px;background:#fff8f0;border-radius:10px;border-left:3px solid #e85555;">';
+      html += '<div style="font-weight:700;font-size:14px;color:#5c4a2e;margin-bottom:4px;">'+(i+1)+'. '+w.q+'</div>';
+      if (w.yourAns) html += '<div style="font-size:13px;color:#e85555;">❌ 你的答案：'+w.yourAns+'</div>';
+      if (w.correctAns) html += '<div style="font-size:13px;color:#7bc043;">✅ 正确答案：'+w.correctAns+'</div>';
+      if (w.exp) html += '<div style="font-size:12px;color:#888;margin-top:4px;line-height:1.5;">💡 '+w.exp+'</div>';
+      html += '</div>';
+    });
+  } else {
+    html += '<div style="text-align:center;padding:16px;color:#7bc043;font-size:14px;font-weight:600;">🌟 全部答对，没有错题！</div>';
+  }
+ html += '<div style="text-align:center;margin-top:14px;"><button class="check-reading-btn" onclick="this.closest(\'.ex-hist-overlay\').remove()">关闭</button></div>';
+ var overlay = document.createElement('div');
+ overlay.className = 'ex-hist-overlay';
+ overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:99998;display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity .25s;';
+ overlay.onclick = function(e) { if (e.target === overlay) { overlay.style.opacity='0'; setTimeout(function(){ overlay.remove(); }, 250); } };
+ var box = document.createElement('div');
+ box.style.cssText = 'background:#fff;border-radius:20px;padding:24px 20px;width:90%;max-width:420px;max-height:80vh;overflow-y:auto;box-shadow:0 12px 40px rgba(0,0,0,0.2);transform:scale(.85);transition:transform .25s cubic-bezier(.34,1.56,.64,1);';
+ box.innerHTML = '<div style="font-size:17px;font-weight:700;color:#5c4a2e;text-align:center;margin-bottom:16px;">📜 历史答题记录</div>' + html;
+ overlay.appendChild(box);
+ document.body.appendChild(overlay);
+ requestAnimationFrame(function() { overlay.style.opacity='1'; box.style.transform='scale(1)'; });
 }
 
 function fillBlank(el) {
@@ -3674,9 +4066,13 @@ function fillBlank(el) {
   input.className = 'blank-input';
   input.style.cssText = 'border:1px solid #f0a020;border-radius:6px;padding:2px 6px;font-size:inherit;width:80px;text-align:center;background:#fff;';
   input.maxLength = 20;
-  var originalText = el.textContent;
   el.textContent = '';
   el.appendChild(input);
+  input.value = '';
+  input.setAttribute('autocomplete', 'off');
+  input.setAttribute('autocapitalize', 'off');
+  input.setAttribute('autocorrect', 'off');
+  input.setAttribute('spellcheck', 'false');
   input.focus();
   function commit() {
     var ans = input.value.trim();
@@ -3686,7 +4082,9 @@ function fillBlank(el) {
       el.classList.add('filled');
       if (ans !== correctAns) el.classList.add('wrong');
     } else {
-      el.textContent = originalText;
+      el.textContent = '___';
+      el.classList.remove('filled');
+      el.classList.remove('wrong');
     }
   }
   input.addEventListener('blur', commit);
@@ -3694,24 +4092,25 @@ function fillBlank(el) {
 }
 
 function checkDictation() {
-  var blanks = document.querySelectorAll('.dictation-blank');
-  var correct = 0, total = blanks.length;
-  blanks.forEach(function(b) {
-    if (b.textContent === b.dataset.ans) { correct++; b.classList.remove('wrong'); b.classList.add('filled'); }
-    else b.classList.add('wrong');
-  });
-  var res = document.getElementById('dictation-result');
-  res.style.display = 'block';
-  if (correct === total) {
-    res.innerHTML = '🎉 全部正确！太厉害了！+5⭐';
-    res.style.background = '#e6faf7';
-    appData.points += 5;
-    saveData(appData);
-    burstStars();
-  } else {
-    res.innerHTML = '📝 还有 '+(total-correct)+' 个字不对哦，红色的字需要修改，点击重新填写吧！';
-    res.style.background = '#fff8e0';
-  }
+ var blanks = document.querySelectorAll('.dictation-blank');
+ var correct = 0, total = blanks.length; var wrongArr = [];
+ blanks.forEach(function(b) {
+   if (b.textContent === b.dataset.ans) { correct++; b.classList.remove('wrong'); b.classList.add('filled'); }
+   else { b.classList.add('wrong'); wrongArr.push({ q: b.dataset.ans, yourAns: b.textContent, correctAns: b.dataset.ans }); }
+ });
+ saveExerciseRecord('chinese', 'dict:' + appData.selectedLessonId, correct, total, wrongArr);
+ var res = document.getElementById('dictation-result');
+ res.style.display = 'block';
+ if (correct === total) {
+   res.innerHTML = '🎉 全部正确！太厉害了！+5⭐';
+   res.style.background = '#e6faf7';
+   appData.points += 5;
+   saveData(appData);
+   try { burstStars(); } catch(e) { console.error('[checkDictation] burstStars error:', e); }
+} else {
+  res.innerHTML = '📝 还有 '+(total-correct)+' 个字不对哦，红色的字需要修改，点击重新填写吧！';
+  res.style.background = '#fff8e0';
+}
 }
 
 function resetDictation() {
@@ -3749,11 +4148,13 @@ function renderReadingList(unit) {
       '<div class="reading-text">'+r.text+'</div>'+
       r.questions.map(function(q, qi) {
         return '<div class="reading-q"><span class="rq-label">'+(qi+1)+'. '+q.q+'</span>'+
-          '<input type="text" id="r'+r.id+'q'+qi+'" placeholder="请回答...">'+
+          '<input type="text" id="r'+r.id+'q'+qi+'" placeholder="请回答..." autocomplete="off" autocapitalize="off" spellcheck="false" value="">'+
           '<div class="reading-result" id="r'+r.id+'r'+qi+'">正确答案：'+q.ans+'</div></div>';
-      }).join('')+
-      '<button class="check-reading-btn" onclick="checkReadingAnswers(\''+r.id+'\','+r.questions.length+')">✅ 检查答案</button>'+
-      '</div>';
+     }).join('')+
+     (function() { var rr = exerciseRecords['chinese:reading:'+r.id]; return rr ? '<div style="font-size:12px;color:#b08020;margin-bottom:4px;">上次得分：'+rr.score+'/'+rr.total+'</div>' : ''; })()+
+     '<button class="check-reading-btn" onclick="checkReadingAnswers(\''+r.id+'\','+r.questions.length+')">✅ 检查答案</button>'+
+     '<button class="unit-menu-btn" style="font-size:12px;margin-left:8px;" onclick="showExerciseHistory(\'reading:'+r.id+'\')">📜 记录</button>'+
+     '</div>';
   });
   container.innerHTML = html || '<div style="text-align:center;color:#b8a080;padding:40px;">暂无该单元阅读材料</div>';
 }
@@ -3773,10 +4174,11 @@ function checkReadingAnswers(id, count) {
   var ex = READING_EXERCISES.find(function(r) { return r.id === id; });
   if (!ex) return;
   // 已检查过（输入框已锁定）则直接返回，防止连点重复得分
-  var firstInput = document.getElementById('r'+id+'q0');
-  if (firstInput && firstInput.disabled) return;
-  var correct = 0;
-  for (var qi = 0; qi < count; qi++) {
+ var firstInput = document.getElementById('r'+id+'q0');
+ if (firstInput && firstInput.disabled) return;
+ var correct = 0;
+ var wrongArr = [];
+ for (var qi = 0; qi < count; qi++) {
     var input = document.getElementById('r'+id+'q'+qi);
     var result = document.getElementById('r'+id+'r'+qi);
     if (!input || !result) continue;
@@ -3789,18 +4191,20 @@ function checkReadingAnswers(id, count) {
       correct++;
       result.className = 'reading-result correct';
       result.textContent = '✓ 正确！';
-    } else {
-      result.className = 'reading-result wrong';
-      result.textContent = '✗ 参考答案：'+realAns;
-    }
-    input.disabled = true;
-  }
+   } else {
+     result.className = 'reading-result wrong';
+     result.textContent = '✗ 参考答案：'+realAns;
+     wrongArr.push({ q: ex.questions[qi].q, yourAns: userAns, correctAns: realAns });
+   }
+   input.disabled = true;
+ }
   if (correct === count) {
     appData.points += 5;
     saveData(appData);
     burstStars();
-    alert('🎉 全部正确！太厉害了！+5⭐');
-  }
+   showToast('全部正确！太厉害了！+5⭐', 'success');
+ }
+ saveExerciseRecord('chinese', 'reading:' + id, correct, count, wrongArr);
 }
 
 // ==================== 宠物系统（图片风格版）====================
@@ -4010,24 +4414,6 @@ function updatePetUI() {
 }
 
 // Toast 通知系统
-var toastTimer = null;
-function showToast(msg, type) {
-  type = type || 'info';
-  var el = document.getElementById('pp-toast');
-  if (!el) {
-    el = document.createElement('div');
-    el.id = 'pp-toast';
-    el.className = 'pp-toast';
-    document.body.appendChild(el);
-  }
-  if (toastTimer) clearTimeout(toastTimer);
-  el.textContent = msg;
-  el.className = 'pp-toast ' + type + ' show';
-  toastTimer = setTimeout(function() {
-    el.classList.add('hide');
-    toastTimer = setTimeout(function() { el.className = 'pp-toast'; }, 300);
-  }, 2200);
-}
 
 // 宠物页面动画
 function animatePetInPage(anim) {
@@ -4313,7 +4699,7 @@ function confirmPetAction() {
     renderPetStep();
     return;
   }
-  if (appData.points < 200) { alert('积分不够啦！需要 200 ⭐ 才能领养宠物，现在只有 ' + appData.points + ' ⭐'); return; }
+  if (appData.points < 200) { showToast('积分不够啦！需要200⭐才能领养宠物，现在只有' + appData.points + '⭐', 'error'); return; }
   var name = document.getElementById('pm-name-input').value.trim() || '小' + PET_STYLES[selectedPetStyle].name + '宝贝';
   appData.points -= 200;
   appData.pet = {
@@ -4389,7 +4775,7 @@ function switchPage(pageName, el) {
   } else if (subjectPages[pageName]) {
   if (pageName === 'labor') { renderLaborPage('records'); return; }
   if (pageName === 'reading') { renderReadingPage('bookshelf'); return; }
-  if (pageName === 'sport') { renderSportPage(appData.sportCat || 'skills'); return; }
+  if (pageName === 'sport') { renderSportPage(appData.sportCat || 'records'); return; }
   var tab = appData.subjectTabs[pageName] || 'daily';
     var tabsEl = document.querySelectorAll('#page-' + pageName + ' .st-tab');
     tabsEl.forEach(function(t) {
@@ -4817,7 +5203,7 @@ function saveTask() {
   var name = document.getElementById('inp-name').value.trim();
   var note = document.getElementById('inp-note').value.trim();
   var editId = document.getElementById('edit-id').value;
-  if (!name) { alert('请输入学习内容~'); return; }
+  if (!name) { showToast('请输入学习内容~', 'error'); return; }
   if (editId) {
     var task = appData.tasks.find(function(t) { return t.id === editId; });
     if (task) { task.subject = subject; task.name = name; task.note = note; }
@@ -4951,8 +5337,8 @@ function toggleWeekday(btn) { var day=parseInt(btn.getAttribute('data-day')); bt
 
 function savePlan() {
   var name = document.getElementById('plan-inp-name').value.trim();
-  if (!name) { alert('请输入计划名称'); return; }
-  if (planFreq==='weekly' && planWeekDays.length===0) { alert('请至少选择一个星期'); return; }
+  if (!name) { showToast('请输入计划名称', 'error'); return; }
+  if (planFreq==='weekly' && planWeekDays.length===0) { showToast('请至少选择一个星期', 'error'); return; }
   var subject = document.getElementById('plan-inp-subject').value;
   var points = parseInt(document.getElementById('plan-inp-points').value) || 5;
   var editId = document.getElementById('plan-edit-id').value;
@@ -5248,7 +5634,7 @@ function renderAdminUsers() {
 
 function approveUser(userId) {
   apiCall('POST', '/api/admin/approve', { userId: userId }).then(function(res) {
-    if (res.error) { alert(res.error); return; }
+    if (res.error) { showToast(res.error, 'error'); return; }
     renderAdminUsers();
   });
 }
@@ -5256,7 +5642,7 @@ function approveUser(userId) {
 function rejectUser(userId) {
   showConfirm('确定要拒绝/删除这个用户吗？该操作不可恢复。', '删除用户', '⚠️', function() {
     apiCall('POST', '/api/admin/reject', { userId: userId }).then(function(res) {
-      if (res.error) { alert(res.error); return; }
+      if (res.error) { showToast(res.error, 'error'); return; }
       renderAdminUsers();
     });
   });
@@ -5270,7 +5656,7 @@ function updateUserSetting(userId, field, value) {
     body.groups = value.split(',').map(function(s) { return s.trim(); }).filter(function(s) { return s; });
   }
   apiCall('POST', '/api/admin/update-user', body).then(function(res) {
-    if (res.error) { alert(res.error); return; }
+    if (res.error) { showToast(res.error, 'error'); return; }
   });
 }
 
@@ -5875,11 +6261,13 @@ function switchMathTab(tab, el) {
   document.getElementById('math-tab-sudoku').style.display = tab === 'sudoku' ? '' : 'none';
   document.getElementById('math-tab-g2048').style.display = tab === 'g2048' ? '' : 'none';
   document.getElementById('math-tab-merge10').style.display = tab === 'merge10' ? '' : 'none';
+  document.getElementById('math-tab-geometry').style.display = tab === 'geometry' ? '' : 'none';
   if (tab === 'calc') renderMathPage();
   if (tab === 'sudoku') { renderSudokuSizes(); renderSudokuLevels(); if (sudokuGame.solution.length === 0) newSudokuGame(); }
  if (tab === 'g2048' && g2048.grid.length === 0) init2048();
   if (tab === 'g2048' && g2048.grid.length > 0) render2048();
   if (tab === 'merge10' && merge10.grid.length === 0) initMerge10();
+  if (tab === 'geometry') { renderBuildCubes(); initAllGeoDrag(); setBuildMode('add'); }
 }
 
 function switchMathCat(cat, el) {
@@ -5888,7 +6276,7 @@ function switchMathCat(cat, el) {
   if (el) el.classList.add('active');
   var subTabs = document.getElementById('math-sub-tabs');
   var review = document.getElementById('math-tab-review');
-  var gameIds = ['math-tab-calc','math-tab-sudoku','math-tab-g2048','math-tab-merge10'];
+  var gameIds = ['math-tab-calc','math-tab-sudoku','math-tab-g2048','math-tab-merge10','math-tab-geometry'];
   if (cat === 'school') {
     subTabs.style.display = 'none';
     document.getElementById('math-sudoku-filters').style.display = 'none';
@@ -5902,6 +6290,341 @@ function switchMathCat(cat, el) {
   }
   saveData(appData);
 }
+
+
+// ==================== 3D几何模块 ====================
+// --- 共享 ---
+function geoShapeHtml(type) {
+  switch(type) {
+    case 'cube':
+      return '<div class="face f-front"></div><div class="face f-back"></div><div class="face f-right"></div><div class="face f-left"></div><div class="face f-top"></div><div class="face f-bottom"></div>';
+    case 'cuboid':
+      return '<div class="face f-front"></div><div class="face f-back"></div><div class="face f-right"></div><div class="face f-left"></div><div class="face f-top"></div><div class="face f-bottom"></div>';
+    case 'cylinder':
+      var s1 = '';
+      for (var i = 0; i < 16; i++) { s1 += '<div class="cyl-side" style="--angle:' + (i*22.5) + 'deg;transform:rotateY(' + (i*22.5) + 'deg) translateZ(40px);"></div>'; }
+      return s1 + '<div class="cyl-top"></div><div class="cyl-bottom"></div>';
+    case 'cone':
+      var s2 = '';
+      for (var i = 0; i < 16; i++) { s2 += '<div class="cone-side" style="--angle:' + (i*22.5) + 'deg;transform:rotateY(' + (i*22.5) + 'deg) rotateX(21.8deg);opacity:' + (0.5 + 0.5 * Math.abs(Math.cos(i*22.5*Math.PI/180))) + ';"></div>'; }
+      return s2 + '<div class="cone-bottom"></div>';
+    case 'sphere':
+      var angles = ['rotateY(0deg)','rotateY(30deg)','rotateY(60deg)','rotateY(90deg)','rotateY(120deg)','rotateY(150deg)','rotateX(45deg)','rotateX(90deg)','rotateX(135deg)'];
+      var sph = '';
+      for (var i = 0; i < angles.length; i++) {
+        sph += '<div class="sph-disk" style="--rt:' + angles[i] + ';transform:' + angles[i] + ';"></div>';
+      }
+      var rings = ['rotateY(0deg)','rotateY(60deg)','rotateY(120deg)','rotateX(90deg)'];
+      for (var i = 0; i < rings.length; i++) {
+        sph += '<div class="sph-ring" style="--rt:' + rings[i] + ';transform:' + rings[i] + ';"></div>';
+      }
+      return sph;
+    case 'pyramid':
+      return '<div class="pyr-face pyr-front"></div><div class="pyr-face pyr-right"></div><div class="pyr-face pyr-left"></div><div class="pyr-face pyr-back"></div><div class="pyr-bottom"></div>';
+    default: return '';
+  }
+}
+
+var GEO_TYPES = {
+  cube:{name:'正方体',cls:'geo-cube'},
+  cuboid:{name:'长方体',cls:'geo-cuboid'},
+  cylinder:{name:'圆柱',cls:'geo-cylinder'},
+  cone:{name:'圆锥',cls:'geo-cone'},
+  sphere:{name:'球',cls:'geo-sphere'},
+  pyramid:{name:'四棱锥',cls:'geo-pyramid'}
+};
+
+// --- 子标签切换 ---
+function switchGeoSub(sub, el) {
+  document.querySelectorAll('.geo-sub-tabs .breadcrumb-item').forEach(function(t){t.classList.remove('active');});
+  if(el) el.classList.add('active');
+  document.getElementById('geo-build').style.display = sub === 'build' ? '' : 'none';
+  document.getElementById('geo-view3d').style.display = sub === 'view3d' ? '' : 'none';
+  if (sub === 'build') renderBuildCubes();
+  if (sub === 'view3d') renderView3d();
+}
+
+// --- 正方形搭建 ---
+var buildCubes = []; // {id, col, row, layer}
+var buildCubeId = 0;
+var buildRotX = -12, buildRotY = 0;
+var buildAutoRotate = false;
+var buildDragging = false;
+var buildMode = 'add'; // 'add' or 'del'
+var GRID_COLS = 6, GRID_ROWS = 5, CELL = 56;
+
+function setBuildMode(mode) {
+  buildMode = mode;
+  document.querySelectorAll('.geo-mode-btn, .geo-add-btn').forEach(function(b){
+    b.classList.remove('active');
+  });
+  if (mode === 'add') {
+    document.getElementById('geo-mode-add').classList.add('active');
+    document.getElementById('geo-build-info').textContent = '🧊 点击地面放置方块，点击已有方块向上叠加';
+  } else {
+    document.getElementById('geo-mode-del').classList.add('active');
+    document.getElementById('geo-build-info').textContent = '✕ 点击方块删除';
+  }
+  // Remove selection
+  buildCubes.forEach(function(c){ c.selected = false; });
+  renderBuildCubes();
+}
+
+function addBuildCube(col, row, layer) {
+  buildCubeId++;
+  buildCubes.push({id:buildCubeId, col:col, row:row, layer:layer, selected:false});
+}
+
+function findCubeAt(col, row, layer) {
+  for (var i = 0; i < buildCubes.length; i++) {
+    if (buildCubes[i].col === col && buildCubes[i].row === row && buildCubes[i].layer === layer) {
+      return buildCubes[i];
+    }
+  }
+  return null;
+}
+
+function maxLayerAt(col, row) {
+  var maxL = -1;
+  buildCubes.forEach(function(c) {
+    if (c.col === col && c.row === row && c.layer > maxL) maxL = c.layer;
+  });
+  return maxL;
+}
+
+function gridToPos(col, row, layer) {
+  // Center the grid: col 0..5 → x, row 0..3 → z (depth), layer → y (up)
+  var x = (col - (GRID_COLS-1)/2) * CELL;
+  var z = (row - (GRID_ROWS-1)/2) * CELL;
+  var y = -layer * CELL - CELL/2; // sit on grid surface: bottom at grid plane
+  return {x:x, y:y, z:z};
+}
+
+function renderBuildCubes() {
+  var stage = document.getElementById('geo-build-stage');
+  if (!stage) return;
+  stage.innerHTML = '';
+
+  // Build ground grid
+  var grid = document.createElement('div');
+  grid.className = 'geo-build-grid';
+  for (var r = 0; r < GRID_ROWS; r++) {
+    for (var c = 0; c < GRID_COLS; c++) {
+      var cell = document.createElement('div');
+      cell.className = 'geo-build-cell';
+      cell.setAttribute('data-col', c);
+      cell.setAttribute('data-row', r);
+      cell.onclick = function(e) {
+        e.stopPropagation();
+        var col = parseInt(this.getAttribute('data-col'));
+        var row = parseInt(this.getAttribute('data-row'));
+        if (buildMode === 'add') {
+          var layer = maxLayerAt(col, row) + 1;
+          addBuildCube(col, row, layer);
+          renderBuildCubes();
+          updateBuildInfo();
+        }
+      };
+      grid.appendChild(cell);
+    }
+  }
+  stage.appendChild(grid);
+
+  // Render cubes
+  buildCubes.forEach(function(c) {
+    var pos = gridToPos(c.col, c.row, c.layer);
+    var div = document.createElement('div');
+    div.className = 'geo-shape geo-build-cube';
+    div.style.left = '50%';
+    div.style.top = '50%';
+    div.style.transform = 'translate(-50%,-50%) translate3d(' + pos.x + 'px,' + pos.y + 'px,' + pos.z + 'px)';
+    div.setAttribute('data-id', c.id);
+    div.innerHTML = geoShapeHtml('cube');
+    div.onclick = function(e) {
+      e.stopPropagation();
+      if (buildMode === 'del') {
+        buildCubes = buildCubes.filter(function(b){return b.id!==c.id;});
+        renderBuildCubes();
+        updateBuildInfo();
+      } else {
+        // add mode: always stack on top
+        var topLayer = maxLayerAt(c.col, c.row);
+        addBuildCube(c.col, c.row, topLayer + 1);
+        renderBuildCubes();
+        updateBuildInfo();
+      }
+    };
+    stage.appendChild(div);
+  });
+
+  updateBuildStage();
+}
+
+function clearBuildCubes() {
+  buildCubes = [];
+  renderBuildCubes();
+  updateBuildInfo();
+}
+
+function updateBuildInfo() {
+  var info = document.getElementById('geo-build-info');
+  if(!info) return;
+  if(buildCubes.length===0) {
+    info.textContent = '点击地面网格放置方块，点击已有方块可向上叠加。拖拽画面旋转视角。';
+  } else {
+    info.textContent = '共 ' + buildCubes.length + ' 个方块。' + (buildMode==='add' ? '点击方块可向上叠加。' : '点击方块删除。');
+  }
+}
+
+var buildRAF = null;
+function updateBuildStage() {
+  var stage = document.getElementById('geo-build-stage');
+  if(!stage || buildAutoRotate) return;
+  if (buildRAF) return;
+  buildRAF = requestAnimationFrame(function() {
+    buildRAF = null;
+    stage.style.transform = 'translate(-50%,-50%) rotateX(' + buildRotX + 'deg) rotateY(' + buildRotY + 'deg)';
+  });
+}
+
+function toggleGeoBuildRotate() {
+  buildAutoRotate = !buildAutoRotate;
+  var stage = document.getElementById('geo-build-stage');
+  var btn = document.getElementById('geo-build-rotate-btn');
+  if(!stage) return;
+  if(buildAutoRotate) {
+    stage.classList.add('auto-rotate');
+    if(btn){btn.classList.add('active');btn.textContent='⏸ 停止旋转';}
+  } else {
+    stage.classList.remove('auto-rotate');
+    if(btn){btn.classList.remove('active');btn.textContent='🔄 自动旋转';}
+    updateBuildStage();
+  }
+}
+
+// --- 几何图像3D旋转 ---
+var view3dShape = 'cube';
+var view3dExplode = false;
+function toggleExplode() {
+  view3dExplode = !view3dExplode;
+  var shape = document.querySelector('#geo-view-stage .geo-shape');
+  if (shape) shape.classList.toggle('exploded', view3dExplode);
+  var btn = document.getElementById('geo-explode-btn');
+  if (btn) { btn.classList.toggle('active', view3dExplode); btn.textContent = view3dExplode ? '🔧 收合' : '📦 展开分解'; }
+}
+var viewRotX = -20, viewRotY = 0;
+var viewAutoRotate = false;
+var viewDragging = false, viewSX=0, viewSY=0, viewSXR=0, viewSYR=0;
+
+function setView3dShape(type) {
+  view3dShape = type;
+  view3dExplode = false;
+  var eb = document.getElementById('geo-explode-btn');
+  if(eb){eb.classList.remove('active');eb.textContent='包 展开分解';}
+  renderView3d();
+  document.getElementById('geo-view-info').textContent = '当前：' + GEO_TYPES[type].name + '，拖拽可旋转视角';
+}
+
+function renderView3d() {
+  var stage = document.getElementById('geo-view-stage');
+  if (!stage) return;
+  stage.innerHTML = '<div class="geo-grid"></div>';
+  var div = document.createElement('div');
+  div.className = 'geo-shape ' + GEO_TYPES[view3dShape].cls;
+  div.style.left = '0px';
+  div.style.top = '0px';
+  div.style.transform = 'translate(-50%,-50%)';
+  div.innerHTML = geoShapeHtml(view3dShape);
+  stage.appendChild(div);
+  updateViewStage();
+}
+
+var viewRAF = null;
+function updateViewStage() {
+  var stage = document.getElementById('geo-view-stage');
+  if(!stage || viewAutoRotate) return;
+  if (viewRAF) return;
+  viewRAF = requestAnimationFrame(function() {
+    viewRAF = null;
+    stage.style.transform = 'translate(-50%,-50%) rotateX(' + viewRotX + 'deg) rotateY(' + viewRotY + 'deg)';
+  });
+}
+
+function toggleGeoViewRotate() {
+  viewAutoRotate = !viewAutoRotate;
+  var stage = document.getElementById('geo-view-stage');
+  var btn = document.getElementById('geo-view-rotate-btn');
+  if(!stage) return;
+  if(viewAutoRotate) {
+    stage.classList.add('auto-rotate');
+    if(btn){btn.classList.add('active');btn.textContent='⏸ 停止旋转';}
+  } else {
+    stage.classList.remove('auto-rotate');
+    if(btn){btn.classList.remove('active');btn.textContent='🔄 自动旋转';}
+    updateViewStage();
+  }
+}
+
+// --- 通用拖拽旋转初始化 ---
+function initGeoDrag(sceneId, getDragging, setDragging, getRot, setRot, getAutoRotate, toggleAutoRotate) {
+  var scene = document.getElementById(sceneId);
+  if (!scene) return;
+  
+  function onDown(e) {
+    if (e.target.closest('.geo-shape')) return;
+    setDragging(true);
+    var p = e.touches ? e.touches[0] : e;
+    var sx = p.clientX, sy = p.clientY;
+    var rx = getRot().x, ry = getRot().y;
+    
+    function onMove(ev) {
+      if(!getDragging()) return;
+      var p2 = ev.touches ? ev.touches[0] : ev;
+      var dx = p2.clientX - sx;
+      var dy = p2.clientY - sy;
+      var nx = rx - dy * 0.5;
+      var ny = ry + dx * 0.5;
+      if(nx>80) nx=80; if(nx<-80) nx=-80;
+      setRot(nx, ny);
+      ev.preventDefault();
+    }
+    
+    function onUp() {
+      setDragging(false);
+      document.removeEventListener('mousemove', onMove);
+      document.removeEventListener('touchmove', onMove);
+      document.removeEventListener('mouseup', onUp);
+      document.removeEventListener('touchend', onUp);
+    }
+    
+    if(getAutoRotate()) toggleAutoRotate();
+    document.addEventListener('mousemove', onMove);
+    document.addEventListener('touchmove', onMove, {passive:false});
+    document.addEventListener('mouseup', onUp);
+    document.addEventListener('touchend', onUp);
+    e.preventDefault();
+  }
+  
+  scene.addEventListener('mousedown', onDown);
+  scene.addEventListener('touchstart', onDown, {passive:false});
+}
+
+function initAllGeoDrag() {
+  initGeoDrag('geo-build-scene',
+    function(){return buildDragging;}, function(v){buildDragging=v;},
+    function(){return {x:buildRotX,y:buildRotY};},
+    function(x,y){buildRotX=x;buildRotY=y;updateBuildStage();},
+    function(){return buildAutoRotate;}, toggleGeoBuildRotate
+  );
+  initGeoDrag('geo-view-scene',
+    function(){return viewDragging;}, function(v){viewDragging=v;},
+    function(){return {x:viewRotX,y:viewRotY};},
+    function(x,y){viewRotX=x;viewRotY=y;updateViewStage();},
+    function(){return viewAutoRotate;}, toggleGeoViewRotate
+  );
+}
+
+setTimeout(function(){ initAllGeoDrag(); }, 200);
 
 // ==================== 沪学习二上全科知识梳理数据 ====================
 var SCHOOL_REVIEW_DATA = {
@@ -6565,20 +7288,10 @@ function renderSchoolReview(subjectCode, containerId) {
     }).join('') : '<div class="sr-kp-item" style="color:#b8a080;">暂无条目</div>';
     var spellBtn = (subjectCode === 'english' && /词汇/.test(kp.type) && kp.items.length) ? '<button class="sr-spell-btn" onclick="startKpSpell(\'english\',\'' + containerId + '\',' + unitIdx + ',' + ki + ')">🔤 拼写练习</button>' : '';
     var qsHtml = kp.questions.map(function(q, qi) {
-      var diff = q.difficulty;
-      var revealId = 'sr-ans-' + subjectCode + '-' + unitIdx + '-' + ki + '-' + qi;
-      return '<div class="sr-q-item q-' + diff + '">' +
-        '<div class="sr-q-head"><span class="sr-q-badge q-' + diff + '">' + escSr(q.difficultyLabel) + '</span></div>' +
-        '<div class="sr-q-stem">' + escSr(q.stem) + '</div>' +
-        '<div class="sr-q-answer">' +
-          '<button class="sr-q-reveal" onclick="toggleSrAnswer(\'' + revealId + '\',this)">查看答案</button>' +
-          '<span class="sr-q-ans-text" id="' + revealId + '" style="display:none;">' + escSr(q.answer) + '</span>' +
-          (subjectCode === 'english' && extractEnglish(q.answer) ? '<button class="sr-speak-btn" data-text="' + escSr(extractEnglish(q.answer)) + '" onclick="speakEnglish(this.dataset.text)" title="发音">🔊</button>' : '') +
-        '</div>' +
-      '</div>';
+      return renderSrQuestion(q, qi, kp, subjectCode, unitIdx, ki);
     }).join('');
     return '<div class="sr-kp-card">' +
-      '<div class="sr-kp-head"><div class="sr-kp-icon">📘</div><div class="sr-kp-title">' + (ki+1) + '. ' + escSr(kp.type) + '</div></div>' +
+      '<div class="sr-kp-head"><div class="sr-kp-icon">📘</div><div class="sr-kp-title">' + (ki+1) + '. ' + escSr(kp.type) + '</div><button class="sr-hist-btn" style="margin-left:auto;" onclick="showExerciseHistory(\'' + ('sr:' + subjectCode + ':u' + unitIdx + ':k' + ki) + '\',\'' + subjectCode + '\')">📜 记录</button></div>' +
       '<div class="sr-kp-items">' + itemsHtml + '</div>' +
       spellBtn +
       '<div class="sr-q-list">' + qsHtml + '</div>' +
@@ -6596,6 +7309,169 @@ function toggleSrAnswer(id, btn) {
   if (!el) return;
   if (el.style.display === 'none') { el.style.display = ''; btn.textContent = '收起答案'; }
   else { el.style.display = 'none'; btn.textContent = '查看答案'; }
+}
+
+function renderSrQuestion(q, qi, kp, subjectCode, unitIdx, ki) {
+  var diff = q.difficulty;
+  var revealId = 'sr-ans-' + subjectCode + '-' + unitIdx + '-' + ki + '-' + qi;
+  var qKey = 'srq_' + subjectCode + '_' + unitIdx + '_' + ki + '_' + qi;
+  var srRecordId = 'sr:' + subjectCode + ':u' + unitIdx + ':k' + ki + ':q' + qi;
+  var hasBlank = q.stem.indexOf('____') !== -1 || /\(\s*\)/.test(q.stem) || /（\s*）/.test(q.stem);
+ var speakAns = subjectCode === 'english' && extractEnglish(q.answer) ? '<button class="sr-speak-btn" data-text="' + escSr(extractEnglish(q.answer)) + '" onclick="speakEnglish(this.dataset.text)" title="发音">🔊</button>' : '';
+ if (hasBlank) {
+   var answerParts = q.answer.replace(/（.*?）/g, '').split(/[；;，,]/).map(function(s) { return s.trim(); }).filter(function(s) { return s.length > 0; });
+   var blankCount = (q.stem.match(/____|\(\s*\)|（\s*）/g) || []).length;
+   if (answerParts.length < blankCount) {
+     var finer = [];
+     answerParts.forEach(function(p) {
+       var sub = p.split(/[+\-=×÷~]/).map(function(s) { return s.trim(); }).filter(function(s) { return s.length > 0; });
+       finer = finer.concat(sub);
+     });
+     if (finer.length >= blankCount) answerParts = finer;
+   }
+   var kpAnswers = [];
+   kp.questions.forEach(function(qq) {
+     if (qq === q) return;
+     qq.answer.replace(/（.*?）/g, '').split(/[；;]/).forEach(function(a) { a = a.trim(); if (a.length > 0 && a.length <= 15 && kpAnswers.indexOf(a) === -1) kpAnswers.push(a); });
+   });
+  function shuffle(arr) { var a = arr.slice(); for (var i = a.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)); var tmp = a[i]; a[i] = a[j]; a[j] = tmp; } return a; }
+   var stemHtml = escSr(q.stem);
+   var optsHtml = '';
+   var bi = 0;
+    stemHtml = stemHtml.replace(/____|\(\s*\)|（\s*）/g, function() {
+     var bid = qKey + '_b' + bi; var correct = answerParts[bi] || ''; var label = '①②③④⑤⑥⑦⑧⑨⑩'[bi] || (bi + 1);
+    bi++;
+     var blankOpts = shuffle(answerParts.slice().filter(function(v,i,a){return a.indexOf(v)===i;}));
+     if (blankOpts.length < 2) {
+       var extra = shuffle(kpAnswers.filter(function(d) { return blankOpts.indexOf(d) === -1; }));
+       for (var e = 0; e < extra.length && blankOpts.length < 3; e++) blankOpts.push(extra[e]);
+     }
+     var btns = blankOpts.map(function(opt) {
+        return '<button class="sr-option-btn" data-opt="' + escSr(opt) + '" onclick="fillSrBlank(\'' + qKey + '\',' + (bi - 1) + ',this.dataset.opt)">' + escSr(opt) + '</button>';
+      }).join('');
+      optsHtml += '<div class="sr-blank-opts"><span class="sr-blank-label">' + label + '</span>' + btns + '</div>';
+     return '<span class="sr-blank" id="' + bid + '" data-correct="' + escSr(correct) + '">&nbsp;</span>';
+    });
+    return '<div class="sr-q-item q-' + diff + '">' +
+      '<div class="sr-q-head"><span class="sr-q-badge q-' + diff + '">' + escSr(q.difficultyLabel) + '</span></div>' +
+      '<div class="sr-q-stem">' + stemHtml + '</div>' +
+      '<div class="sr-q-options">' + optsHtml + '</div>' +
+      '<div class="sr-q-answer">' +
+        '<button class="sr-grade-btn" onclick="gradeSrQuestion(\'' + qKey + '\',' + blankCount + ',\'' + subjectCode + '\',\'' + srRecordId + '\')">✅ 批改</button>' +
+        '<span class="sr-grade-result" id="sr-result-' + qKey + '"></span>' +
+        '<button class="sr-q-reveal" onclick="toggleSrAnswer(\'' + revealId + '\',this)">查看答案</button>' +
+        '<span class="sr-q-ans-text" id="' + revealId + '" style="display:none;">' + escSr(q.answer) + '</span>' +
+        speakAns +
+      '</div>' +
+    '</div>';
+  }
+  var _cleanAns = q.answer.replace(/（.*?）/g, '').trim();
+  var _isMultiWord = _cleanAns.split(/\s+/).length > 2 && /[a-zA-Z]/.test(_cleanAns) && !/答案不唯一|开放/.test(q.answer);
+  if (_isMultiWord && !hasBlank) {
+    var _words = _cleanAns.split(/\s+/);
+    function _shuf(arr) { var a = arr.slice(); for (var i = a.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)); var t = a[i]; a[i] = a[j]; a[j] = t; } return a; }
+    var _shuffled = _shuf(_words);
+    srWordOrder[qKey] = { words: _words, shuffled: _shuffled, built: [] };
+    var _poolHtml = _shuffled.map(function(w, i) {
+      return '<button class="sr-word-tile" id="' + qKey + '_wt' + i + '" onclick="srAddWord(\'' + qKey + '\',' + i + ')">' + escSr(w) + '</button>';
+    }).join('');
+    return '<div class="sr-q-item q-' + diff + '">' +
+      '<div class="sr-q-head"><span class="sr-q-badge q-' + diff + '">' + escSr(q.difficultyLabel) + '</span></div>' +
+      '<div class="sr-q-stem">' + escSr(q.stem) + '</div>' +
+      '<div class="sr-word-build" id="' + qKey + '_build"></div>' +
+      '<div class="sr-word-pool">' + _poolHtml + '</div>' +
+      '<div class="sr-q-answer">' +
+        '<button class="sr-grade-btn" onclick="gradeSrWordOrder(\'' + qKey + '\',\'' + subjectCode + '\',\'' + srRecordId + '\')">✅ 提交</button>' +
+        '<span class="sr-grade-result" id="sr-result-' + qKey + '"></span>' +
+        '<button class="sr-q-reveal" onclick="toggleSrAnswer(\'' + revealId + '\',this)">查看答案</button>' +
+        '<span class="sr-q-ans-text" id="' + revealId + '" style="display:none;">' + escSr(q.answer) + '</span>' +
+        speakAns +
+      '</div>' +
+    '</div>';
+  }
+  return '<div class="sr-q-item q-' + diff + '">' +
+    '<div class="sr-q-head"><span class="sr-q-badge q-' + diff + '">' + escSr(q.difficultyLabel) + '</span></div>' +
+    '<div class="sr-q-stem">' + escSr(q.stem) + '</div>' +
+    '<div class="sr-q-answer" style="flex-direction:column;align-items:stretch;gap:8px;">' +
+      '<textarea class="sr-open-input" id="' + qKey + '_open" placeholder="在这里写下你的答案…" style="width:100%;min-height:48px;border:1.5px solid #e0d8c0;border-radius:8px;padding:8px 10px;font-size:14px;font-family:inherit;resize:vertical;background:#fff;box-sizing:border-box;"></textarea>' +
+      '<div style="display:flex;align-items:center;gap:8px;">' +
+        '<button class="sr-grade-btn" onclick="gradeSrOpen(\'' + qKey + '\',\'' + subjectCode + '\',\'' + srRecordId + '\')">✅ 提交</button>' +
+        '<span class="sr-grade-result" id="sr-result-' + qKey + '"></span>' +
+        '<button class="sr-q-reveal" onclick="toggleSrAnswer(\'' + revealId + '\',this)">查看答案</button>' +
+        '<span class="sr-q-ans-text" id="' + revealId + '" style="display:none;">' + escSr(q.answer) + '</span>' +
+        speakAns +
+      '</div>' +
+    '</div>' +
+  '</div>';
+}
+function fillSrBlank(qKey, blankIdx, option) {
+  var blank = document.getElementById(qKey + '_b' + blankIdx);
+  if (!blank) return;
+  blank.textContent = option;
+  blank.classList.add('filled');
+  blank.classList.remove('correct', 'wrong');
+}
+var srWordOrder = {};
+function srAddWord(qKey, idx) {
+  var st = srWordOrder[qKey]; if (!st) return;
+  var tile = document.getElementById(qKey + '_wt' + idx);
+  if (tile) tile.classList.add('used');
+  st.built.push({ word: st.shuffled[idx], pi: idx });
+  srRenderBuild(qKey);
+}
+function srRemoveWord(qKey, bi) {
+  var st = srWordOrder[qKey]; if (!st) return;
+  var rem = st.built.splice(bi, 1)[0];
+  if (rem) { var t = document.getElementById(qKey + '_wt' + rem.pi); if (t) t.classList.remove('used'); }
+  srRenderBuild(qKey);
+}
+function srRenderBuild(qKey) {
+  var st = srWordOrder[qKey]; if (!st) return;
+  var el = document.getElementById(qKey + '_build'); if (!el) return;
+  el.innerHTML = st.built.map(function(b, i) {
+    return '<span class="sr-build-tile" onclick="srRemoveWord(\'' + qKey + '\',' + i + ')">' + escSr(b.word) + '</span>';
+  }).join('');
+}
+function gradeSrWordOrder(qKey, subjectCode, recordId) {
+  var st = srWordOrder[qKey]; if (!st) return;
+  var userAns = st.built.map(function(b) { return b.word; }).join(' ');
+  var correctAns = st.words.join(' ');
+  var norm = function(s) { return s.toLowerCase().replace(/[.,!?;]/g, '').replace(/\s+/g, ' ').trim(); };
+  var resultEl = document.getElementById('sr-result-' + qKey);
+  var correct = 0; var wrongArr = [];
+  if (norm(userAns) === norm(correctAns)) { correct = 1; if (resultEl) resultEl.innerHTML = '<span style="color:#7bc043;">✓ 正确！</span>'; }
+  else { if (resultEl) resultEl.innerHTML = '<span style="color:#e85555;">✗ 再试试</span>'; wrongArr.push({ q: correctAns, yourAns: userAns, correctAns: correctAns }); }
+  saveExerciseRecord(subjectCode, recordId, correct, 1, wrongArr);
+  if (correct) { appData.points += 2; saveData(appData); }
+}
+function gradeSrQuestion(qKey, blankCount, subjectCode, recordId) {
+  var correct = 0; var wrongArr = [];
+  for (var i = 0; i < blankCount; i++) {
+    var blank = document.getElementById(qKey + '_b' + i);
+    if (!blank) continue;
+    var userAns = blank.textContent.trim();
+    var correctAns = blank.getAttribute('data-correct') || '';
+    blank.classList.remove('correct', 'wrong');
+    if (userAns && userAns === correctAns) { correct++; blank.classList.add('correct'); }
+    else { blank.classList.add('wrong'); wrongArr.push({ q: correctAns, yourAns: userAns, correctAns: correctAns }); }
+  }
+  var resultEl = document.getElementById('sr-result-' + qKey);
+  if (resultEl) {
+    if (correct === blankCount) resultEl.innerHTML = '<span style="color:#7bc043;">✓ 全部正确！</span>';
+    else resultEl.innerHTML = '<span style="color:#e85555;">✗ ' + correct + '/' + blankCount + ' 正确</span>';
+  }
+  if (correct === blankCount) { appData.points += 2; saveData(appData); }
+  saveExerciseRecord(subjectCode, recordId, correct, blankCount, wrongArr);
+}
+function gradeSrOpen(qKey, subjectCode, recordId) {
+  var input = document.getElementById(qKey + '_open');
+  if (!input) return;
+  var userAns = input.value.trim();
+  var resultEl = document.getElementById('sr-result-' + qKey);
+  if (!userAns) { if (resultEl) resultEl.innerHTML = '<span style="color:#e85555;">请先写下你的答案</span>'; return; }
+  if (resultEl) resultEl.innerHTML = '<span style="color:#5a9e3a;">✓ 已提交，点击"查看答案"对照参考</span>';
+  saveExerciseRecord(subjectCode, recordId, 1, 1, []);
+  appData.points += 2; saveData(appData);
 }
 
 // ==================== 体育技能与运动记录 ====================
@@ -6650,7 +7526,7 @@ var SPORT_ITEMS = [
 ];
 
 function renderSportPage(cat) {
-  if (!cat) cat = appData.sportCat || 'skills';
+  if (!cat) cat = appData.sportCat || 'records';
   appData.sportCat = cat;
   var tabs = document.querySelectorAll('#page-sport .cm-cat-tab');
   tabs.forEach(function(t){ t.classList.toggle('active', t.dataset.cat === cat); });
@@ -7309,11 +8185,13 @@ function saveBook() {
 function deleteBook(idx) {
   if (!appData.readingBooks || idx < 0 || idx >= appData.readingBooks.length) return;
   var book = appData.readingBooks[idx];
-  var name = book.title || '这本书';
-  if (!window.confirm('确定删除《'+name+'》吗？')) return;
-  appData.readingBooks.splice(idx, 1);
-  saveData(appData);
-  renderBookshelf();
+ var name = book.title || '这本书';
+ showConfirm('确定删除《'+name+'》吗？', '删除书籍', '🗑️', function() {
+   appData.readingBooks.splice(idx, 1);
+   saveData(appData);
+   renderBookshelf();
+ });
+ return;
 }
 
 function updateBookStatus(idx, status) {
@@ -7394,13 +8272,13 @@ function recognizeBookPhoto(input) {
         }
       }).catch(function(err){
         hideOcrLoading();
-        alert('识别失败：' + (err.message || err));
+        showToast('识别失败：' + (err.message || err), 'error');
       });
     };
     reader.readAsDataURL(file);
   }).catch(function(err){
     hideOcrLoading();
-    alert(err.message || 'OCR 库加载失败');
+    showToast(err.message || 'OCR库加载失败', 'error');
   });
 }
 
@@ -7592,10 +8470,12 @@ function addLaborRecord() {
 
 function deleteLaborRecord(idx) {
   if (!appData.laborRecords || idx < 0 || idx >= appData.laborRecords.length) return;
-  if (!window.confirm('确定删除这条记录吗？')) return;
-  appData.laborRecords.splice(idx, 1);
-  saveData(appData);
-  renderLaborRecords();
+ showConfirm('确定删除这条记录吗？', '删除记录', '🗑️', function() {
+   appData.laborRecords.splice(idx, 1);
+   saveData(appData);
+   renderLaborRecords();
+ });
+ return;
 }
 
 
@@ -8203,7 +9083,7 @@ var TEXTBOOK_WORDS = [
 var spellState = { cat:'全部', view:'practice', idx:0, score:0, total:0, combo:0, answered:false, slots:[], tiles:[], order:[], wrongOnly:false, textbookOnly:false, cnShown:false };
 function srEmojiForWord(word) {
   var map = {};
-  (appData.spellWords || SPELL_WORDS || []).forEach(function(w) { if (w.emoji && w.word) map[w.word.toLowerCase()] = w.emoji; });
+  getSpellWordList().forEach(function(w) { if (w.emoji && w.word) map[w.word.toLowerCase()] = w.emoji; });
   var parts = word.toLowerCase().replace(/[^a-z ]/g,' ').split(/\s+/).filter(Boolean);
   for (var i = 0; i < parts.length; i++) { if (map[parts[i]]) return map[parts[i]]; }
   if (map[word.toLowerCase()]) return map[word.toLowerCase()];
@@ -8319,6 +9199,20 @@ function shuffleArr(arr) {
   return a;
 }
 
+function getSpellWordList() {
+  var list = SPELL_WORDS.map(function(w) { return { cat:w.cat, emoji:w.emoji, word:w.word, cn:w.cn, img:w.img||'' }; });
+  if (!appData.spellCustom) return list;
+  if (appData.spellCustom.edits) {
+    list = list.map(function(w) { var key = (w.cat||'')+'|'+(w.word||'').toLowerCase(); return appData.spellCustom.edits[key] || w; });
+  }
+  if (appData.spellCustom.removed && appData.spellCustom.removed.length) {
+    var _rm = {}; appData.spellCustom.removed.forEach(function(k) { _rm[k] = true; });
+    list = list.filter(function(w) { return !_rm[(w.cat||'')+'|'+(w.word||'').toLowerCase()]; });
+  }
+  if (appData.spellCustom.added && appData.spellCustom.added.length) { list = list.concat(appData.spellCustom.added); }
+  return list;
+}
+
 function getSpellWords() {
   if (spellState.kpWords) return spellState.kpWords;
   if (spellState.textbookOnly) {
@@ -8329,17 +9223,17 @@ function getSpellWords() {
   if (spellState.view === 'wrong' || spellState.wrongOnly) {
     return Object.keys(appData.spellWrong).map(function(w) {
       var item = appData.spellWrong[w];
-      var found = (appData.spellWords||[]).find(function(s) { return s.word === w; });
+      var found = getSpellWordList().find(function(s) { return s.word === w; });
       return { cat:(found?found.cat:'其他'), emoji:(found?found.emoji:'📝'), word:w, cn:item.cn, img:(found?found.img:'') };
     });
   }
-  var base = appData.spellWords || SPELL_WORDS;
+  var base = getSpellWordList();
   if (spellState.cat === '全部') return base;
   return base.filter(function(w) { return w.cat === spellState.cat; });
 }
 
 function getSpellCats() {
-  var words = appData.spellWords || SPELL_WORDS;
+  var words = getSpellWordList();
   var cats = [];
   words.forEach(function(w) { if (cats.indexOf(w.cat) === -1) cats.push(w.cat); });
   return cats;
@@ -8448,7 +9342,7 @@ function renderSpellGame() {
 function renderSpellRecited() {
   var recited = appData.spellRecited;
   if (recited.length === 0) return '<div class="spell-empty">还没有已背诵的单词，加油！</div>';
-  var words = appData.spellWords || SPELL_WORDS;
+  var words = getSpellWordList();
   var html = '<div class="spell-recited-stats">已背诵 ' + recited.length + ' 个单词</div>';
   html += '<div class="spell-word-grid">';
   recited.forEach(function(word) {
@@ -8469,7 +9363,7 @@ function renderSpellWrongList() {
   html += '<div class="spell-word-grid">';
   keys.sort(function(a,b) { return (wrong[b].count||1) - (wrong[a].count||1); }).forEach(function(word) {
     var item = wrong[word];
-    var words = appData.spellWords || SPELL_WORDS;
+    var words = getSpellWordList();
     var found = words.find(function(s) { return s.word === word; });
     var pic = (found && found.img) ? '<img src="' + escHtml(found.img) + '" style="width:32px;height:32px;object-fit:cover;border-radius:6px;" onerror="this.style.display=\'none\';this.parentElement.textContent=\'' + escHtml(item.emoji) + '\'">' : escHtml(item.emoji);
     html += '<div class="spell-word-card wrong"><div class="swc-emoji">' + pic + '</div><div class="swc-word">' + escHtml(word) + '</div><div class="swc-cn">' + escHtml(item.cn) + '</div><div class="swc-count">错 ' + (item.count||1) + ' 次</div></div>';
@@ -8480,7 +9374,7 @@ function renderSpellWrongList() {
 }
 
 function renderSpellAllWords() {
-  var words = appData.spellWords || [];
+  var words = getSpellWordList();
   if (words.length === 0) return '<div class="spell-empty">暂无单词</div>';
   var cats = getSpellCats();
   var withImg = words.filter(function(w) { return w.img; }).length;
@@ -8521,7 +9415,7 @@ function openSpellWordModal(idx) {
     dl.innerHTML = getSpellCats().map(function(c) { return '<option value="' + escHtml(c) + '">'; }).join('');
   }
   if (typeof idx === 'number') {
-    var w = appData.spellWords[idx];
+    var w = getSpellWordList()[idx];
     title.textContent = '编辑单词';
     document.getElementById('sw-inp-cat').value = w.cat || '';
     document.getElementById('sw-inp-emoji').value = w.emoji || '';
@@ -8638,15 +9532,36 @@ function saveSpellWord() {
   var word = document.getElementById('sw-inp-word').value.trim().toLowerCase();
   var cn = document.getElementById('sw-inp-cn').value.trim();
   var img = document.getElementById('sw-inp-img').value.trim();
-  if (!word) { alert('请输入英文单词'); return; }
-  if (!cn) { alert('请输入中文释义'); return; }
+  if (!word) { showToast('请输入英文单词', 'error'); return; }
+  if (!cn) { showToast('请输入中文释义', 'error'); return; }
+  if (!appData.spellCustom) appData.spellCustom = { added: [], removed: [], edits: {} };
   var idx = document.getElementById('sw-edit-idx').value;
   if (idx !== '') {
-    appData.spellWords[parseInt(idx)] = { cat:cat, emoji:emoji, word:word, cn:cn, img:img };
+    var list = getSpellWordList();
+    var old = list[parseInt(idx)];
+    var oldKey = (old && old.cat) ? (old.cat + '|' + old.word.toLowerCase()) : '';
+    var isDefault = oldKey && SPELL_WORDS.some(function(w) { return (w.cat||'')+'|'+w.word.toLowerCase() === oldKey; });
+    if (cat + '|' + word === oldKey) {
+      if (isDefault) {
+        appData.spellCustom.edits[oldKey] = { cat:cat, emoji:emoji, word:word, cn:cn, img:img };
+      } else {
+        var addedIdx = appData.spellCustom.added.findIndex(function(w) { return (w.cat||'')+'|'+w.word.toLowerCase() === oldKey; });
+        if (addedIdx >= 0) appData.spellCustom.added[addedIdx] = { cat:cat, emoji:emoji, word:word, cn:cn, img:img };
+      }
+    } else {
+      if (isDefault) {
+        if (appData.spellCustom.removed.indexOf(oldKey) === -1) appData.spellCustom.removed.push(oldKey);
+        delete appData.spellCustom.edits[oldKey];
+      } else {
+        appData.spellCustom.added = appData.spellCustom.added.filter(function(w) { return (w.cat||'')+'|'+w.word.toLowerCase() !== oldKey; });
+      }
+      appData.spellCustom.added.push({ cat:cat, emoji:emoji, word:word, cn:cn, img:img });
+    }
   } else {
-    if (!appData.spellWords) appData.spellWords = [];
-    if (appData.spellWords.find(function(w) { return w.word === word; })) { alert('该单词已存在'); return; }
-    appData.spellWords.push({ cat:cat, emoji:emoji, word:word, cn:cn, img:img });
+    var newKey = cat + '|' + word;
+    var exists = getSpellWordList().some(function(w) { return (w.cat||'')+'|'+w.word.toLowerCase() === newKey; });
+    if (exists) { showToast('该单词已存在', 'error'); return; }
+    appData.spellCustom.added.push({ cat:cat, emoji:emoji, word:word, cn:cn, img:img });
   }
   saveData(appData);
   closeSpellWordModal();
@@ -8654,10 +9569,19 @@ function saveSpellWord() {
 }
 
 function deleteSpellWord(idx) {
-  var w = appData.spellWords[idx];
+  var list = getSpellWordList();
+  var w = list[idx];
   if (!w) return;
+  if (!appData.spellCustom) appData.spellCustom = { added: [], removed: [], edits: {} };
+  var key = (w.cat||'')+'|'+(w.word||'').toLowerCase();
+  var isDefault = SPELL_WORDS.some(function(sw) { return (sw.cat||'')+'|'+sw.word.toLowerCase() === key; });
   showConfirm('确定删除「' + w.word + '（' + w.cn + '）」吗？', '删除单词', '🗑️', function() {
-    appData.spellWords.splice(idx, 1);
+    if (isDefault) {
+      if (appData.spellCustom.removed.indexOf(key) === -1) appData.spellCustom.removed.push(key);
+      delete appData.spellCustom.edits[key];
+    } else {
+      appData.spellCustom.added = appData.spellCustom.added.filter(function(aw) { return (aw.cat||'')+'|'+aw.word.toLowerCase() !== key; });
+    }
     saveData(appData);
     renderSpellGame();
   });
@@ -9242,8 +10166,7 @@ if (g2048Board) {
   }, { passive: true });
 }
 // 页面加载时尝试自动登录
-loadCaptcha();
-checkAutoLogin();
+if (!authToken) { loadCaptcha(); } else { checkAutoLogin(); }
 
 // ==================== 成语板块 ====================
 var IDIOMS = [
