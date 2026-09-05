@@ -636,6 +636,9 @@ async function handleSaveExercise(req, res) {
 async function handleGetExercise(req, res) {
   const userId = getAuthUserId(req);
   if (!userId) return sendJSON(res, 401, { error: '未登录' });
+  // Cleanup stale waiting rooms (older than 30 min)
+  db.prepare("DELETE FROM game_moves WHERE game_id IN (SELECT id FROM games WHERE status = 'waiting' AND created_at < datetime('now', '-30 minutes'))").run();
+  db.prepare("DELETE FROM games WHERE status = 'waiting' AND created_at < datetime('now', '-30 minutes')").run();
   const rows = db.prepare(`SELECT subject, lesson_id, score, total, wrong, created_at FROM exercise_records WHERE user_id = ?`).all(userId);
   const records = {};
   for (const r of rows) {
@@ -1012,6 +1015,26 @@ async function handleGameGet(req, res, gameId) {
 }
 
 
+/** POST /api/games/abandon - close/abandon a game */
+async function handleGameAbandon(req, res) {
+  const userId = getAuthUserId(req);
+  if (!userId) return sendJSON(res, 401, { error: '未登录' });
+  const body = await parseBody(req);
+  const gameId = body.game_id;
+  if (!gameId) return sendJSON(res, 400, { error: '参数缺失' });
+  const game = db.prepare('SELECT * FROM games WHERE id = ?').get(gameId);
+  if (!game) return sendJSON(res, 404, { error: '游戏不存在' });
+  if (game.player1_id !== userId && game.player2_id !== userId) return sendJSON(res, 403, { error: '无权操作' });
+  if (game.status === 'waiting') {
+    db.prepare('DELETE FROM game_moves WHERE game_id = ?').run(gameId);
+    db.prepare('DELETE FROM games WHERE id = ?').run(gameId);
+  } else if (game.status === 'active') {
+    var winner = game.player1_id === userId ? 2 : 1;
+    db.prepare('UPDATE games SET status = ?, winner = ? WHERE id = ?').run('abandoned', winner, gameId);
+  }
+  sendJSON(res, 200, { ok: true });
+}
+
 // ==================== 静态文件服务 ====================
 /** 解析 URL 对应的项目内绝对路径；越出项目目录（路径穿越）返回 null */
 function safeResolve(urlPath) {
@@ -1194,6 +1217,7 @@ const server = http.createServer(async (req, res) => {
     if (pathname === '/api/games/open' && req.method === 'GET') return await handleGameListOpen(req, res);
     if (pathname === '/api/games/join' && req.method === 'POST') return await handleGameJoin(req, res);
     if (pathname === '/api/games/move' && req.method === 'POST') return await handleGameMove(req, res);
+    if (pathname === '/api/games/abandon' && req.method === 'POST') return await handleGameAbandon(req, res);
     if (pathname.startsWith('/api/games/') && req.method === 'GET') { const gameId = parseInt(pathname.split('/')[3]); if (gameId) return await handleGameGet(req, res, gameId); }
 
     // 静态文件

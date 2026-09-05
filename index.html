@@ -5676,7 +5676,17 @@ function initGomokuBoard() {
   gomokuGameOver = false;
 }
 
+function gomokuCloseRoom() {
+  if (gomokuGameId) {
+    apiCall('POST', '/api/games/abandon', { game_id: gomokuGameId }).catch(function(){});
+    gomokuGameId = null;
+  }
+}
+
 function renderGomokuLobby() {
+  if (gomokuPollTimer) { clearInterval(gomokuPollTimer); gomokuPollTimer = null; }
+  gomokuCloseRoom();
+  gomokuGameOver = false;
   var c = document.getElementById('brain-content');
   if (!c) return;
   c.innerHTML = 
@@ -6202,6 +6212,12 @@ function gomokuLoadGameState() {
       if (gomokuPollTimer) { clearInterval(gomokuPollTimer); gomokuPollTimer = null; }
       var youWin = res.winner === gomokuMyColor;
       showGomokuResult(youWin ? '🎉 你赢了！' : (res.winner === 0 ? '🤝 平局' : '😢 你输了'), '对局结束');
+    }
+    if (res.status === 'abandoned' && !gomokuGameOver) {
+      gomokuGameOver = true;
+      if (gomokuPollTimer) { clearInterval(gomokuPollTimer); gomokuPollTimer = null; }
+      var youWin2 = res.winner === gomokuMyColor;
+      showGomokuResult(youWin2 ? '🎉 对手弃赛，你赢了！' : '😢 对手已离开', '对局结束');
     }
   }).catch(function(e) { console.error('[gomoku] poll error:', e); });
 }
