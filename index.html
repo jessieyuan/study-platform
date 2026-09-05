@@ -5644,6 +5644,7 @@ function switchBrainGame(game, el) {
 var GOMOKU_SIZE = 15;
 var gomokuBoard = [];
 var gomokuTurn = 1; // 1=黑, 2=白
+var gomokuAIPlacing = false;
 var gomokuMode = 'ai'; // 'ai' or 'online'
 var gomokuAIDifficulty = 'medium';
 var gomokuHistory = [];
@@ -5743,7 +5744,7 @@ function renderGomokuBoard() {
 function gomokuPlace(r, c) {
   if (gomokuGameOver) return;
   if (gomokuBoard[r][c] !== 0) return;
-  if (gomokuMode === 'ai' && gomokuTurn !== 1) return;
+  if (gomokuMode === 'ai' && gomokuTurn !== 1 && !gomokuAIPlacing) return;
   if (gomokuMode === 'online' && gomokuTurn !== gomokuMyColor) return;
 
   gomokuBoard[r][c] = gomokuTurn;
@@ -5804,7 +5805,7 @@ function gomokuAIMove() {
   if (gomokuAIDifficulty === 'easy') move = gomokuAIEasy();
   else if (gomokuAIDifficulty === 'medium') move = gomokuAIBest(2);
   else move = gomokuAIBest(4);
-  if (move) gomokuPlace(move.r, move.c);
+  if (move) { gomokuAIPlacing = true; gomokuPlace(move.r, move.c); gomokuAIPlacing = false; }
 }
 
 function gomokuAIEasy() {
