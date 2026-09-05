@@ -213,6 +213,8 @@ db.exec(`
   // Migration: add from_r, from_c for chess moves
   try { db.exec('ALTER TABLE game_moves ADD COLUMN from_r INTEGER'); } catch(e) {}
   try { db.exec('ALTER TABLE game_moves ADD COLUMN from_c INTEGER'); } catch(e) {}
+  // Game records table for match history
+  db.exec('CREATE TABLE IF NOT EXISTS game_records (id INTEGER PRIMARY KEY AUTOINCREMENT, user_id INTEGER, game_type TEXT, result TEXT, opponent_name TEXT, moves_count INTEGER, created_at TEXT)');
 
   // Migration: add last_seen columns for disconnect detection
   try { db.exec('ALTER TABLE games ADD COLUMN last_seen1 TEXT'); } catch(e) {}
@@ -963,6 +965,32 @@ async function handleGameJoin(req, res) {
   sendJSON(res, 200, { ok: true });
 }
 
+function recordGameResult(gameId) {
+  try {
+    var game = db.prepare('SELECT * FROM games WHERE id = ?').get(gameId);
+    if (!game || (game.status !== 'finished' && game.status !== 'abandoned')) return;
+    var p1 = db.prepare('SELECT username FROM users WHERE id = ?').get(game.player1_id);
+    var p2 = game.player2_id ? db.prepare('SELECT username FROM users WHERE id = ?').get(game.player2_id) : null;
+    var moves = db.prepare('SELECT COUNT(*) as c FROM game_moves WHERE game_id = ?').get(gameId).c;
+    // Don't record if already recorded
+    var existing = db.prepare('SELECT COUNT(*) as c FROM game_records WHERE user_id = ? AND created_at = ?').get(game.player1_id, game.created_at);
+    if (existing.c > 0) return;
+    var r1, r2;
+    if (game.status === 'finished') {
+      if (game.winner === 0) { r1 = 'draw'; r2 = 'draw'; }
+      else if (game.winner === 1) { r1 = 'win'; r2 = 'lose'; }
+      else { r1 = 'lose'; r2 = 'win'; }
+    } else {
+      // abandoned: winner field tells who wins
+      if (game.winner === 1) { r1 = 'win'; r2 = 'lose'; }
+      else if (game.winner === 2) { r1 = 'lose'; r2 = 'win'; }
+      else { r1 = 'lose'; r2 = 'win'; }
+    }
+    db.prepare("INSERT INTO game_records (user_id, game_type, result, opponent_name, moves_count, created_at) VALUES (?, ?, ?, ?, ?, datetime('now','localtime'))").run(game.player1_id, game.type, r1, p2 ? p2.username : '未知', moves);
+    if (p2) db.prepare("INSERT INTO game_records (user_id, game_type, result, opponent_name, moves_count, created_at) VALUES (?, ?, ?, ?, ?, datetime('now','localtime'))").run(game.player2_id, game.type, r2, p1.username, moves);
+  } catch(e) {}
+}
+
 /** POST /api/games/move */
 
 // Check 5-in-a-row for game move
@@ -1016,9 +1044,11 @@ async function handleGameMove(req, res) {
   }
   if (isWin) {
     db.prepare('UPDATE games SET status = ?, winner = ? WHERE id = ?').run('finished', playerNum, gameId);
+    recordGameResult(gameId);
     sendJSON(res, 200, { ok: true, win: true });
   } else if (game2.type === 'gomoku' && moveCount.c >= 225) {
-    db.prepare('UPDATE games SET status = ? WHERE id = ?').run('finished', gameId);
+    db.prepare('UPDATE games SET status = ?, winner = ? WHERE id = ?').run('finished', 0, gameId);
+    recordGameResult(gameId);
     sendJSON(res, 200, { ok: true, draw: true });
   } else {
     var nextTurn = playerNum === 1 ? 2 : 1;
@@ -1058,6 +1088,7 @@ async function handleGameAbandon(req, res) {
   } else if (game.status === 'active') {
     var winner = game.player1_id === userId ? 2 : 1;
     db.prepare('UPDATE games SET status = ?, winner = ? WHERE id = ?').run('abandoned', winner, gameId);
+    recordGameResult(gameId);
   }
   sendJSON(res, 200, { ok: true });
 }
@@ -1264,6 +1295,14 @@ const server = http.createServer(async (req, res) => {
     if (pathname === '/api/games/create' && req.method === 'POST') return await handleGameCreate(req, res);
     if (pathname === '/api/games/open' && req.method === 'GET') return await handleGameListOpen(req, res);
     if (pathname === '/api/games/my-active' && req.method === 'GET') return await handleGameMyActive(req, res);
+    if (pathname === '/api/game-records' && req.method === 'GET') {
+      const userId = getAuthUserId(req);
+      if (!userId) return sendJSON(res, 401, { error: '未登录' });
+      const url = new URL(req.url, 'http://localhost');
+      const gtype = url.searchParams.get('type');
+      const rows = db.prepare('SELECT * FROM game_records WHERE user_id = ?' + (gtype ? ' AND game_type = ?' : '') + ' ORDER BY id DESC LIMIT 50').all(...(gtype ? [userId, gtype] : [userId]));
+      return sendJSON(res, 200, { records: rows });
+    }
     if (pathname === '/api/games/join' && req.method === 'POST') return await handleGameJoin(req, res);
     if (pathname === '/api/games/move' && req.method === 'POST') return await handleGameMove(req, res);
     if (pathname === '/api/games/abandon' && req.method === 'POST') return await handleGameAbandon(req, res);

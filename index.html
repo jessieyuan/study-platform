@@ -2515,6 +2515,20 @@
 .gomoku-active-info { font-size:14px; font-weight:600; color:#bf6000; }
 .gomoku-rejoin-btn { padding:8px 22px; border:none; border-radius:20px; background:linear-gradient(135deg,#ff9800,#f57c00); color:#fff; font-size:14px; font-weight:700; cursor:pointer; font-family:inherit; white-space:nowrap; box-shadow:0 3px 10px rgba(255,152,0,0.35); transition:transform 0.15s,box-shadow 0.15s; }
 .gomoku-rejoin-btn:hover { transform:scale(1.06); box-shadow:0 4px 14px rgba(255,152,0,0.45); }
+.gomoku-history-btn, .xq-history-btn { padding:10px 20px; border:none; border-radius:12px; background:linear-gradient(135deg,#667eea,#764ba2); color:#fff; font-size:14px; font-weight:700; cursor:pointer; font-family:inherit; box-shadow:0 3px 10px rgba(102,126,234,0.3); transition:transform 0.15s; }
+.gomoku-history-btn:hover, .xq-history-btn:hover { transform:scale(1.05); }
+.gr-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.5); display:flex; align-items:center; justify-content:center; z-index:9999; }
+.gr-box { background:#fff; border-radius:20px; padding:24px; max-width:400px; width:90%; max-height:70vh; overflow-y:auto; box-shadow:0 10px 40px rgba(0,0,0,0.2); }
+.gr-title { font-size:18px; font-weight:800; text-align:center; margin-bottom:16px; color:#333; }
+.gr-empty { text-align:center; color:#999; padding:20px; }
+.gr-item { display:flex; align-items:center; justify-content:space-between; padding:10px 14px; border-radius:12px; margin-bottom:8px; background:#f8f9fa; }
+.gr-result { font-weight:800; font-size:15px; }
+.gr-result.win { color:#4caf50; }
+.gr-result.lose { color:#f44336; }
+.gr-result.draw { color:#ff9800; }
+.gr-info { font-size:13px; color:#666; }
+.gr-close { display:block; margin:16px auto 0; padding:8px 28px; border:none; border-radius:20px; background:#e0e0e0; color:#333; font-size:14px; font-weight:600; cursor:pointer; font-family:inherit; }
+.gr-close:hover { background:#d0d0d0; }
 .xq-waiting-overlay { position:absolute; top:0; left:0; right:0; bottom:0; background:rgba(232,200,134,0.85); display:flex; align-items:center; justify-content:center; z-index:10; border-radius:8px; }
 .xq-waiting-box { text-align:center; color:#5a4a2a; }
 .xq-waiting-spinner { width:40px; height:40px; border:4px solid #c0a060; border-top-color:transparent; border-radius:50%; margin:0 auto 12px; animation:xq-spin 1s linear infinite; }
@@ -6167,6 +6181,33 @@ function showGomokuResult(title, desc) {
 }
 
 // ---- Gomoku Online ----
+function showGameRecords(type) {
+  var title = type === 'gomoku' ? '五子棋对战记录' : (type === 'xiangqi' ? '象棋对战记录' : '对战记录');
+  var overlay = document.createElement('div');
+  overlay.className = 'gr-overlay';
+  overlay.innerHTML = '<div class="gr-box"><div class="gr-title">' + title + '</div><div class="gr-loading">加载中...</div></div>';
+  document.body.appendChild(overlay);
+  overlay.addEventListener('click', function(e) { if (e.target === overlay) overlay.remove(); });
+  apiCall('GET', '/api/game-records?type=' + type).then(function(res) {
+    var box = overlay.querySelector('.gr-box');
+    var records = res.records || [];
+    if (records.length === 0) {
+      box.innerHTML = '<div class="gr-title">' + title + '</div><div class="gr-empty">还没有对战记录</div><button class="gr-close" onclick="this.closest(\'.gr-overlay\').remove()">关闭</button>';
+    } else {
+      var html = '<div class="gr-title">' + title + '</div>';
+      records.forEach(function(r) {
+        var resultText = r.result === 'win' ? '🎉 胜' : (r.result === 'lose' ? '😢 负' : '🤝 和');
+        var resultClass = r.result === 'win' ? 'win' : (r.result === 'lose' ? 'lose' : 'draw');
+        html += '<div class="gr-item"><span class="gr-result ' + resultClass + '">' + resultText + '</span><div class="gr-info">vs ' + (r.opponent_name || '未知') + ' · ' + r.moves_count + '步 · ' + (r.created_at || '').substring(0,16) + '</div></div>';
+      });
+      html += '<button class="gr-close" onclick="this.closest(\'.gr-overlay\').remove()">关闭</button>';
+      box.innerHTML = html;
+    }
+  }).catch(function() {
+    overlay.querySelector('.gr-box').innerHTML = '<div class="gr-title">' + title + '</div><div class="gr-empty">加载失败</div><button class="gr-close" onclick="this.closest(\'.gr-overlay\').remove()">关闭</button>';
+  });
+}
+
 function gomokuCheckActiveGame() {
   apiCall('GET', '/api/games/my-active?type=gomoku').then(function(res) {
     if (res.game && res.game.type === 'gomoku') {
@@ -6205,6 +6246,7 @@ function renderGomokuOnlineLobby() {
   a.innerHTML = '<div class="gomoku-online-lobby">' +
     '<div class="gomoku-online-actions">' +
       '<button class="gomoku-create-btn" onclick="gomokuCreateRoom()">🏠 创建房间</button>' +
+      '<button class="gomoku-history-btn" onclick="showGameRecords(\'gomoku\')">📜 对战记录</button>' +
     '</div>' +
     '<div class="gomoku-join-by-id">' +
       '<input type="number" id="gomoku-join-id-input" placeholder="输入房间号" class="gomoku-join-input" />' +
@@ -6960,6 +7002,7 @@ function renderXqOnlineLobby() {
   if (!a) return;
   a.innerHTML = '<div class="xq-online-actions">' +
       '<button class="xq-create-btn" onclick="xqCreateRoom()">🏠 创建房间</button>' +
+      '<button class="xq-history-btn" onclick="showGameRecords(\'xiangqi\')">📜 对战记录</button>' +
     '</div>' +
     '<div class="xq-join-by-id">' +
       '<input type="number" id="xq-join-id-input" placeholder="输入房间号" class="xq-join-input" />' +
