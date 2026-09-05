@@ -5711,7 +5711,8 @@ function switchBrainGame(game, el) {
     if (items[map[game]]) items[map[game]].classList.add('active');
   }
   if (game === 'gomoku') renderGomokuLobby();
-  else document.getElementById('brain-content').innerHTML = '<div class="task-empty" style="padding:60px 0;">' + (game === 'xiangqi' ? '象棋' : '国际象棋') + '即将上线，敬请期待~</div>';
+  else if (game === 'xiangqi') renderXqLobby();
+  else document.getElementById('brain-content').innerHTML = '<div class="task-empty" style="padding:60px 0;">国际象棋即将上线，敬请期待~</div>';
 }
 
 // ---- 五子棋 ----
