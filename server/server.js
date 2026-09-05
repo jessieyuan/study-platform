@@ -197,6 +197,32 @@ db.exec(`
   )
 `);
 
+db.exec(`
+  CREATE TABLE IF NOT EXISTS games (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    type TEXT NOT NULL,
+    player1_id INTEGER NOT NULL,
+    player2_id INTEGER,
+    status TEXT DEFAULT 'waiting',
+    winner INTEGER DEFAULT 0,
+    current_turn INTEGER DEFAULT 1,
+    created_at TEXT DEFAULT (datetime('now','localtime'))
+  )
+`);
+
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS game_moves (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      game_id INTEGER NOT NULL,
+      player_id INTEGER NOT NULL,
+      move_r INTEGER,
+      move_c INTEGER,
+      move_no INTEGER,
+      created_at TEXT DEFAULT (datetime('now','localtime')),
+      FOREIGN KEY (game_id) REFERENCES games(id) ON DELETE CASCADE
+    )
+  `);
+
 // ==================== 工具函数 ====================
 
 /** scrypt 密码哈希 */
@@ -876,6 +902,85 @@ async function handleAdminStats(req, res) {
   });
 }
 
+
+// ==================== 棋类游戏 API ====================
+
+/** POST /api/games/create */
+async function handleGameCreate(req, res) {
+  const userId = getAuthUserId(req);
+  if (!userId) return sendJSON(res, 401, { error: '未登录' });
+  const body = await parseBody(req);
+  const type = body.type || 'gomoku';
+  const row = db.prepare('INSERT INTO games (type, player1_id, status) VALUES (?, ?, ?)').run(type, userId, 'waiting');
+  sendJSON(res, 200, { game_id: row.lastInsertRowid });
+}
+
+/** GET /api/games/open?type=gomoku */
+async function handleGameListOpen(req, res) {
+  const userId = getAuthUserId(req);
+  if (!userId) return sendJSON(res, 401, { error: '未登录' });
+  const url = new URL(req.url, 'http://localhost');
+  const type = url.searchParams.get('type') || 'gomoku';
+  const rows = db.prepare(`
+    SELECT g.id, g.type, g.player1_id, g.created_at, u.username as player1_name
+    FROM games g JOIN users u ON g.player1_id = u.id
+    WHERE g.type = ? AND g.status = 'waiting' AND g.player1_id != ?
+    ORDER BY g.created_at DESC LIMIT 20
+  `).all(type, userId);
+  sendJSON(res, 200, { rooms: rows });
+}
+
+/** POST /api/games/join */
+async function handleGameJoin(req, res) {
+  const userId = getAuthUserId(req);
+  if (!userId) return sendJSON(res, 401, { error: '未登录' });
+  const body = await parseBody(req);
+  const gameId = body.game_id;
+  if (!gameId) return sendJSON(res, 400, { error: '参数缺失' });
+  const game = db.prepare('SELECT * FROM games WHERE id = ?').get(gameId);
+  if (!game) return sendJSON(res, 404, { error: '房间不存在' });
+  if (game.status !== 'waiting') return sendJSON(res, 400, { error: '房间已开始或已结束' });
+  if (game.player1_id === userId) return sendJSON(res, 400, { error: '不能加入自己的房间' });
+  db.prepare('UPDATE games SET player2_id = ?, status = ? WHERE id = ?').run(userId, 'active', gameId);
+  sendJSON(res, 200, { ok: true });
+}
+
+/** POST /api/games/move */
+async function handleGameMove(req, res) {
+  const userId = getAuthUserId(req);
+  if (!userId) return sendJSON(res, 401, { error: '未登录' });
+  const body = await parseBody(req);
+  const gameId = body.game_id;
+  if (!gameId) return sendJSON(res, 400, { error: '参数缺失' });
+  const game = db.prepare('SELECT * FROM games WHERE id = ?').get(gameId);
+  if (!game) return sendJSON(res, 404, { error: '游戏不存在' });
+  if (game.status !== 'active') return sendJSON(res, 400, { error: '游戏未进行中' });
+  var playerNum = 0;
+  if (game.player1_id === userId) playerNum = 1;
+  else if (game.player2_id === userId) playerNum = 2;
+  else return sendJSON(res, 403, { error: '你不在此局游戏中' });
+  if (game.current_turn !== playerNum) return sendJSON(res, 400, { error: '不是你的回合' });
+  const moves = db.prepare('SELECT COUNT(*) as c FROM game_moves WHERE game_id = ?').get(gameId);
+  const moveNo = moves.c + 1;
+  db.prepare('INSERT INTO game_moves (game_id, player_id, move_r, move_c, move_no) VALUES (?, ?, ?, ?, ?)').run(gameId, userId, body.r, body.c, moveNo);
+  var nextTurn = playerNum === 1 ? 2 : 1;
+  db.prepare('UPDATE games SET current_turn = ? WHERE id = ?').run(nextTurn, gameId);
+  sendJSON(res, 200, { ok: true });
+}
+
+/** GET /api/games/:id */
+async function handleGameGet(req, res, gameId) {
+  const userId = getAuthUserId(req);
+  if (!userId) return sendJSON(res, 401, { error: '未登录' });
+  const game = db.prepare('SELECT * FROM games WHERE id = ?').get(gameId);
+  if (!game) return sendJSON(res, 404, { error: '游戏不存在' });
+  if (game.player1_id !== userId && game.player2_id !== userId) return sendJSON(res, 403, { error: '无权查看' });
+  const moves = db.prepare('SELECT player_id, move_r as r, move_c as c, move_no FROM game_moves WHERE game_id = ? ORDER BY move_no ASC').all(gameId);
+  const movesMapped = moves.map(function(m) { return { player: m.player_id === game.player1_id ? 1 : 2, r: m.r, c: m.c }; });
+  sendJSON(res, 200, { game_id: game.id, status: game.status, winner: game.winner, current_turn: game.current_turn, moves: movesMapped });
+}
+
+
 // ==================== 静态文件服务 ====================
 /** 解析 URL 对应的项目内绝对路径；越出项目目录（路径穿越）返回 null */
 function safeResolve(urlPath) {
@@ -1052,6 +1157,13 @@ const server = http.createServer(async (req, res) => {
     if (pathname === '/api/admin/stats' && req.method === 'GET') {
       return await handleAdminStats(req, res);
     }
+
+    // 棋类游戏 API
+    if (pathname === '/api/games/create' && req.method === 'POST') return await handleGameCreate(req, res);
+    if (pathname === '/api/games/open' && req.method === 'GET') return await handleGameListOpen(req, res);
+    if (pathname === '/api/games/join' && req.method === 'POST') return await handleGameJoin(req, res);
+    if (pathname === '/api/games/move' && req.method === 'POST') return await handleGameMove(req, res);
+    if (pathname.startsWith('/api/games/') && req.method === 'GET') { const gameId = parseInt(pathname.split('/')[3]); if (gameId) return await handleGameGet(req, res, gameId); }
 
     // 静态文件
     if (serveStaticFile(req, res)) return;
