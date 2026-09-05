@@ -4458,7 +4458,7 @@ function checkPetHunger() {
   var last = new Date(pet.lastFedDate + 'T00:00:00');
   var now = new Date(); now.setHours(0,0,0,0);
   var diff = Math.floor((now - last) / (1000*60*60*24));
-  if (diff >= 3) {
+  if (diff >= 4) {
     pet.alive = false;
     saveData(appData);
     updatePetUI();
@@ -4591,7 +4591,7 @@ function calcPetHealth(pet) {
     return Math.floor((today - d) / (1000*60*60*24));
   }
   var notFedDays = daysSince(pet.lastFedDate);
-  if (notFedDays >= 3) return 0;
+  if (notFedDays >= 4) return 0;
   // 基础健康：基于喂食
   var health = 70;
   if (notFedDays === 1) health = 45;
@@ -4638,7 +4638,7 @@ function renderPetPage() {
       '<div class="pp-empty">' +
         '<div class="ppe-icon">👻</div>' +
         '<div class="ppe-title">' + escHtml(pet.name || '小宠物') + ' 饿死了…</div>' +
-        '<div class="ppe-desc">连续3天没有喂食，宠物离开了…<br>下次领养一定要记得每天喂食哦！</div>' +
+        '<div class="ppe-desc">连续4天没有喂食，宠物离开了…<br>下次领养一定要记得每天喂食哦！</div>' +
         '<button class="ppe-btn" onclick="openPetModal()">200⭐ 重新领养</button>' +
       '</div>';
     return;
@@ -4726,7 +4726,7 @@ function renderPetPage() {
       '<div class="pp-tips-list">' +
         '<span>💰</span> <b>每天完成学习任务赚积分</b>，才有粮食喂宠物<br>' +
         '<span>🍖</span> 每天必须喂食一次（10⭐），不喂宠物会<b>挨饿</b><br>' +
-        '<span>☠️</span> <b style="color:#c0392b;">连续3天不喂食，宠物就会饿死！</b><br>' +
+        '<span>☠️</span> <b style="color:#c0392b;">连续4天不喂食，宠物就会饿死！</b><br>' +
         '<span>⭐</span> 运动、洗澡、玩耍也能赚经验升级' +
       '</div>' +
       (hungerDays >= 2 ? '<div class="pp-tips-warn">🚨 警告：已经' + hungerDays + '天没喂食了！再' + (3-hungerDays) + '天不喂宠物就会饿死！</div>' : '') +

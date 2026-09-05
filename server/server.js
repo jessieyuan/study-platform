@@ -730,7 +730,7 @@ async function handlePetLeaderboard(req, res) {
   function calcHealth(pet) {
     if (!pet || !pet.owned || !pet.alive) return -1;
     const notFedDays = daysSince(pet.lastFedDate);
-    if (notFedDays >= 3) return 0;
+    if (notFedDays >= 4) return 0;
     let health = 70;
     if (notFedDays === 1) health = 45;
     else if (notFedDays === 2) health = 20;
