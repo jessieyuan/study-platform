@@ -6164,8 +6164,8 @@ function showGomokuResult(title, desc) {
 
 // ---- Gomoku Online ----
 function gomokuCheckActiveGame() {
-  apiCall('GET', '/api/games/my-active').then(function(res) {
-    if (res.game) {
+  apiCall('GET', '/api/games/my-active?type=gomoku').then(function(res) {
+    if (res.game && res.game.type === 'gomoku') {
       var el = document.getElementById('gomoku-arena');
       if (!el) return;
       var banner = document.getElementById('gomoku-active-banner');
@@ -7026,7 +7026,7 @@ function xqStartPolling() {
 }
 
 function xqCheckActiveGame() {
-  apiCall('GET', '/api/games/my-active').then(function(res) {
+  apiCall('GET', '/api/games/my-active?type=xiangqi').then(function(res) {
     if (res.game && res.game.type === 'xiangqi') {
       var el = document.getElementById('xq-arena');
       if (!el) return;

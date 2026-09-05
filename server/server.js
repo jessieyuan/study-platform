@@ -1066,7 +1066,9 @@ async function handleGameAbandon(req, res) {
 async function handleGameMyActive(req, res) {
   const userId = getAuthUserId(req);
   if (!userId) return sendJSON(res, 401, { error: '未登录' });
-  const row = db.prepare("SELECT * FROM games WHERE (player1_id = ? OR player2_id = ?) AND status IN ('waiting', 'active') ORDER BY id DESC LIMIT 1").get(userId, userId);
+  const url2 = new URL(req.url, 'http://localhost');
+  const gtype = url2.searchParams.get('type');
+  const row = db.prepare("SELECT * FROM games WHERE (player1_id = ? OR player2_id = ?) AND status IN ('waiting', 'active')" + (gtype ? " AND type = '" + gtype + "'" : "") + " ORDER BY id DESC LIMIT 1").get(userId, userId);
   if (!row) return sendJSON(res, 200, { game: null });
   // Check stale active game: if both players haven't been seen in 5 min, mark abandoned
   if (row.status === 'active') {
