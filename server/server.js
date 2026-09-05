@@ -924,7 +924,7 @@ async function handleGameCreate(req, res) {
   if (!userId) return sendJSON(res, 401, { error: '未登录' });
   const body = await parseBody(req);
   const type = body.type || 'gomoku';
-  const row = db.prepare('INSERT INTO games (type, player1_id, status) VALUES (?, ?, ?)').run(type, userId, 'waiting');
+  const row = db.prepare("INSERT INTO games (type, player1_id, status, last_seen1) VALUES (?, ?, ?, datetime('now','localtime'))").run(type, userId, 'waiting');
   sendJSON(res, 200, { game_id: row.lastInsertRowid });
 }
 
@@ -959,7 +959,7 @@ async function handleGameJoin(req, res) {
   if (!game) return sendJSON(res, 404, { error: '房间不存在' });
   if (game.status !== 'waiting') return sendJSON(res, 400, { error: '房间已开始或已结束' });
   if (game.player1_id === userId) return sendJSON(res, 400, { error: '不能加入自己的房间' });
-  db.prepare('UPDATE games SET player2_id = ?, status = ? WHERE id = ?').run(userId, 'active', gameId);
+  db.prepare("UPDATE games SET player2_id = ?, status = ?, last_seen2 = datetime('now','localtime') WHERE id = ?").run(userId, 'active', gameId);
   sendJSON(res, 200, { ok: true });
 }
 
@@ -1034,6 +1034,8 @@ async function handleGameGet(req, res, gameId) {
   const game = db.prepare('SELECT * FROM games WHERE id = ?').get(gameId);
   if (!game) return sendJSON(res, 404, { error: '游戏不存在' });
   if (game.player1_id !== userId && game.player2_id !== userId) return sendJSON(res, 403, { error: '无权查看' });
+  if (game.player1_id === userId) db.prepare("UPDATE games SET last_seen1 = datetime('now','localtime') WHERE id = ?").run(gameId);
+  else db.prepare("UPDATE games SET last_seen2 = datetime('now','localtime') WHERE id = ?").run(gameId);
   const moves = db.prepare('SELECT player_id, move_r as r, move_c as c, move_no, from_r, from_c FROM game_moves WHERE game_id = ? ORDER BY move_no ASC').all(gameId);
   const movesMapped = moves.map(function(m) { return { player: m.player_id === game.player1_id ? 1 : 2, r: m.r, c: m.c, from_r: m.from_r, from_c: m.from_c, to_r: m.from_r !== null ? m.r : undefined, to_c: m.from_c !== null ? m.c : undefined }; });
   sendJSON(res, 200, { game_id: game.id, status: game.status, winner: game.winner, current_turn: game.current_turn, moves: movesMapped });
@@ -1066,6 +1068,15 @@ async function handleGameMyActive(req, res) {
   if (!userId) return sendJSON(res, 401, { error: '未登录' });
   const row = db.prepare("SELECT * FROM games WHERE (player1_id = ? OR player2_id = ?) AND status IN ('waiting', 'active') ORDER BY id DESC LIMIT 1").get(userId, userId);
   if (!row) return sendJSON(res, 200, { game: null });
+  // Check stale active game: if both players haven't been seen in 5 min, mark abandoned
+  if (row.status === 'active') {
+    var stale = db.prepare("SELECT CASE WHEN (last_seen1 IS NULL OR last_seen1 < datetime('now','localtime','-5 minutes')) AND (last_seen2 IS NULL OR last_seen2 < datetime('now','localtime','-5 minutes')) THEN 1 ELSE 0 END as s FROM games WHERE id = ?").get(row.id);
+    if (stale && stale.s === 1) {
+      var winner = row.player1_id === userId ? 2 : 1;
+      db.prepare('UPDATE games SET status = ?, winner = ? WHERE id = ?').run('abandoned', winner, row.id);
+      return sendJSON(res, 200, { game: null });
+    }
+  }
   var myColor = row.player1_id === userId ? 1 : 2;
   sendJSON(res, 200, { game: { id: row.id, status: row.status, winner: row.winner, current_turn: row.current_turn, my_color: myColor, type: row.type } });
 }
