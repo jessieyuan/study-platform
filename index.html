@@ -6448,13 +6448,22 @@ function setXqMode(mode) {
 function renderXqAISetup() {
   var a = document.getElementById('xq-arena');
   if (!a) return;
-  var diffs = [['easy','简单'],['medium','中等'],['hard','困难']];
-  var html = '<div class="xq-ai-setup"><h3 style="margin-bottom:16px;">选择难度</h3>';
-  diffs.forEach(function(d) {
-    html += '<button class="xq-diff-btn' + (xqAIDifficulty === d[0] ? ' active' : '') + '" onclick="xqAIDifficulty=\'' + d[0] + '\';renderXqAISetup()">' + d[1] + '</button>';
-  });
-  html += '<br><button class="xq-start-btn" onclick="startXqAIGame()">开始对战</button></div>';
-  a.innerHTML = html;
+  a.innerHTML =
+    '<div class="gomoku-setup">' +
+      '<div class="gomoku-diff-row">' +
+        '<span class="gomoku-label">选择难度：</span>' +
+        '<button class="gm-diff-btn' + (xqAIDifficulty === 'easy' ? ' active' : '') + '" onclick="setXqDiff(\'easy\')">简单</button>' +
+        '<button class="gm-diff-btn' + (xqAIDifficulty === 'medium' ? ' active' : '') + '" onclick="setXqDiff(\'medium\')">中等</button>' +
+        '<button class="gm-diff-btn' + (xqAIDifficulty === 'hard' ? ' active' : '') + '" onclick="setXqDiff(\'hard\')">困难</button>' +
+      '</div>' +
+      '<button class="gomoku-start-btn" onclick="startXqAIGame()">开始对战</button>' +
+      '<div class="gomoku-hint">你执红先行，AI执黑。吃掉对方将帅即获胜！</div>' +
+    '</div>';
+}
+
+function setXqDiff(d) {
+  xqAIDifficulty = d;
+  renderXqAISetup();
 }
 
 function startXqAIGame() {
