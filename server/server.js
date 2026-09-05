@@ -932,6 +932,11 @@ async function handleGameListOpen(req, res) {
   if (!userId) return sendJSON(res, 401, { error: '未登录' });
   const url = new URL(req.url, 'http://localhost');
   const type = url.searchParams.get('type') || 'gomoku';
+  // Auto-cleanup stale rooms: waiting > 30min, active/abandoned > 1hr
+  try {
+    db.prepare("DELETE FROM game_moves WHERE game_id IN (SELECT id FROM games WHERE (status='waiting' AND created_at < datetime('now','localtime','-30 minutes')) OR (status IN ('active','abandoned') AND created_at < datetime('now','localtime','-1 hour')))").run();
+    db.prepare("DELETE FROM games WHERE (status='waiting' AND created_at < datetime('now','localtime','-30 minutes')) OR (status IN ('active','abandoned') AND created_at < datetime('now','localtime','-1 hour'))").run();
+  } catch(e) {}
   const rows = db.prepare(`
     SELECT g.id, g.type, g.player1_id, g.created_at, u.username as player1_name
     FROM games g JOIN users u ON g.player1_id = u.id
