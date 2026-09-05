@@ -2520,6 +2520,12 @@
 .xq-captured-piece { width:24px; height:24px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:700; font-family:'KaiTi','serif'; }
 .xq-captured-piece.red { color:#c00000; background:#fff5e0; border:1px solid #c00000; }
 .xq-captured-piece.black { color:#1a1a1a; background:#fff5e0; border:1px solid #1a1a1a; }
+
+.xq-piece { transition: transform 0.35s ease-out, opacity 0.2s; }
+.xq-cell.last-from { background:rgba(255,215,0,0.2) !important; }
+.xq-cell.last-to { background:rgba(255,215,0,0.3) !important; }
+.xq-move-trail { position:absolute; pointer-events:none; z-index:5; }
+
 @media(max-width:520px){ .xq-cell{ width:32px; height:32px; background-size:32px 32px; background-position:16px 16px; } .xq-board{ background-size:32px 32px; background-position:16px 16px; } .xq-piece{ width:27px; height:27px; font-size:14px; } .xq-river-text{ font-size:13px; letter-spacing:4px; } .xq-captured-piece{ width:20px; height:20px; font-size:10px; } }
 </style>
 </head>
@@ -6462,6 +6468,7 @@ function renderXqBoard() {
     for (var c = 0; c < XQ_COLS; c++) {
       var piece = xqBoard[r][c];
       var cls = 'xq-cell';
+      if (xqHistory.length > 0) { var last = xqHistory[xqHistory.length - 1]; if (last.fromR === r && last.fromC === c) cls += ' last-from'; if (last.toR === r && last.toC === c) cls += ' last-to'; }
       if (xqSelected && xqSelected.r === r && xqSelected.c === c) cls += ' selected';
       var isValidMove = xqValidMoves.some(function(m) { return m.r === r && m.c === c; });
       if (isValidMove) cls += piece ? ' valid-capture' : ' valid-move';
@@ -6507,6 +6514,42 @@ function xqCellClick(r, c) {
 function xqMakeMove(fromR, fromC, toR, toC) {
   var piece = xqBoard[fromR][fromC];
   var captured = xqBoard[toR][toC];
+
+  // Animate piece sliding from source to destination
+  var cellSize = window.innerWidth <= 520 ? 32 : 40;
+  var dx = (toC - fromC) * cellSize;
+  var dy = (toR - fromR) * cellSize;
+
+  var boardEl = document.getElementById('xq-board-el');
+  var pieceEl = null;
+  var capturedEl = null;
+  if (boardEl) {
+    var cells = boardEl.querySelectorAll('.xq-cell');
+    for (var i = 0; i < cells.length; i++) {
+      var cr = parseInt(cells[i].dataset.r);
+      var cc = parseInt(cells[i].dataset.c);
+      if (cr === fromR && cc === fromC) pieceEl = cells[i].querySelector('.xq-piece');
+      if (cr === toR && cc === toC) capturedEl = cells[i].querySelector('.xq-piece');
+    }
+  }
+
+  if (pieceEl) {
+    // Fade out captured piece
+    if (capturedEl) capturedEl.style.opacity = '0';
+    // Animate piece moving
+    pieceEl.style.zIndex = '20';
+    pieceEl.style.transform = 'translate(' + dx + 'px, ' + dy + 'px)';
+    // After animation, complete the move
+    setTimeout(function() {
+      xqCompleteMove(fromR, fromC, toR, toC, piece, captured);
+    }, 370);
+  } else {
+    // Fallback: no animation
+    xqCompleteMove(fromR, fromC, toR, toC, piece, captured);
+  }
+}
+
+function xqCompleteMove(fromR, fromC, toR, toC, piece, captured) {
   if (captured) xqCaptured.push(captured);
   xqBoard[toR][toC] = piece;
   xqBoard[fromR][fromC] = null;
@@ -6528,7 +6571,7 @@ function xqMakeMove(fromR, fromC, toR, toC) {
   renderXqBoard();
 
   if (xqMode === 'ai' && xqTurn === 'b' && !xqGameOver) {
-    setTimeout(function() { console.log("[xq] AI turn triggered"); xqAIMove(); }, 400);
+    setTimeout(function() { xqAIMove(); }, 500);
   }
   if (xqMode === 'online') xqSendMove(fromR, fromC, toR, toC, false);
 }
