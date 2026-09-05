@@ -1064,7 +1064,7 @@ async function handleGameAbandon(req, res) {
 async function handleGameMyActive(req, res) {
   const userId = getAuthUserId(req);
   if (!userId) return sendJSON(res, 401, { error: '未登录' });
-  const row = db.prepare("SELECT * FROM games WHERE (player1_id = ? OR player2_id = ?) AND status IN ('waiting', 'active', 'abandoned') ORDER BY id DESC LIMIT 1").get(userId, userId);
+  const row = db.prepare("SELECT * FROM games WHERE (player1_id = ? OR player2_id = ?) AND status IN ('waiting', 'active') ORDER BY id DESC LIMIT 1").get(userId, userId);
   if (!row) return sendJSON(res, 200, { game: null });
   var myColor = row.player1_id === userId ? 1 : 2;
   sendJSON(res, 200, { game: { id: row.id, status: row.status, winner: row.winner, current_turn: row.current_turn, my_color: myColor, type: row.type } });
