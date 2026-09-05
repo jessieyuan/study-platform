@@ -6361,6 +6361,7 @@ var xqCaptured = []; // {s, t}
 var xqGameId = null;
 var xqMyColor = 'r';
 var xqPollTimer = null;
+var xqSuppressSend = false;
 var xqAIPlacing = false;
 var xqRoomPollTimer = null;
 
@@ -6567,7 +6568,7 @@ function xqCompleteMove(fromR, fromC, toR, toC, piece, captured) {
     var winner = piece.s === 'r' ? '红方' : '黑方';
     var youWin = (xqMode === 'ai' && piece.s === 'r') || (xqMode === 'online' && piece.s === xqMyColor);
     setTimeout(function() { showXqResult(youWin ? '🎉 你赢了！' : '😢 你输了', winner + '擒住对方将帅！'); }, 300);
-    if (xqMode === 'online') xqSendMove(fromR, fromC, toR, toC, true);
+    if (xqMode === 'online' && !xqSuppressSend) xqSendMove(fromR, fromC, toR, toC, true);
     return;
   }
 
@@ -6577,7 +6578,7 @@ function xqCompleteMove(fromR, fromC, toR, toC, piece, captured) {
   if (xqMode === 'ai' && xqTurn === 'b' && !xqGameOver) {
     setTimeout(function() { xqAIMove(); }, 500);
   }
-  if (xqMode === 'online') xqSendMove(fromR, fromC, toR, toC, false);
+  if (xqMode === 'online' && !xqSuppressSend) xqSendMove(fromR, fromC, toR, toC, false);
 }
 
 // ==================== 象棋走子规则 ====================
@@ -7054,6 +7055,30 @@ function xqRejoin(id, colorStr, status) {
   else { renderXqBoard(); xqStartPolling(); }
 }
 
+function xqSyncBoardFromMoves(moves) {
+  initXqBoard();
+  for (var i = 0; i < moves.length; i++) {
+    var m = moves[i];
+    var fromR, fromC, toR, toC;
+    if (m.from_r !== undefined) { fromR = m.from_r; fromC = m.from_c; toR = m.to_r; toC = m.to_c; }
+    else { fromR = Math.floor(m.r / 10); fromC = m.r % 10; toR = Math.floor(m.c / 10); toC = m.c % 10; }
+    var piece = xqBoard[fromR][fromC];
+    var captured = xqBoard[toR][toC];
+    if (captured) xqCaptured.push(captured);
+    xqBoard[toR][toC] = piece;
+    xqBoard[fromR][fromC] = null;
+    xqHistory.push({ fromR: fromR, fromC: fromC, toR: toR, toC: toC, piece: piece, captured: captured });
+    xqTurn = xqTurn === 'r' ? 'b' : 'r';
+    if (captured && captured.t === 'K') {
+      xqGameOver = true;
+      var youWin = piece.s === xqMyColor;
+      if (xqPollTimer) { clearInterval(xqPollTimer); xqPollTimer = null; }
+      setTimeout(function() { showXqResult(youWin ? '🎉 你赢了！' : '😢 你输了', (piece.s === 'r' ? '红方' : '黑方') + '擒住对方将帅！'); }, 300);
+      return;
+    }
+  }
+}
+
 function xqLoadGameState() {
   if (!xqGameId) return;
   apiCall('GET', '/api/games/' + xqGameId).then(function(res) {
@@ -7076,36 +7101,26 @@ function xqLoadGameState() {
     }
     // Rebuild board from moves
     if (res.moves && res.moves.length > xqHistory.length) {
-      for (var i = xqHistory.length; i < res.moves.length; i++) {
-        var m = res.moves[i];
-        var fromR = m.from_r !== undefined ? m.from_r : Math.floor(m.r / 10);
-        var fromC = m.from_c !== undefined ? m.from_c : (m.r % 10);
-        var toR = m.r !== undefined ? (m.from_r !== undefined ? m.to_r : Math.floor(m.c / 10)) : 0;
-        var toC = m.c !== undefined ? (m.from_c !== undefined ? m.to_c : (m.c % 10)) : 0;
-        // Simplified: use from_r/from_c if available, else decode
-        if (m.from_r !== undefined) {
-          fromR = m.from_r; fromC = m.from_c; toR = m.to_r; toC = m.to_c;
+      var newMoves = res.moves.length - xqHistory.length;
+      if (newMoves === 1) {
+        // Single new move: animate it like own move
+        var m = res.moves[res.moves.length - 1];
+        var fromR, fromC, toR, toC;
+        if (m.from_r !== undefined) { fromR = m.from_r; fromC = m.from_c; toR = m.to_r; toC = m.to_c; }
+        else { fromR = Math.floor(m.r / 10); fromC = m.r % 10; toR = Math.floor(m.c / 10); toC = m.c % 10; }
+        if (xqBoard[fromR] && xqBoard[fromR][fromC]) {
+          xqSuppressSend = true;
+          xqMakeMove(fromR, fromC, toR, toC);
+          setTimeout(function() { xqSuppressSend = false; }, 500);
         } else {
-          fromR = Math.floor(m.r / 10); fromC = m.r % 10;
-          toR = Math.floor(m.c / 10); toC = m.c % 10;
-        }
-        var piece = xqBoard[fromR][fromC];
-        var captured = xqBoard[toR][toC];
-        if (captured) xqCaptured.push(captured);
-        xqBoard[toR][toC] = piece;
-        xqBoard[fromR][fromC] = null;
-        xqHistory.push({ fromR: fromR, fromC: fromC, toR: toR, toC: toC, piece: piece, captured: captured });
-        xqTurn = xqTurn === 'r' ? 'b' : 'r';
-        if (captured && captured.t === 'K') {
-          xqGameOver = true;
+          xqSyncBoardFromMoves(res.moves);
           renderXqBoard();
-          var youWin = piece.s === xqMyColor;
-          if (xqPollTimer) { clearInterval(xqPollTimer); xqPollTimer = null; }
-          setTimeout(function() { showXqResult(youWin ? '🎉 你赢了！' : '😢 你输了', (piece.s === 'r' ? '红方' : '黑方') + '擒住对方将帅！'); }, 300);
-          return;
         }
+      } else {
+        // Multiple new moves (reconnect): just sync and render
+        xqSyncBoardFromMoves(res.moves);
+        renderXqBoard();
       }
-      renderXqBoard();
     }
     if (res.status === 'finished' && !xqGameOver) {
       xqGameOver = true;
