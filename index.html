@@ -6185,6 +6185,7 @@ function gomokuRejoin(id, color, status) {
   gomokuSaveGameId(id);
   gomokuMyColor = color;
   initGomokuBoard();
+  renderGomokuBoard();
   if (status === 'active' || status === 'abandoned') {
     gomokuLoadGameState();
     gomokuStartPolling();
@@ -7046,6 +7047,7 @@ function xqRejoin(id, colorStr, status) {
   xqSaveGameId(id);
   xqMyColor = colorStr === '1' ? 'r' : 'b';
   initXqBoard();
+  renderXqBoard();
   if (status === 'active' || status === 'abandoned') { xqLoadGameState(); xqStartPolling(); }
   else { renderXqBoard(); xqStartPolling(); }
 }
