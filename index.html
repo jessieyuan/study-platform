@@ -2439,19 +2439,9 @@
 .gomoku-result-desc { font-size:14px; color:#888; margin-bottom:20px; }
 .gomoku-result-btn { padding:10px 32px; border:none; border-radius:12px; background:linear-gradient(135deg,#f0a020,#e89010); color:#fff; font-size:16px; font-weight:700; cursor:pointer; font-family:inherit; }
 .gomoku-online-lobby { max-width:480px; margin:0 auto; }
-.gomoku-online-actions { text-align:center; margin-bottom:20px; }
-.gomoku-create-btn { padding:12px 36px; border:none; border-radius:14px; background:linear-gradient(135deg,#54a0ff,#3a7adb); color:#fff; font-size:16px; font-weight:700; cursor:pointer; box-shadow:0 4px 14px rgba(84,160,255,0.3); font-family:inherit; }
-.gomoku-room-list { display:flex; flex-direction:column; gap:8px; }
-.gomoku-room-item { display:flex; align-items:center; justify-content:space-between; padding:12px 16px; background:#fff; border:1px solid #e8e0d0; border-radius:12px; }
-.gomoku-room-name { font-size:14px; font-weight:600; color:#5a4a2a; }
-.gomoku-join-btn { padding:6px 20px; border:none; border-radius:8px; background:#54a0ff; color:#fff; font-size:13px; font-weight:600; cursor:pointer; font-family:inherit; }
-.gomoku-empty, .gomoku-loading { text-align:center; color:#b0a080; padding:24px; font-size:14px; }
-
-.gomoku-join-by-id { display:flex; gap:8px; margin-bottom:16px; max-width:360px; margin-left:auto; margin-right:auto; }
-.gomoku-join-input { flex:1; padding:10px 14px; border:2px solid #e0d4b8; border-radius:10px; font-size:15px; font-family:inherit; background:#fff; }
-.gomoku-join-input:focus { outline:none; border-color:#54a0ff; }
-.gomoku-join-id-btn { padding:10px 20px; border:none; border-radius:10px; background:#52c41a; color:#fff; font-size:14px; font-weight:600; cursor:pointer; font-family:inherit; white-space:nowrap; }
-.gomoku-room-id { font-size:13px; color:#888; background:#f5f0e0; padding:3px 10px; border-radius:8px; }
+.gomoku-online-actions, .gomoku-create-btn, .gomoku-room-list, .gomoku-room-item, .gomoku-room-name { font-size:14px; font-weight:600; color:#5a4a2a; }
+.gomoku-join-btn, .gomoku-empty, .gomoku-loading, 
+.gomoku-join-by-id, .gomoku-join-input, .gomoku-join-input:focus, .gomoku-join-id-btn, .gomoku-room-id { font-size:13px; color:#888; background:#f5f0e0; padding:3px 10px; border-radius:8px; }
 .gomoku-waiting-overlay { position:absolute; top:0; left:0; right:0; bottom:0; background:rgba(220,184,120,0.85); display:flex; align-items:center; justify-content:center; z-index:10; border-radius:8px; }
 .gomoku-waiting-box { text-align:center; color:#5a4a2a; }
 .gomoku-waiting-spinner { width:40px; height:40px; border:4px solid #c0a060; border-top-color:transparent; border-radius:50%; margin:0 auto 12px; animation:gm-spin 1s linear infinite; }
@@ -2496,17 +2486,7 @@
 .xq-diff-btn { padding:10px 24px; margin:4px; border:2px solid #e0d4b8; border-radius:12px; background:#fff; font-size:14px; font-weight:600; cursor:pointer; font-family:inherit; }
 .xq-diff-btn.active { background:linear-gradient(135deg,#54a0ff,#3a7adb); color:#fff; border-color:transparent; }
 .xq-start-btn { margin-top:16px; padding:12px 40px; border:none; border-radius:14px; background:linear-gradient(135deg,#52c41a,#389e0d); color:#fff; font-size:16px; font-weight:700; cursor:pointer; font-family:inherit; box-shadow:0 4px 14px rgba(82,196,26,0.3); }
-.xq-online-actions { text-align:center; margin-bottom:20px; }
-.xq-create-btn { padding:12px 36px; border:none; border-radius:14px; background:linear-gradient(135deg,#54a0ff,#3a7adb); color:#fff; font-size:16px; font-weight:700; cursor:pointer; box-shadow:0 4px 14px rgba(84,160,255,0.3); font-family:inherit; }
-.xq-join-by-id { display:flex; gap:8px; margin-bottom:16px; max-width:360px; margin-left:auto; margin-right:auto; }
-.xq-join-input { flex:1; padding:10px 14px; border:2px solid #e0d4b8; border-radius:10px; font-size:15px; font-family:inherit; background:#fff; }
-.xq-join-input:focus { outline:none; border-color:#54a0ff; }
-.xq-join-id-btn { padding:10px 20px; border:none; border-radius:10px; background:#52c41a; color:#fff; font-size:14px; font-weight:600; cursor:pointer; font-family:inherit; white-space:nowrap; }
-.xq-room-list { display:flex; flex-direction:column; gap:8px; }
-.xq-room-item { display:flex; align-items:center; justify-content:space-between; padding:12px 16px; background:#fff; border:1px solid #e8e0d0; border-radius:12px; }
 .xq-room-name { font-size:14px; font-weight:600; }
-.xq-join-btn { padding:6px 20px; border:none; border-radius:8px; background:#54a0ff; color:#fff; font-size:13px; font-weight:600; cursor:pointer; font-family:inherit; }
-.xq-empty, .xq-loading { text-align:center; color:#b0a080; padding:24px; font-size:14px; }
 .xq-active-banner { display:flex; align-items:center; justify-content:space-between; gap:8px; padding:12px 18px; background:linear-gradient(135deg,#fff8e7,#ffecc4); border:2px solid #ffc972; border-radius:16px; margin-bottom:12px; box-shadow:0 3px 12px rgba(255,193,7,0.15); }
 .xq-active-info { font-size:14px; font-weight:600; color:#bf6000; }
 .xq-rejoin-btn { padding:8px 22px; border:none; border-radius:20px; background:linear-gradient(135deg,#ff9800,#f57c00); color:#fff; font-size:14px; font-weight:700; cursor:pointer; font-family:inherit; white-space:nowrap; box-shadow:0 3px 10px rgba(255,152,0,0.35); transition:transform 0.15s,box-shadow 0.15s; }
