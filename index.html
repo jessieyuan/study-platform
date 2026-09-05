@@ -2505,7 +2505,7 @@
     <button class="auth-btn secondary" id="auth-toggle-btn" onclick="toggleAuthMode()">注册新账号</button>
   </div>
 </div>
-<script>(function(){if(localStorage.getItem("summer-growth-camp-token"))document.getElementById("auth-overlay").classList.add("hidden");})();</script>
+<script>(function(){var _p=new URLSearchParams(location.search).get("p");var _k=_p?("summer-growth-camp-token-"+_p):"summer-growth-camp-token";if(localStorage.getItem(_k))document.getElementById("auth-overlay").classList.add("hidden");})();</script>
 
 <!-- 左侧导航 -->
 <nav class="nav-sidebar">
@@ -3126,7 +3126,8 @@ function showToast(msg, type) {
   }, 2500);
 }
 // ==================== 账号与数据管理 ====================
-var TOKEN_KEY = 'summer-growth-camp-token';
+var _pParam = new URLSearchParams(location.search).get('p');
+var TOKEN_KEY = _pParam ? ('summer-growth-camp-token-' + _pParam) : 'summer-growth-camp-token';
 var authToken = localStorage.getItem(TOKEN_KEY) || null;
 var currentUser = null;
 var appData = {};
