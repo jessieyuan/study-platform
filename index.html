@@ -6252,6 +6252,7 @@ function gomokuJoinRoom(id) {
     gomokuSaveGameId(id);
     gomokuMyColor = 2;
     initGomokuBoard();
+    renderGomokuBoard();
     gomokuLoadGameState();
     gomokuStartPolling();
   }).catch(function(e) { showToast('加入失败', 'error'); });
@@ -7008,6 +7009,7 @@ function xqJoinRoom(id) {
     xqSaveGameId(id);
     xqMyColor = 'b';
     initXqBoard();
+    renderXqBoard();
     xqLoadGameState();
     xqStartPolling();
   }).catch(function(e) { showToast('加入失败', 'error'); });
