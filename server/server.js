@@ -644,9 +644,11 @@ async function handleSaveExercise(req, res) {
 async function handleGetExercise(req, res) {
   const userId = getAuthUserId(req);
   if (!userId) return sendJSON(res, 401, { error: '未登录' });
-  // Cleanup stale waiting rooms (older than 30 min)
-  db.prepare("DELETE FROM game_moves WHERE game_id IN (SELECT id FROM games WHERE status = 'waiting' AND created_at < datetime('now', '-30 minutes'))").run();
-  db.prepare("DELETE FROM games WHERE status = 'waiting' AND created_at < datetime('now', '-30 minutes')").run();
+  // Cleanup stale game rooms
+  try {
+    db.prepare("DELETE FROM game_moves WHERE game_id IN (SELECT id FROM games WHERE (status='waiting' AND created_at < datetime('now','localtime','-30 minutes')) OR (status IN ('active','abandoned') AND created_at < datetime('now','localtime','-1 hour')) OR (status='finished' AND created_at < datetime('now','localtime','-10 minutes')))").run();
+    db.prepare("DELETE FROM games WHERE (status='waiting' AND created_at < datetime('now','localtime','-30 minutes')) OR (status IN ('active','abandoned') AND created_at < datetime('now','localtime','-1 hour')) OR (status='finished' AND created_at < datetime('now','localtime','-10 minutes'))").run();
+  } catch(e) {}
   const rows = db.prepare(`SELECT subject, lesson_id, score, total, wrong, created_at FROM exercise_records WHERE user_id = ?`).all(userId);
   const records = {};
   for (const r of rows) {
@@ -934,8 +936,8 @@ async function handleGameListOpen(req, res) {
   const type = url.searchParams.get('type') || 'gomoku';
   // Auto-cleanup stale rooms: waiting > 30min, active/abandoned > 1hr
   try {
-    db.prepare("DELETE FROM game_moves WHERE game_id IN (SELECT id FROM games WHERE (status='waiting' AND created_at < datetime('now','localtime','-30 minutes')) OR (status IN ('active','abandoned') AND created_at < datetime('now','localtime','-1 hour')))").run();
-    db.prepare("DELETE FROM games WHERE (status='waiting' AND created_at < datetime('now','localtime','-30 minutes')) OR (status IN ('active','abandoned') AND created_at < datetime('now','localtime','-1 hour'))").run();
+    db.prepare("DELETE FROM game_moves WHERE game_id IN (SELECT id FROM games WHERE (status='waiting' AND created_at < datetime('now','localtime','-30 minutes')) OR (status IN ('active','abandoned') AND created_at < datetime('now','localtime','-1 hour')) OR (status='finished' AND created_at < datetime('now','localtime','-10 minutes')))").run();
+    db.prepare("DELETE FROM games WHERE (status='waiting' AND created_at < datetime('now','localtime','-30 minutes')) OR (status IN ('active','abandoned') AND created_at < datetime('now','localtime','-1 hour')) OR (status='finished' AND created_at < datetime('now','localtime','-10 minutes'))").run();
   } catch(e) {}
   const rows = db.prepare(`
     SELECT g.id, g.type, g.player1_id, g.created_at, u.username as player1_name
