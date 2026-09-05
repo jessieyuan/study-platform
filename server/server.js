@@ -946,6 +946,27 @@ async function handleGameJoin(req, res) {
 }
 
 /** POST /api/games/move */
+
+// Check 5-in-a-row for game move
+function checkGameWin(moves, r, c, player) {
+  var dirs = [[0,1],[1,0],[1,1],[1,-1]];
+  for (var d = 0; d < 4; d++) {
+    var cnt = 1;
+    for (var i = 1; i < 5; i++) {
+      var nr = r + dirs[d][0]*i, nc = c + dirs[d][1]*i;
+      if (moves.some(function(m){ return m.player_id === player && m.move_r === nr && m.move_c === nc; })) cnt++;
+      else break;
+    }
+    for (var i = 1; i < 5; i++) {
+      var nr = r - dirs[d][0]*i, nc = c - dirs[d][1]*i;
+      if (moves.some(function(m){ return m.player_id === player && m.move_r === nr && m.move_c === nc; })) cnt++;
+      else break;
+    }
+    if (cnt >= 5) return true;
+  }
+  return false;
+}
+
 async function handleGameMove(req, res) {
   const userId = getAuthUserId(req);
   if (!userId) return sendJSON(res, 401, { error: '未登录' });
@@ -963,9 +984,19 @@ async function handleGameMove(req, res) {
   const moves = db.prepare('SELECT COUNT(*) as c FROM game_moves WHERE game_id = ?').get(gameId);
   const moveNo = moves.c + 1;
   db.prepare('INSERT INTO game_moves (game_id, player_id, move_r, move_c, move_no) VALUES (?, ?, ?, ?, ?)').run(gameId, userId, body.r, body.c, moveNo);
-  var nextTurn = playerNum === 1 ? 2 : 1;
-  db.prepare('UPDATE games SET current_turn = ? WHERE id = ?').run(nextTurn, gameId);
-  sendJSON(res, 200, { ok: true });
+  var allMoves = db.prepare('SELECT player_id, move_r, move_c FROM game_moves WHERE game_id = ?').all(gameId);
+  var isWin = checkGameWin(allMoves, body.r, body.c, userId);
+  if (isWin) {
+    db.prepare('UPDATE games SET status = ?, winner = ? WHERE id = ?').run('finished', playerNum, gameId);
+    sendJSON(res, 200, { ok: true, win: true });
+  } else if (allMoves.length >= 225) {
+    db.prepare('UPDATE games SET status = ? WHERE id = ?').run('finished', gameId);
+    sendJSON(res, 200, { ok: true, draw: true });
+  } else {
+    var nextTurn = playerNum === 1 ? 2 : 1;
+    db.prepare('UPDATE games SET current_turn = ? WHERE id = ?').run(nextTurn, gameId);
+    sendJSON(res, 200, { ok: true });
+  }
 }
 
 /** GET /api/games/:id */
