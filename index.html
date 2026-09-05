@@ -6386,6 +6386,8 @@ function initXqBoard() {
 
 function renderXqLobby() {
   if (xqPollTimer) { clearInterval(xqPollTimer); xqPollTimer = null; }
+  xqCloseRoom();
+  xqGameOver = false;
   var c = document.getElementById('brain-content');
   if (!c) return;
   c.innerHTML =
