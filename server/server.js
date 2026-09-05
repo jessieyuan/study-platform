@@ -210,6 +210,10 @@ db.exec(`
   )
 `);
 
+  // Migration: add last_seen columns for disconnect detection
+  try { db.exec('ALTER TABLE games ADD COLUMN last_seen1 TEXT'); } catch(e) {}
+  try { db.exec('ALTER TABLE games ADD COLUMN last_seen2 TEXT'); } catch(e) {}
+
   db.exec(`
     CREATE TABLE IF NOT EXISTS game_moves (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -1035,6 +1039,16 @@ async function handleGameAbandon(req, res) {
   sendJSON(res, 200, { ok: true });
 }
 
+/** GET /api/games/my-active - find player's active/abandoned game */
+async function handleGameMyActive(req, res) {
+  const userId = getAuthUserId(req);
+  if (!userId) return sendJSON(res, 401, { error: '未登录' });
+  const row = db.prepare("SELECT * FROM games WHERE (player1_id = ? OR player2_id = ?) AND status IN ('waiting', 'active', 'abandoned') ORDER BY id DESC LIMIT 1").get(userId, userId);
+  if (!row) return sendJSON(res, 200, { game: null });
+  var myColor = row.player1_id === userId ? 1 : 2;
+  sendJSON(res, 200, { game: { id: row.id, status: row.status, winner: row.winner, current_turn: row.current_turn, my_color: myColor, type: row.type } });
+}
+
 // ==================== 静态文件服务 ====================
 /** 解析 URL 对应的项目内绝对路径；越出项目目录（路径穿越）返回 null */
 function safeResolve(urlPath) {
@@ -1215,6 +1229,7 @@ const server = http.createServer(async (req, res) => {
     // 棋类游戏 API
     if (pathname === '/api/games/create' && req.method === 'POST') return await handleGameCreate(req, res);
     if (pathname === '/api/games/open' && req.method === 'GET') return await handleGameListOpen(req, res);
+    if (pathname === '/api/games/my-active' && req.method === 'GET') return await handleGameMyActive(req, res);
     if (pathname === '/api/games/join' && req.method === 'POST') return await handleGameJoin(req, res);
     if (pathname === '/api/games/move' && req.method === 'POST') return await handleGameMove(req, res);
     if (pathname === '/api/games/abandon' && req.method === 'POST') return await handleGameAbandon(req, res);

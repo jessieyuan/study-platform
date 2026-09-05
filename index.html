@@ -5665,6 +5665,8 @@ var gomokuGameOver = false;
 var gomokuMyColor = 1; // online mode
 var gomokuPollTimer = null;
 var gomokuGameId = null;
+function gomokuSaveGameId(id) { gomokuGameId = id; if (id) localStorage.setItem('gomoku-game-id', id); else localStorage.removeItem('gomoku-game-id'); }
+function gomokuRestoreGameId() { var id = parseInt(localStorage.getItem('gomoku-game-id')); if (id) gomokuGameId = id; }
 
 function initGomokuBoard() {
   gomokuBoard = [];
@@ -5679,7 +5681,7 @@ function initGomokuBoard() {
 function gomokuCloseRoom() {
   if (gomokuGameId) {
     apiCall('POST', '/api/games/abandon', { game_id: gomokuGameId }).catch(function(){});
-    gomokuGameId = null;
+    gomokuSaveGameId(null);
   }
 }
 
@@ -6093,6 +6095,37 @@ function showGomokuResult(title, desc) {
 }
 
 // ---- Gomoku Online ----
+function gomokuCheckActiveGame() {
+  apiCall('GET', '/api/games/my-active').then(function(res) {
+    if (res.game) {
+      var el = document.getElementById('gomoku-arena');
+      if (!el) return;
+      var banner = document.getElementById('gomoku-active-banner');
+      if (!banner) {
+        banner = document.createElement('div');
+        banner.id = 'gomoku-active-banner';
+        banner.className = 'gomoku-active-banner';
+        el.insertBefore(banner, el.firstChild);
+      }
+      var statusText = res.game.status === 'waiting' ? '等待对手加入' : (res.game.status === 'abandoned' ? '对手已离开' : '对局进行中');
+      banner.innerHTML = '<div class="gomoku-active-info">房间号 ' + res.game.id + ' · ' + statusText + '</div><button class="gomoku-rejoin-btn" onclick="gomokuRejoin(' + res.game.id + ',' + res.game.my_color + ',\'' + res.game.status + '\')">回到对局</button>';
+    }
+  }).catch(function(){});
+}
+
+function gomokuRejoin(id, color, status) {
+  gomokuSaveGameId(id);
+  gomokuMyColor = color;
+  initGomokuBoard();
+  if (status === 'active' || status === 'abandoned') {
+    gomokuLoadGameState();
+    gomokuStartPolling();
+  } else {
+    renderGomokuBoard();
+    gomokuStartPolling();
+  }
+}
+
 function renderGomokuOnlineLobby() {
   var a = document.getElementById('gomoku-arena');
   if (!a) return;
@@ -6107,6 +6140,7 @@ function renderGomokuOnlineLobby() {
     '<div class="gomoku-room-list" id="gomoku-room-list"><div class="gomoku-loading">加载中...</div></div>' +
   '</div>';
   gomokuLoadRooms();
+  gomokuCheckActiveGame();
 }
 
 var gomokuRoomPollTimer = null;
@@ -6134,7 +6168,7 @@ function gomokuLoadRooms() {
 function gomokuCreateRoom() {
   apiCall('POST', '/api/games/create', { type: 'gomoku' }).then(function(res) {
     if (res.error) { showToast(res.error, 'error'); return; }
-    gomokuGameId = res.game_id;
+    gomokuSaveGameId(res.game_id);
     gomokuMyColor = 1;
     initGomokuBoard();
     renderGomokuBoard();
@@ -6146,7 +6180,7 @@ function gomokuCreateRoom() {
 function gomokuJoinRoom(id) {
   apiCall('POST', '/api/games/join', { game_id: id }).then(function(res) {
     if (res.error) { showToast(res.error, 'error'); return; }
-    gomokuGameId = id;
+    gomokuSaveGameId(id);
     gomokuMyColor = 2;
     initGomokuBoard();
     gomokuLoadGameState();
@@ -6188,6 +6222,19 @@ function gomokuLoadGameState() {
     }
     var waitOv = document.getElementById('gomoku-waiting-overlay');
     if (waitOv) waitOv.remove();
+    if (res.opp_away && !gomokuGameOver) {
+      var st = document.querySelector('.gomoku-status');
+      if (st && !document.getElementById('gomoku-opp-away')) {
+        var away = document.createElement('span');
+        away.id = 'gomoku-opp-away';
+        away.className = 'gomoku-opp-away';
+        away.textContent = '⚠️ 对手可能已离开';
+        st.appendChild(away);
+      }
+    } else {
+      var awayEl = document.getElementById('gomoku-opp-away');
+      if (awayEl) awayEl.remove();
+    }
     if (res.moves && res.moves.length > gomokuHistory.length) {
       for (var i = gomokuHistory.length; i < res.moves.length; i++) {
         var m = res.moves[i];
