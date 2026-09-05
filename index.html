@@ -6528,7 +6528,7 @@ function xqMakeMove(fromR, fromC, toR, toC) {
   renderXqBoard();
 
   if (xqMode === 'ai' && xqTurn === 'b' && !xqGameOver) {
-    setTimeout(function() { xqAIMove(); }, 400);
+    setTimeout(function() { console.log("[xq] AI turn triggered"); xqAIMove(); }, 400);
   }
   if (xqMode === 'online') xqSendMove(fromR, fromC, toR, toC, false);
 }
@@ -6677,8 +6677,9 @@ function xqSoldierMoves(r, c, side) {
   }
   // Sideways moves (only after crossing river)
   if (crossedRiver) {
-    for (var dc of [-1, 1]) {
-      var nc = c + dc;
+    var dcs = [-1, 1];
+    for (var di = 0; di < dcs.length; di++) {
+      var nc = c + dcs[di];
       if (nc >= 0 && nc < XQ_COLS) {
         var p2 = xqBoard[r][nc];
         if (!p2 || p2.s !== side) moves.push({ r: r, c: nc });
@@ -6773,6 +6774,7 @@ function getAllXqMoves(side) {
 
 // ==================== 象棋 AI ====================
 function xqAIMove() {
+  try {
   var move;
   if (xqAIDifficulty === 'easy') {
     move = xqAIEasy();
@@ -6786,6 +6788,7 @@ function xqAIMove() {
     xqMakeMove(move.fromR, move.fromC, move.toR, move.toC);
     xqAIPlacing = false;
   }
+  } catch(e) { console.error("[xq] AI error:", e); }
 }
 
 function xqAIEasy() {
