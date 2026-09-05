@@ -2460,6 +2460,67 @@
 
 @media(max-width:520px){ .gomoku-cell{ width:24px; height:24px; } .gomoku-cell.black::after,.gomoku-cell.white::after{ width:19px; height:19px; } .gomoku-board{ background-size:24px 24px; background-position:12px 12px; } }
 
+/* ==================== 象棋 ==================== */
+.xq-board-wrap { display:flex; justify-content:center; overflow-x:auto; padding:10px 0; }
+.xq-board { display:inline-block; position:relative; background-color:#e8c886; background-image:linear-gradient(rgba(120,80,30,0.5) 1px, transparent 1px),linear-gradient(90deg, rgba(120,80,30,0.5) 1px, transparent 1px); background-size:40px 40px; background-position:20px 20px; border:3px solid #b08040; border-radius:8px; box-shadow:0 6px 20px rgba(0,0,0,0.15); }
+.xq-row { display:flex; }
+.xq-cell { width:40px; height:40px; display:flex; align-items:center; justify-content:center; position:relative; cursor:default; }
+.xq-piece { width:34px; height:34px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:18px; font-weight:900; font-family:'KaiTi','STKaiti','serif'; box-shadow:0 2px 5px rgba(0,0,0,0.25); cursor:pointer; user-select:none; transition:transform 0.15s; }
+.xq-piece.red { background:radial-gradient(circle at 35% 30%, #fff5e0, #f0d8a0); color:#c00000; border:2px solid #c00000; }
+.xq-piece.black { background:radial-gradient(circle at 35% 30%, #fff5e0, #f0d8a0); color:#1a1a1a; border:2px solid #1a1a1a; }
+.xq-piece:hover { transform:scale(1.1); }
+.xq-cell.selected .xq-piece { box-shadow:0 0 0 3px #ffd700, 0 2px 8px rgba(0,0,0,0.3); transform:scale(1.08); }
+.xq-cell.valid-move::after { content:''; position:absolute; width:14px; height:14px; border-radius:50%; background:rgba(76,175,80,0.5); z-index:0; }
+.xq-cell.valid-capture::after { content:''; position:absolute; width:30px; height:30px; border-radius:50%; border:3px solid rgba(244,67,54,0.6); z-index:0; }
+.xq-river-text { position:absolute; left:50%; transform:translateX(-50%); font-size:16px; color:rgba(120,80,30,0.4); font-weight:700; font-family:'KaiTi','serif'; letter-spacing:8px; pointer-events:none; }
+.xq-palace-line { position:absolute; pointer-events:none; }
+.xq-status { display:flex; align-items:center; justify-content:center; gap:12px; padding:10px 16px; margin-bottom:12px; flex-wrap:wrap; }
+.xq-turn { font-size:15px; font-weight:700; padding:4px 14px; border-radius:10px; }
+.xq-turn.red { background:#fff0f0; color:#c00000; }
+.xq-turn.black { background:#f0f0f0; color:#1a1a1a; }
+.xq-room-id { font-size:13px; color:#888; background:#f5f0e0; padding:3px 10px; border-radius:8px; }
+.xq-opp-away { font-size:13px; color:#e65100; background:#fff3e0; padding:3px 10px; border-radius:8px; margin-left:8px; animation:xq-blink 1.5s ease infinite; }
+@keyframes xq-blink { 50% { opacity:0.5; } }
+.xq-controls { display:flex; gap:8px; align-items:center; }
+.xq-restart { padding:6px 16px; border:1px solid #d0c0a0; border-radius:20px; background:#fff; font-size:13px; cursor:pointer; font-family:inherit; }
+.xq-result-overlay { position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); display:flex; align-items:center; justify-content:center; z-index:9999; }
+.xq-result-box { background:#fff; border-radius:20px; padding:30px 40px; text-align:center; box-shadow:0 8px 30px rgba(0,0,0,0.2); }
+.xq-result-title { font-size:24px; font-weight:700; margin-bottom:8px; }
+.xq-result-desc { font-size:15px; color:#888; margin-bottom:20px; }
+.xq-result-btn { padding:10px 30px; border:none; border-radius:14px; background:linear-gradient(135deg,#54a0ff,#3a7adb); color:#fff; font-size:15px; font-weight:600; cursor:pointer; font-family:inherit; }
+.xq-lobby { max-width:480px; margin:0 auto; }
+.xq-mode-tabs { display:flex; gap:8px; margin-bottom:16px; }
+.xq-mode-tab { flex:1; padding:10px; border:1px solid #e0d4b8; border-radius:12px; background:#fff; font-size:14px; font-weight:600; cursor:pointer; font-family:inherit; text-align:center; }
+.xq-mode-tab.active { background:linear-gradient(135deg,#54a0ff,#3a7adb); color:#fff; border-color:transparent; }
+.xq-ai-setup { text-align:center; padding:20px; }
+.xq-diff-btn { padding:10px 24px; margin:4px; border:2px solid #e0d4b8; border-radius:12px; background:#fff; font-size:14px; font-weight:600; cursor:pointer; font-family:inherit; }
+.xq-diff-btn.active { background:linear-gradient(135deg,#54a0ff,#3a7adb); color:#fff; border-color:transparent; }
+.xq-start-btn { margin-top:16px; padding:12px 40px; border:none; border-radius:14px; background:linear-gradient(135deg,#52c41a,#389e0d); color:#fff; font-size:16px; font-weight:700; cursor:pointer; font-family:inherit; box-shadow:0 4px 14px rgba(82,196,26,0.3); }
+.xq-online-actions { text-align:center; margin-bottom:20px; }
+.xq-create-btn { padding:12px 36px; border:none; border-radius:14px; background:linear-gradient(135deg,#54a0ff,#3a7adb); color:#fff; font-size:16px; font-weight:700; cursor:pointer; box-shadow:0 4px 14px rgba(84,160,255,0.3); font-family:inherit; }
+.xq-join-by-id { display:flex; gap:8px; margin-bottom:16px; max-width:360px; margin-left:auto; margin-right:auto; }
+.xq-join-input { flex:1; padding:10px 14px; border:2px solid #e0d4b8; border-radius:10px; font-size:15px; font-family:inherit; background:#fff; }
+.xq-join-input:focus { outline:none; border-color:#54a0ff; }
+.xq-join-id-btn { padding:10px 20px; border:none; border-radius:10px; background:#52c41a; color:#fff; font-size:14px; font-weight:600; cursor:pointer; font-family:inherit; white-space:nowrap; }
+.xq-room-list { display:flex; flex-direction:column; gap:8px; }
+.xq-room-item { display:flex; align-items:center; justify-content:space-between; padding:12px 16px; background:#fff; border:1px solid #e8e0d0; border-radius:12px; }
+.xq-room-name { font-size:14px; font-weight:600; }
+.xq-join-btn { padding:6px 20px; border:none; border-radius:8px; background:#54a0ff; color:#fff; font-size:13px; font-weight:600; cursor:pointer; font-family:inherit; }
+.xq-empty, .xq-loading { text-align:center; color:#b0a080; padding:24px; font-size:14px; }
+.xq-active-banner { display:flex; align-items:center; justify-content:space-between; gap:8px; padding:12px 18px; background:linear-gradient(135deg,#fff8e7,#ffecc4); border:2px solid #ffc972; border-radius:16px; margin-bottom:12px; box-shadow:0 3px 12px rgba(255,193,7,0.15); }
+.xq-active-info { font-size:14px; font-weight:600; color:#bf6000; }
+.xq-rejoin-btn { padding:8px 22px; border:none; border-radius:20px; background:linear-gradient(135deg,#ff9800,#f57c00); color:#fff; font-size:14px; font-weight:700; cursor:pointer; font-family:inherit; white-space:nowrap; box-shadow:0 3px 10px rgba(255,152,0,0.35); transition:transform 0.15s,box-shadow 0.15s; }
+.xq-rejoin-btn:hover { transform:scale(1.06); box-shadow:0 4px 14px rgba(255,152,0,0.45); }
+.xq-waiting-overlay { position:absolute; top:0; left:0; right:0; bottom:0; background:rgba(232,200,134,0.85); display:flex; align-items:center; justify-content:center; z-index:10; border-radius:8px; }
+.xq-waiting-box { text-align:center; color:#5a4a2a; }
+.xq-waiting-spinner { width:40px; height:40px; border:4px solid #c0a060; border-top-color:transparent; border-radius:50%; margin:0 auto 12px; animation:xq-spin 1s linear infinite; }
+@keyframes xq-spin { to { transform:rotate(360deg); } }
+.xq-waiting-box p { margin:4px 0; font-size:15px; font-weight:600; }
+.xq-captured { display:flex; gap:4px; flex-wrap:wrap; justify-content:center; margin-top:8px; max-width:360px; }
+.xq-captured-piece { width:24px; height:24px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:700; font-family:'KaiTi','serif'; }
+.xq-captured-piece.red { color:#c00000; background:#fff5e0; border:1px solid #c00000; }
+.xq-captured-piece.black { color:#1a1a1a; background:#fff5e0; border:1px solid #1a1a1a; }
+@media(max-width:520px){ .xq-cell{ width:32px; height:32px; background-size:32px 32px; background-position:16px 16px; } .xq-board{ background-size:32px 32px; background-position:16px 16px; } .xq-piece{ width:27px; height:27px; font-size:14px; } .xq-river-text{ font-size:13px; letter-spacing:4px; } .xq-captured-piece{ width:20px; height:20px; font-size:10px; } }
 </style>
 </head>
 <body>
@@ -6108,7 +6169,7 @@ function gomokuCheckActiveGame() {
         el.insertBefore(banner, el.firstChild);
       }
       var statusText = res.game.status === 'waiting' ? '等待对手加入' : (res.game.status === 'abandoned' ? '对手已离开' : '对局进行中');
-      banner.innerHTML = '<div class="gomoku-active-info">房间号 ' + res.game.id + ' · ' + statusText + '</div><button class="gomoku-rejoin-btn" onclick="gomokuRejoin(' + res.game.id + ',' + res.game.my_color + ',\'' + res.game.status + '\')">回到对局</button>';
+      banner.innerHTML = '<div class="gomoku-active-info">房间号 ' + res.game.id + ' · ' + statusText + '</div><button class="gomoku-rejoin-btn" onclick="gomokuRejoin(' + res.game.id + ',' + res.game.my_color + ',\'' + res.game.status + '\')">🎮 回到对局</button>';
     }
   }).catch(function(){});
 }
@@ -6274,6 +6335,745 @@ function gomokuSendMove(r, c, isWin) {
   apiCall('POST', '/api/games/move', { game_id: gomokuGameId, r: r, c: c }).then(function(res) {
     if (res.error) showToast(res.error, 'error');
   }).catch(function(e) { console.error('[gomoku] move error:', e); });
+}
+
+
+// ==================== 象棋 ====================
+var XQ_ROWS = 10, XQ_COLS = 9;
+var xqBoard = [];
+var xqTurn = 'r'; // 'r'=red, 'b'=black
+var xqMode = 'ai';
+var xqAIDifficulty = 'medium';
+var xqSelected = null;
+var xqValidMoves = [];
+var xqGameOver = false;
+var xqHistory = [];
+var xqCaptured = []; // {s, t}
+var xqGameId = null;
+var xqMyColor = 'r';
+var xqPollTimer = null;
+var xqAIPlacing = false;
+var xqRoomPollTimer = null;
+
+var XQ_PIECE_CHAR = {
+  r: { K: '帥', A: '仕', E: '相', H: '馬', R: '車', C: '炮', S: '兵' },
+  b: { K: '將', A: '士', E: '象', H: '馬', R: '車', C: '砲', S: '卒' }
+};
+
+var XQ_PIECE_VAL = { K: 10000, R: 900, H: 400, C: 450, A: 200, E: 200, S: 100 };
+
+function initXqBoard() {
+  xqBoard = [];
+  for (var r = 0; r < XQ_ROWS; r++) xqBoard.push(new Array(XQ_COLS).fill(null));
+  // Black pieces (top)
+  var bBack = ['R','H','E','A','K','A','E','H','R'];
+  for (var c = 0; c < 9; c++) xqBoard[0][c] = { s:'b', t: bBack[c] };
+  xqBoard[2][1] = { s:'b', t:'C' }; xqBoard[2][7] = { s:'b', t:'C' };
+  for (var c = 0; c < 9; c += 2) xqBoard[3][c] = { s:'b', t:'S' };
+  // Red pieces (bottom)
+  for (var c = 0; c < 9; c++) xqBoard[9][c] = { s:'r', t: bBack[c] };
+  xqBoard[7][1] = { s:'r', t:'C' }; xqBoard[7][7] = { s:'r', t:'C' };
+  for (var c = 0; c < 9; c += 2) xqBoard[6][c] = { s:'r', t:'S' };
+  xqTurn = 'r'; xqSelected = null; xqValidMoves = []; xqGameOver = false; xqHistory = []; xqCaptured = [];
+}
+
+function renderXqLobby() {
+  if (xqPollTimer) { clearInterval(xqPollTimer); xqPollTimer = null; }
+  var c = document.getElementById('brain-content');
+  if (!c) return;
+  c.innerHTML =
+    '<div class="xq-lobby">' +
+      '<div class="xq-mode-tabs">' +
+        '<button class="xq-mode-tab' + (xqMode === 'ai' ? ' active' : '') + '" onclick="setXqMode(\'ai\')">🤖 人机对战</button>' +
+        '<button class="xq-mode-tab' + (xqMode === 'online' ? ' active' : '') + '" onclick="setXqMode(\'online\')">👥 在线对战</button>' +
+      '</div>' +
+      '<div id="xq-arena"></div>' +
+    '</div>';
+  if (xqMode === 'ai') renderXqAISetup();
+  else renderXqOnlineLobby();
+}
+
+function setXqMode(mode) {
+  xqMode = mode;
+  renderXqLobby();
+}
+
+function renderXqAISetup() {
+  var a = document.getElementById('xq-arena');
+  if (!a) return;
+  var diffs = [['easy','简单'],['medium','中等'],['hard','困难']];
+  var html = '<div class="xq-ai-setup"><h3 style="margin-bottom:16px;">选择难度</h3>';
+  diffs.forEach(function(d) {
+    html += '<button class="xq-diff-btn' + (xqAIDifficulty === d[0] ? ' active' : '') + '" onclick="xqAIDifficulty=\'' + d[0] + '\';renderXqAISetup()">' + d[1] + '</button>';
+  });
+  html += '<br><button class="xq-start-btn" onclick="startXqAIGame()">开始对战</button></div>';
+  a.innerHTML = html;
+}
+
+function startXqAIGame() {
+  initXqBoard();
+  xqMyColor = 'r';
+  renderXqBoard();
+}
+
+function renderXqBoard() {
+  var a = document.getElementById('xq-arena');
+  if (!a) return;
+  var myTurn = !xqGameOver && (xqMode === 'ai' ? xqTurn === 'r' : xqTurn === xqMyColor);
+  var turnText;
+  if (xqGameOver) turnText = '游戏结束';
+  else if (xqMode === 'online') turnText = myTurn ? '🔵 轮到你了' : '⏳ 等待对手落子...';
+  else turnText = (xqTurn === 'r' ? '红方' : '黑方') + '回合';
+  var html = '<div class="xq-status">' +
+    '<span class="xq-turn ' + (xqTurn === 'r' ? 'red' : 'black') + '">' + turnText + '</span>' +
+    (xqMode === 'online' ? '<span style="font-size:13px;color:#666;">你执' + (xqMyColor === 'r' ? '红' : '黑') + '</span>' : '') +
+    (xqMode === 'online' && xqGameId ? '<span class="xq-room-id">房间号: ' + xqGameId + '</span>' : '') +
+    '<button class="xq-restart" onclick="renderXqLobby()">返回</button>' +
+  '</div>';
+
+  // Captured pieces
+  if (xqCaptured.length > 0) {
+    html += '<div class="xq-captured">';
+    xqCaptured.forEach(function(p) {
+      html += '<div class="xq-captured-piece ' + (p.s === 'r' ? 'red' : 'black') + '">' + XQ_PIECE_CHAR[p.s][p.t] + '</div>';
+    });
+    html += '</div>';
+  }
+
+  html += '<div class="xq-board-wrap"><div class="xq-board" id="xq-board-el" style="position:relative;">';
+  // Palace diagonal lines using SVG overlay
+  var cellSize = window.innerWidth <= 520 ? 32 : 40;
+  var offset = cellSize / 2;
+  html += '<svg style="position:absolute;top:0;left:0;pointer-events:none;z-index:0;" width="' + (cellSize*9) + '" height="' + (cellSize*10) + '">';
+  // Top palace diagonals
+  html += '<line x1="' + (3*cellSize+offset) + '" y1="' + offset + '" x2="' + (5*cellSize+offset) + '" y2="' + (2*cellSize+offset) + '" stroke="rgba(120,80,30,0.5)" stroke-width="1"/>';
+  html += '<line x1="' + (5*cellSize+offset) + '" y1="' + offset + '" x2="' + (3*cellSize+offset) + '" y2="' + (2*cellSize+offset) + '" stroke="rgba(120,80,30,0.5)" stroke-width="1"/>';
+  // Bottom palace diagonals
+  html += '<line x1="' + (3*cellSize+offset) + '" y1="' + (7*cellSize+offset) + '" x2="' + (5*cellSize+offset) + '" y2="' + (9*cellSize+offset) + '" stroke="rgba(120,80,30,0.5)" stroke-width="1"/>';
+  html += '<line x1="' + (5*cellSize+offset) + '" y1="' + (7*cellSize+offset) + '" x2="' + (3*cellSize+offset) + '" y2="' + (9*cellSize+offset) + '" stroke="rgba(120,80,30,0.5)" stroke-width="1"/>';
+  // River text
+  html += '<text x="' + (1.5*cellSize+offset) + '" y="' + (4.5*cellSize+offset+5) + '" fill="rgba(120,80,30,0.35)" font-size="14" font-family="KaiTi,serif" font-weight="700" letter-spacing="6">楚 河</text>';
+  html += '<text x="' + (6*cellSize+offset-10) + '" y="' + (4.5*cellSize+offset+5) + '" fill="rgba(120,80,30,0.35)" font-size="14" font-family="KaiTi,serif" font-weight="700" letter-spacing="6">漢 界</text>';
+  html += '</svg>';
+
+  for (var r = 0; r < XQ_ROWS; r++) {
+    html += '<div class="xq-row">';
+    for (var c = 0; c < XQ_COLS; c++) {
+      var piece = xqBoard[r][c];
+      var cls = 'xq-cell';
+      if (xqSelected && xqSelected.r === r && xqSelected.c === c) cls += ' selected';
+      var isValidMove = xqValidMoves.some(function(m) { return m.r === r && m.c === c; });
+      if (isValidMove) cls += piece ? ' valid-capture' : ' valid-move';
+      html += '<div class="' + cls + '" data-r="' + r + '" data-c="' + c + '"';
+      if (myTurn) html += ' onclick="xqCellClick(' + r + ',' + c + ')"';
+      html += '>';
+      if (piece) {
+        html += '<div class="xq-piece ' + (piece.s === 'r' ? 'red' : 'black') + '">' + XQ_PIECE_CHAR[piece.s][piece.t] + '</div>';
+      }
+      html += '</div>';
+    }
+    html += '</div>';
+  }
+  html += '</div></div>';
+  a.innerHTML = html;
+}
+
+function xqCellClick(r, c) {
+  if (xqGameOver) return;
+  if (xqMode === 'ai' && xqTurn !== 'r' && !xqAIPlacing) return;
+  if (xqMode === 'online' && xqTurn !== xqMyColor) return;
+  var piece = xqBoard[r][c];
+  // If clicking own piece, select it
+  if (piece && piece.s === xqTurn) {
+    xqSelected = { r: r, c: c };
+    xqValidMoves = getXqValidMoves(r, c);
+    renderXqBoard();
+    return;
+  }
+  // If a piece is selected and clicking a valid move
+  if (xqSelected) {
+    var valid = xqValidMoves.some(function(m) { return m.r === r && m.c === c; });
+    if (valid) {
+      xqMakeMove(xqSelected.r, xqSelected.c, r, c);
+      return;
+    }
+  }
+  // Deselect
+  xqSelected = null; xqValidMoves = [];
+  renderXqBoard();
+}
+
+function xqMakeMove(fromR, fromC, toR, toC) {
+  var piece = xqBoard[fromR][fromC];
+  var captured = xqBoard[toR][toC];
+  if (captured) xqCaptured.push(captured);
+  xqBoard[toR][toC] = piece;
+  xqBoard[fromR][fromC] = null;
+  xqHistory.push({ fromR: fromR, fromC: fromC, toR: toR, toC: toC, piece: piece, captured: captured });
+  xqSelected = null; xqValidMoves = [];
+
+  // Check win (king captured)
+  if (captured && captured.t === 'K') {
+    xqGameOver = true;
+    renderXqBoard();
+    var winner = piece.s === 'r' ? '红方' : '黑方';
+    var youWin = (xqMode === 'ai' && piece.s === 'r') || (xqMode === 'online' && piece.s === xqMyColor);
+    setTimeout(function() { showXqResult(youWin ? '🎉 你赢了！' : '😢 你输了', winner + '擒住对方将帅！'); }, 300);
+    if (xqMode === 'online') xqSendMove(fromR, fromC, toR, toC, true);
+    return;
+  }
+
+  xqTurn = xqTurn === 'r' ? 'b' : 'r';
+  renderXqBoard();
+
+  if (xqMode === 'ai' && xqTurn === 'b' && !xqGameOver) {
+    setTimeout(function() { xqAIMove(); }, 400);
+  }
+  if (xqMode === 'online') xqSendMove(fromR, fromC, toR, toC, false);
+}
+
+// ==================== 象棋走子规则 ====================
+function getXqValidMoves(r, c) {
+  var piece = xqBoard[r][c];
+  if (!piece) return [];
+  var moves = [];
+  switch (piece.t) {
+    case 'K': moves = xqKingMoves(r, c, piece.s); break;
+    case 'A': moves = xqAdvisorMoves(r, c, piece.s); break;
+    case 'E': moves = xqElephantMoves(r, c, piece.s); break;
+    case 'H': moves = xqHorseMoves(r, c, piece.s); break;
+    case 'R': moves = xqChariotMoves(r, c, piece.s); break;
+    case 'C': moves = xqCannonMoves(r, c, piece.s); break;
+    case 'S': moves = xqSoldierMoves(r, c, piece.s); break;
+  }
+  // Filter out moves that leave own king in check (including flying general)
+  return moves.filter(function(m) {
+    return !xqLeavesKingInCheck(r, c, m.r, m.c, piece.s);
+  });
+}
+
+function inPalace(r, c, side) {
+  if (c < 3 || c > 5) return false;
+  if (side === 'b') return r >= 0 && r <= 2;
+  return r >= 7 && r <= 9;
+}
+
+function xqKingMoves(r, c, side) {
+  var moves = [];
+  var dirs = [[0,1],[0,-1],[1,0],[-1,0]];
+  for (var i = 0; i < 4; i++) {
+    var nr = r + dirs[i][0], nc = c + dirs[i][1];
+    if (!inPalace(nr, nc, side)) continue;
+    var p = xqBoard[nr][nc];
+    if (p && p.s === side) continue;
+    moves.push({ r: nr, c: nc });
+  }
+  return moves;
+}
+
+function xqAdvisorMoves(r, c, side) {
+  var moves = [];
+  var dirs = [[1,1],[1,-1],[-1,1],[-1,-1]];
+  for (var i = 0; i < 4; i++) {
+    var nr = r + dirs[i][0], nc = c + dirs[i][1];
+    if (!inPalace(nr, nc, side)) continue;
+    var p = xqBoard[nr][nc];
+    if (p && p.s === side) continue;
+    moves.push({ r: nr, c: nc });
+  }
+  return moves;
+}
+
+function xqElephantMoves(r, c, side) {
+  var moves = [];
+  var dirs = [[2,2],[2,-2],[-2,2],[-2,-2]];
+  for (var i = 0; i < 4; i++) {
+    var nr = r + dirs[i][0], nc = c + dirs[i][1];
+    if (nr < 0 || nr >= XQ_ROWS || nc < 0 || nc >= XQ_COLS) continue;
+    // Cannot cross river
+    if (side === 'b' && nr > 4) continue;
+    if (side === 'r' && nr < 5) continue;
+    // Check midpoint (塞象眼)
+    var mr = r + dirs[i][0]/2, mc = c + dirs[i][1]/2;
+    if (xqBoard[mr][mc]) continue;
+    var p = xqBoard[nr][nc];
+    if (p && p.s === side) continue;
+    moves.push({ r: nr, c: nc });
+  }
+  return moves;
+}
+
+function xqHorseMoves(r, c, side) {
+  var moves = [];
+  var candidates = [
+    { dr: -2, dc: -1, leg_r: -1, leg_c: 0 },
+    { dr: -2, dc: 1, leg_r: -1, leg_c: 0 },
+    { dr: 2, dc: -1, leg_r: 1, leg_c: 0 },
+    { dr: 2, dc: 1, leg_r: 1, leg_c: 0 },
+    { dr: -1, dc: -2, leg_r: 0, leg_c: -1 },
+    { dr: 1, dc: -2, leg_r: 0, leg_c: -1 },
+    { dr: -1, dc: 2, leg_r: 0, leg_c: 1 },
+    { dr: 1, dc: 2, leg_r: 0, leg_c: 1 }
+  ];
+  for (var i = 0; i < candidates.length; i++) {
+    var m = candidates[i];
+    var nr = r + m.dr, nc = c + m.dc;
+    if (nr < 0 || nr >= XQ_ROWS || nc < 0 || nc >= XQ_COLS) continue;
+    // Check leg (蹩马腿)
+    if (xqBoard[r + m.leg_r][c + m.leg_c]) continue;
+    var p = xqBoard[nr][nc];
+    if (p && p.s === side) continue;
+    moves.push({ r: nr, c: nc });
+  }
+  return moves;
+}
+
+function xqChariotMoves(r, c, side) {
+  var moves = [];
+  var dirs = [[0,1],[0,-1],[1,0],[-1,0]];
+  for (var i = 0; i < 4; i++) {
+    for (var step = 1; step < 10; step++) {
+      var nr = r + dirs[i][0]*step, nc = c + dirs[i][1]*step;
+      if (nr < 0 || nr >= XQ_ROWS || nc < 0 || nc >= XQ_COLS) break;
+      var p = xqBoard[nr][nc];
+      if (!p) { moves.push({ r: nr, c: nc }); continue; }
+      if (p.s !== side) moves.push({ r: nr, c: nc });
+      break;
+    }
+  }
+  return moves;
+}
+
+function xqCannonMoves(r, c, side) {
+  var moves = [];
+  var dirs = [[0,1],[0,-1],[1,0],[-1,0]];
+  for (var i = 0; i < 4; i++) {
+    var jumped = false;
+    for (var step = 1; step < 10; step++) {
+      var nr = r + dirs[i][0]*step, nc = c + dirs[i][1]*step;
+      if (nr < 0 || nr >= XQ_ROWS || nc < 0 || nc >= XQ_COLS) break;
+      var p = xqBoard[nr][nc];
+      if (!jumped) {
+        if (!p) { moves.push({ r: nr, c: nc }); }
+        else { jumped = true; }
+      } else {
+        if (p) { if (p.s !== side) moves.push({ r: nr, c: nc }); break; }
+      }
+    }
+  }
+  return moves;
+}
+
+function xqSoldierMoves(r, c, side) {
+  var moves = [];
+  var forward = side === 'r' ? -1 : 1;
+  var crossedRiver = side === 'r' ? r <= 4 : r >= 5;
+  // Forward move
+  var nr = r + forward;
+  if (nr >= 0 && nr < XQ_ROWS) {
+    var p = xqBoard[nr][c];
+    if (!p || p.s !== side) moves.push({ r: nr, c: c });
+  }
+  // Sideways moves (only after crossing river)
+  if (crossedRiver) {
+    for (var dc of [-1, 1]) {
+      var nc = c + dc;
+      if (nc >= 0 && nc < XQ_COLS) {
+        var p2 = xqBoard[r][nc];
+        if (!p2 || p2.s !== side) moves.push({ r: r, c: nc });
+      }
+    }
+  }
+  return moves;
+}
+
+// Check if making a move leaves own king in check (or flying general)
+function xqLeavesKingInCheck(fromR, fromC, toR, toC, side) {
+  // Simulate the move
+  var saved = xqBoard[toR][toC];
+  var piece = xqBoard[fromR][fromC];
+  xqBoard[toR][toC] = piece;
+  xqBoard[fromR][fromC] = null;
+  var inCheck = xqIsKingInCheck(side);
+  // Restore
+  xqBoard[fromR][fromC] = piece;
+  xqBoard[toR][toC] = saved;
+  return inCheck;
+}
+
+function xqFindKing(side) {
+  for (var r = 0; r < XQ_ROWS; r++) {
+    for (var c = 0; c < XQ_COLS; c++) {
+      var p = xqBoard[r][c];
+      if (p && p.t === 'K' && p.s === side) return { r: r, c: c };
+    }
+  }
+  return null;
+}
+
+function xqIsKingInCheck(side) {
+  var king = xqFindKing(side);
+  if (!king) return true; // King captured = in check
+  var opp = side === 'r' ? 'b' : 'r';
+  // Check flying general
+  var oppKing = xqFindKing(opp);
+  if (oppKing && oppKing.c === king.c) {
+    var blocked = false;
+    var minR = Math.min(king.r, oppKing.r), maxR = Math.max(king.r, oppKing.r);
+    for (var r = minR + 1; r < maxR; r++) {
+      if (xqBoard[r][king.c]) { blocked = true; break; }
+    }
+    if (!blocked) return true;
+  }
+  // Check if any opponent piece can capture the king
+  for (var r = 0; r < XQ_ROWS; r++) {
+    for (var c = 0; c < XQ_COLS; c++) {
+      var p = xqBoard[r][c];
+      if (p && p.s === opp) {
+        var moves = getXqValidMovesRaw(r, c);
+        if (moves.some(function(m) { return m.r === king.r && m.c === king.c; })) return true;
+      }
+    }
+  }
+  return false;
+}
+
+// Get valid moves without check filtering (to avoid infinite recursion)
+function getXqValidMovesRaw(r, c) {
+  var piece = xqBoard[r][c];
+  if (!piece) return [];
+  switch (piece.t) {
+    case 'K': return xqKingMoves(r, c, piece.s);
+    case 'A': return xqAdvisorMoves(r, c, piece.s);
+    case 'E': return xqElephantMoves(r, c, piece.s);
+    case 'H': return xqHorseMoves(r, c, piece.s);
+    case 'R': return xqChariotMoves(r, c, piece.s);
+    case 'C': return xqCannonMoves(r, c, piece.s);
+    case 'S': return xqSoldierMoves(r, c, piece.s);
+  }
+  return [];
+}
+
+function getAllXqMoves(side) {
+  var allMoves = [];
+  for (var r = 0; r < XQ_ROWS; r++) {
+    for (var c = 0; c < XQ_COLS; c++) {
+      var p = xqBoard[r][c];
+      if (p && p.s === side) {
+        var moves = getXqValidMoves(r, c);
+        for (var i = 0; i < moves.length; i++) {
+          allMoves.push({ fromR: r, fromC: c, toR: moves[i].r, toC: moves[i].c });
+        }
+      }
+    }
+  }
+  return allMoves;
+}
+
+// ==================== 象棋 AI ====================
+function xqAIMove() {
+  var move;
+  if (xqAIDifficulty === 'easy') {
+    move = xqAIEasy();
+  } else if (xqAIDifficulty === 'medium') {
+    move = xqAIBest(2);
+  } else {
+    move = xqAIBest(3);
+  }
+  if (move) {
+    xqAIPlacing = true;
+    xqMakeMove(move.fromR, move.fromC, move.toR, move.toC);
+    xqAIPlacing = false;
+  }
+}
+
+function xqAIEasy() {
+  var moves = getAllXqMoves('b');
+  if (moves.length === 0) return null;
+  // Prefer captures
+  var captures = moves.filter(function(m) { return xqBoard[m.toR][m.toC]; });
+  if (captures.length > 0 && Math.random() < 0.7) {
+    return captures[Math.floor(Math.random() * captures.length)];
+  }
+  return moves[Math.floor(Math.random() * moves.length)];
+}
+
+function xqEvalBoard() {
+  var score = 0;
+  for (var r = 0; r < XQ_ROWS; r++) {
+    for (var c = 0; c < XQ_COLS; c++) {
+      var p = xqBoard[r][c];
+      if (!p) continue;
+      var val = XQ_PIECE_VAL[p.t];
+      // Soldier bonus after crossing river
+      if (p.t === 'S') {
+        if (p.s === 'b' && r >= 5) val = 200;
+        if (p.s === 'r' && r <= 4) val = 200;
+      }
+      if (p.s === 'b') score += val;
+      else score -= val;
+    }
+  }
+  return score;
+}
+
+function xqAIBest(depth) {
+  var moves = getAllXqMoves('b');
+  if (moves.length === 0) return null;
+  // Sort by capture value for better pruning
+  moves.sort(function(a, b) {
+    var va = xqBoard[a.toR][a.toC] ? XQ_PIECE_VAL[xqBoard[a.toR][a.toC].t] : 0;
+    var vb = xqBoard[b.toR][b.toC] ? XQ_PIECE_VAL[xqBoard[b.toR][b.toC].t] : 0;
+    return vb - va;
+  });
+  var best = null, bestScore = -Infinity;
+  for (var i = 0; i < moves.length; i++) {
+    var m = moves[i];
+    var saved = xqBoard[m.toR][m.toC];
+    var piece = xqBoard[m.fromR][m.fromC];
+    xqBoard[m.toR][m.toC] = piece;
+    xqBoard[m.fromR][m.fromC] = null;
+    var s = xqMinimax(depth - 1, -99999, 99999, false);
+    xqBoard[m.fromR][m.fromC] = piece;
+    xqBoard[m.toR][m.toC] = saved;
+    if (s > bestScore) { bestScore = s; best = m; }
+  }
+  return best || moves[0];
+}
+
+function xqMinimax(depth, alpha, beta, isMax) {
+  if (depth === 0) return xqEvalBoard();
+  var side = isMax ? 'b' : 'r';
+  var moves = getAllXqMoves(side);
+  if (moves.length === 0) return isMax ? -99999 : 99999;
+  // Sort by capture value
+  moves.sort(function(a, b) {
+    var va = xqBoard[a.toR][a.toC] ? XQ_PIECE_VAL[xqBoard[a.toR][a.toC].t] : 0;
+    var vb = xqBoard[b.toR][b.toC] ? XQ_PIECE_VAL[xqBoard[b.toR][b.toC].t] : 0;
+    return vb - va;
+  });
+  moves = moves.slice(0, 20);
+  if (isMax) {
+    var best = -99999;
+    for (var i = 0; i < moves.length; i++) {
+      var m = moves[i];
+      var saved = xqBoard[m.toR][m.toC];
+      var piece = xqBoard[m.fromR][m.fromC];
+      xqBoard[m.toR][m.toC] = piece;
+      xqBoard[m.fromR][m.fromC] = null;
+      var s = xqMinimax(depth - 1, alpha, beta, false);
+      xqBoard[m.fromR][m.fromC] = piece;
+      xqBoard[m.toR][m.toC] = saved;
+      if (s > best) best = s;
+      if (best > alpha) alpha = best;
+      if (beta <= alpha) break;
+    }
+    return best;
+  } else {
+    var worst = 99999;
+    for (var i = 0; i < moves.length; i++) {
+      var m = moves[i];
+      var saved = xqBoard[m.toR][m.toC];
+      var piece = xqBoard[m.fromR][m.fromC];
+      xqBoard[m.toR][m.toC] = piece;
+      xqBoard[m.fromR][m.fromC] = null;
+      var s = xqMinimax(depth - 1, alpha, beta, true);
+      xqBoard[m.fromR][m.fromC] = piece;
+      xqBoard[m.toR][m.toC] = saved;
+      if (s < worst) worst = s;
+      if (worst < beta) beta = worst;
+      if (beta <= alpha) break;
+    }
+    return worst;
+  }
+}
+
+function showXqResult(title, desc) {
+  if (xqPollTimer) { clearInterval(xqPollTimer); xqPollTimer = null; }
+  var a = document.getElementById('xq-arena');
+  if (!a) return;
+  var overlay = document.createElement('div');
+  overlay.className = 'xq-result-overlay';
+  overlay.innerHTML = '<div class="xq-result-box"><div class="xq-result-title">' + title + '</div><div class="xq-result-desc">' + desc + '</div><button class="xq-result-btn" onclick="this.closest(\'.xq-result-overlay\').remove();renderXqLobby();">再来一局</button></div>';
+  a.appendChild(overlay);
+}
+
+// ==================== 象棋在线对战 ====================
+function renderXqOnlineLobby() {
+  var a = document.getElementById('xq-arena');
+  if (!a) return;
+  a.innerHTML = '<div class="xq-online-actions">' +
+      '<button class="xq-create-btn" onclick="xqCreateRoom()">🏠 创建房间</button>' +
+    '</div>' +
+    '<div class="xq-join-by-id">' +
+      '<input type="number" id="xq-join-id-input" placeholder="输入房间号" class="xq-join-input" />' +
+      '<button class="xq-join-id-btn" onclick="xqJoinById()">加入房间</button>' +
+    '</div>' +
+    '<div class="xq-room-list" id="xq-room-list"><div class="xq-loading">加载中...</div></div>';
+  xqLoadRooms();
+  xqCheckActiveGame();
+}
+
+function xqLoadRooms() {
+  apiCall('GET', '/api/games/open?type=xiangqi').then(function(res) {
+    var el = document.getElementById('xq-room-list');
+    if (!el) return;
+    var rooms = res.rooms || [];
+    if (rooms.length === 0) {
+      el.innerHTML = '<div class="xq-empty">暂无开放房间，创建一个吧！</div>';
+    } else {
+      el.innerHTML = rooms.map(function(r) {
+        return '<div class="xq-room-item"><span class="xq-room-name">' + (r.player1_name || '玩家') + ' 的房间</span><button class="xq-join-btn" onclick="xqJoinRoom(' + r.id + ')">加入</button></div>';
+      }).join('');
+    }
+  }).catch(function(e) {
+    var el = document.getElementById('xq-room-list');
+    if (el) el.innerHTML = '<div class="xq-empty">加载失败</div>';
+  });
+}
+
+function xqCreateRoom() {
+  apiCall('POST', '/api/games/create', { type: 'xiangqi' }).then(function(res) {
+    if (res.error) { showToast(res.error, 'error'); return; }
+    xqSaveGameId(res.game_id);
+    xqMyColor = 'r';
+    initXqBoard();
+    renderXqBoard();
+    xqStartPolling();
+    showToast('房间号 ' + res.game_id + '，分享给对手加入吧！', 'info');
+  }).catch(function(e) { showToast('创建失败', 'error'); });
+}
+
+function xqJoinById() {
+  var input = document.getElementById('xq-join-id-input');
+  if (!input) return;
+  var id = parseInt(input.value);
+  if (!id) { showToast('请输入有效的房间号', 'error'); return; }
+  xqJoinRoom(id);
+}
+
+function xqJoinRoom(id) {
+  apiCall('POST', '/api/games/join', { game_id: id }).then(function(res) {
+    if (res.error) { showToast(res.error, 'error'); return; }
+    xqSaveGameId(id);
+    xqMyColor = 'b';
+    initXqBoard();
+    xqLoadGameState();
+    xqStartPolling();
+  }).catch(function(e) { showToast('加入失败', 'error'); });
+}
+
+function xqSaveGameId(id) { xqGameId = id; if (id) localStorage.setItem('xq-game-id', id); else localStorage.removeItem('xq-game-id'); }
+function xqRestoreGameId() { var id = parseInt(localStorage.getItem('xq-game-id')); if (id) xqGameId = id; }
+
+function xqCloseRoom() {
+  if (xqGameId) { apiCall('POST', '/api/games/abandon', { game_id: xqGameId }).catch(function(){}); xqSaveGameId(null); }
+}
+
+function xqStartPolling() {
+  if (xqPollTimer) clearInterval(xqPollTimer);
+  xqPollTimer = setInterval(xqLoadGameState, 2000);
+}
+
+function xqCheckActiveGame() {
+  apiCall('GET', '/api/games/my-active').then(function(res) {
+    if (res.game && res.game.type === 'xiangqi') {
+      var el = document.getElementById('xq-arena');
+      if (!el) return;
+      var banner = document.getElementById('xq-active-banner');
+      if (!banner) {
+        banner = document.createElement('div');
+        banner.id = 'xq-active-banner';
+        banner.className = 'xq-active-banner';
+        el.insertBefore(banner, el.firstChild);
+      }
+      var statusText = res.game.status === 'waiting' ? '等待对手加入' : (res.game.status === 'abandoned' ? '对手已离开' : '对局进行中');
+      banner.innerHTML = '<div class="xq-active-info">房间号 ' + res.game.id + ' · ' + statusText + '</div><button class="xq-rejoin-btn" onclick="xqRejoin(' + res.game.id + ',\'' + res.game.my_color + '\',\'' + res.game.status + '\')">🎮 回到对局</button>';
+    }
+  }).catch(function(){});
+}
+
+function xqRejoin(id, colorStr, status) {
+  xqSaveGameId(id);
+  xqMyColor = colorStr === '1' ? 'r' : 'b';
+  initXqBoard();
+  if (status === 'active' || status === 'abandoned') { xqLoadGameState(); xqStartPolling(); }
+  else { renderXqBoard(); xqStartPolling(); }
+}
+
+function xqLoadGameState() {
+  if (!xqGameId) return;
+  apiCall('GET', '/api/games/' + xqGameId).then(function(res) {
+    if (res.error) { showToast(res.error, 'error'); if (xqPollTimer) clearInterval(xqPollTimer); return; }
+    if (res.status === 'waiting') { return; }
+    var waitOv = document.getElementById('xq-waiting-overlay');
+    if (waitOv) waitOv.remove();
+    if (res.opp_away && !xqGameOver) {
+      var st = document.querySelector('.xq-status');
+      if (st && !document.getElementById('xq-opp-away')) {
+        var away = document.createElement('span');
+        away.id = 'xq-opp-away';
+        away.className = 'xq-opp-away';
+        away.textContent = '⚠️ 对手可能已离开';
+        st.appendChild(away);
+      }
+    } else {
+      var awayEl = document.getElementById('xq-opp-away');
+      if (awayEl) awayEl.remove();
+    }
+    // Rebuild board from moves
+    if (res.moves && res.moves.length > xqHistory.length) {
+      for (var i = xqHistory.length; i < res.moves.length; i++) {
+        var m = res.moves[i];
+        var fromR = m.from_r !== undefined ? m.from_r : Math.floor(m.r / 10);
+        var fromC = m.from_c !== undefined ? m.from_c : (m.r % 10);
+        var toR = m.r !== undefined ? (m.from_r !== undefined ? m.to_r : Math.floor(m.c / 10)) : 0;
+        var toC = m.c !== undefined ? (m.from_c !== undefined ? m.to_c : (m.c % 10)) : 0;
+        // Simplified: use from_r/from_c if available, else decode
+        if (m.from_r !== undefined) {
+          fromR = m.from_r; fromC = m.from_c; toR = m.to_r; toC = m.to_c;
+        } else {
+          fromR = Math.floor(m.r / 10); fromC = m.r % 10;
+          toR = Math.floor(m.c / 10); toC = m.c % 10;
+        }
+        var piece = xqBoard[fromR][fromC];
+        var captured = xqBoard[toR][toC];
+        if (captured) xqCaptured.push(captured);
+        xqBoard[toR][toC] = piece;
+        xqBoard[fromR][fromC] = null;
+        xqHistory.push({ fromR: fromR, fromC: fromC, toR: toR, toC: toC, piece: piece, captured: captured });
+        xqTurn = xqTurn === 'r' ? 'b' : 'r';
+        if (captured && captured.t === 'K') {
+          xqGameOver = true;
+          renderXqBoard();
+          var youWin = piece.s === xqMyColor;
+          if (xqPollTimer) { clearInterval(xqPollTimer); xqPollTimer = null; }
+          setTimeout(function() { showXqResult(youWin ? '🎉 你赢了！' : '😢 你输了', (piece.s === 'r' ? '红方' : '黑方') + '擒住对方将帅！'); }, 300);
+          return;
+        }
+      }
+      renderXqBoard();
+    }
+    if (res.status === 'finished' && !xqGameOver) {
+      xqGameOver = true;
+      if (xqPollTimer) { clearInterval(xqPollTimer); xqPollTimer = null; }
+      var youWin = res.winner === (xqMyColor === 'r' ? 1 : 2);
+      showXqResult(youWin ? '🎉 你赢了！' : '😢 你输了', '对局结束');
+    }
+    if (res.status === 'abandoned' && !xqGameOver) {
+      xqGameOver = true;
+      if (xqPollTimer) { clearInterval(xqPollTimer); xqPollTimer = null; }
+      var youWin2 = res.winner === (xqMyColor === 'r' ? 1 : 2);
+      showXqResult(youWin2 ? '🎉 对手弃赛，你赢了！' : '😢 对手已离开', '对局结束');
+    }
+  }).catch(function(e) { console.error('[xq] poll error:', e); });
+}
+
+function xqSendMove(fromR, fromC, toR, toC, isWin) {
+  if (!xqGameId) return;
+  apiCall('POST', '/api/games/move', { game_id: xqGameId, from_r: fromR, from_c: fromC, r: toR, c: toC, isWin: isWin }).then(function(res) {
+    if (res.error) showToast(res.error, 'error');
+  }).catch(function(e) { console.error('[xq] move error:', e); });
 }
 
 

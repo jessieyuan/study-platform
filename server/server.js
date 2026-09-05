@@ -210,6 +210,10 @@ db.exec(`
   )
 `);
 
+  // Migration: add from_r, from_c for chess moves
+  try { db.exec('ALTER TABLE game_moves ADD COLUMN from_r INTEGER'); } catch(e) {}
+  try { db.exec('ALTER TABLE game_moves ADD COLUMN from_c INTEGER'); } catch(e) {}
+
   // Migration: add last_seen columns for disconnect detection
   try { db.exec('ALTER TABLE games ADD COLUMN last_seen1 TEXT'); } catch(e) {}
   try { db.exec('ALTER TABLE games ADD COLUMN last_seen2 TEXT'); } catch(e) {}
@@ -990,13 +994,23 @@ async function handleGameMove(req, res) {
   if (game.current_turn !== playerNum) return sendJSON(res, 400, { error: '不是你的回合' });
   const moves = db.prepare('SELECT COUNT(*) as c FROM game_moves WHERE game_id = ?').get(gameId);
   const moveNo = moves.c + 1;
-  db.prepare('INSERT INTO game_moves (game_id, player_id, move_r, move_c, move_no) VALUES (?, ?, ?, ?, ?)').run(gameId, userId, body.r, body.c, moveNo);
-  var allMoves = db.prepare('SELECT player_id, move_r, move_c FROM game_moves WHERE game_id = ?').all(gameId);
-  var isWin = checkGameWin(allMoves, body.r, body.c, userId);
+  var fromR = body.from_r !== undefined ? body.from_r : null;
+  var fromC = body.from_c !== undefined ? body.from_c : null;
+  db.prepare('INSERT INTO game_moves (game_id, player_id, move_r, move_c, move_no, from_r, from_c) VALUES (?, ?, ?, ?, ?, ?, ?)').run(gameId, userId, body.r, body.c, moveNo, fromR, fromC);
+  var game2 = db.prepare('SELECT type FROM games WHERE id = ?').get(gameId);
+  var moveCount = db.prepare('SELECT COUNT(*) as c FROM game_moves WHERE game_id = ?').get(gameId);
+  var isWin = false;
+  if (game2.type === 'gomoku') {
+    var allMoves = db.prepare('SELECT player_id, move_r, move_c FROM game_moves WHERE game_id = ?').all(gameId);
+    isWin = checkGameWin(allMoves, body.r, body.c, userId);
+  } else if (game2.type === 'xiangqi') {
+    // Chess: client detects king capture, sends isWin flag
+    isWin = body.isWin === true;
+  }
   if (isWin) {
     db.prepare('UPDATE games SET status = ?, winner = ? WHERE id = ?').run('finished', playerNum, gameId);
     sendJSON(res, 200, { ok: true, win: true });
-  } else if (allMoves.length >= 225) {
+  } else if (game2.type === 'gomoku' && moveCount.c >= 225) {
     db.prepare('UPDATE games SET status = ? WHERE id = ?').run('finished', gameId);
     sendJSON(res, 200, { ok: true, draw: true });
   } else {
@@ -1013,8 +1027,8 @@ async function handleGameGet(req, res, gameId) {
   const game = db.prepare('SELECT * FROM games WHERE id = ?').get(gameId);
   if (!game) return sendJSON(res, 404, { error: '游戏不存在' });
   if (game.player1_id !== userId && game.player2_id !== userId) return sendJSON(res, 403, { error: '无权查看' });
-  const moves = db.prepare('SELECT player_id, move_r as r, move_c as c, move_no FROM game_moves WHERE game_id = ? ORDER BY move_no ASC').all(gameId);
-  const movesMapped = moves.map(function(m) { return { player: m.player_id === game.player1_id ? 1 : 2, r: m.r, c: m.c }; });
+  const moves = db.prepare('SELECT player_id, move_r as r, move_c as c, move_no, from_r, from_c FROM game_moves WHERE game_id = ? ORDER BY move_no ASC').all(gameId);
+  const movesMapped = moves.map(function(m) { return { player: m.player_id === game.player1_id ? 1 : 2, r: m.r, c: m.c, from_r: m.from_r, from_c: m.from_c, to_r: m.from_r !== null ? m.r : undefined, to_c: m.from_c !== null ? m.c : undefined }; });
   sendJSON(res, 200, { game_id: game.id, status: game.status, winner: game.winner, current_turn: game.current_turn, moves: movesMapped });
 }
 
