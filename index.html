@@ -6371,10 +6371,23 @@ function unoStartAIGame() {
   unoJustDrew = null;
   unoActionLock = false;
   unoMyPlayer = 0;
-  renderUnoGame();
-  if (unoState.currentTurn === 1) {
-    setTimeout(unoAIMove, 800);
+  var a = document.getElementById('uno-arena');
+  if (a) {
+    a.innerHTML = '<div style="text-align:center;padding:60px 0;">' +
+      '<div style="font-size:48px;animation:unoHandPop 0.5s ease;">🎴</div>' +
+      '<div style="font-size:18px;color:#5a4a2a;margin-top:12px;font-weight:700;">正在发牌...</div>' +
+    '</div>';
   }
+  setTimeout(function() {
+    renderUnoGame();
+    var colorNames = {red:'红',yellow:'黄',green:'绿',blue:'蓝'};
+    var topCard = unoState.discard[0];
+    var topName = (topCard.color === 'wild' ? '万能' : colorNames[topCard.color]) + ' ' + unoCardDisplay(topCard);
+    showToast(unoState.currentTurn === 0 ? '🎮 游戏开始！你先出牌。首牌: ' + topName : '🎮 游戏开始！AI先出牌。首牌: ' + topName, 'info');
+    if (unoState.currentTurn === 1) {
+      setTimeout(unoAIMove, 1200);
+    }
+  }, 900);
 }
 
 function unoCanPlay(card, currentColor, topValue) {
@@ -6459,8 +6472,20 @@ function unoPlayCard(player, handIdx, chosenColor) {
   renderUnoGame();
   unoActionLock = false;
   
+  if (player === 1 && unoMode === 'ai') {
+    var colorNames2 = {red:'红',yellow:'黄',green:'绿',blue:'蓝'};
+    var cardName2 = (card.color === 'wild' ? '万能' : colorNames2[card.color]) + ' ' + unoCardDisplay(card);
+    var effectMsg = '';
+    if (card.value === 'skip') effectMsg = '（跳过你的回合）';
+    else if (card.value === 'reverse') effectMsg = '（反转方向）';
+    else if (card.value === 'draw2') effectMsg = '（你罚抽2张）';
+    else if (card.value === 'wild4') effectMsg = '（你罚抽4张）';
+    else if (card.value === 'wild') effectMsg = '（换色）';
+    setTimeout(function() { showToast('AI出了: ' + cardName2 + effectMsg, 'info'); }, 50);
+  }
+  
   if (unoMode === 'ai' && nextP === 1 && !unoGameOver) {
-    setTimeout(unoAIMove, 800);
+    setTimeout(unoAIMove, 1000);
   }
 }
 
@@ -6752,6 +6777,7 @@ function unoAnimateFlyCard(srcEl, callback) {
 function unoFlyAndPlay(idx, srcEl, chosenColor) {
   unoActionLock = true;
   unoAnimateFlyCard(srcEl, function() {
+    unoActionLock = false;
     unoAnimateDiscard = true;
     unoPlayCard(unoMyPlayer, idx, chosenColor);
     unoAnimateDiscard = false;
@@ -6761,6 +6787,7 @@ function unoFlyAndPlay(idx, srcEl, chosenColor) {
 function unoFlyAndPlayAI(idx, color, srcEl) {
   unoActionLock = true;
   unoAnimateFlyCard(srcEl, function() {
+    unoActionLock = false;
     unoAnimateDiscard = true;
     unoPlayCard(1, idx, color);
     unoAnimateDiscard = false;
