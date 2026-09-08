@@ -2553,29 +2553,30 @@
 .uno-turn { font-size:16px; font-weight:700; color:#5a4a2a; }
 .uno-restart { padding:6px 14px; border:1px solid #d0c0a0; border-radius:8px; background:#fff; font-size:13px; cursor:pointer; font-family:inherit; }
 .uno-room-id { font-size:13px; color:#888; background:#f5f0e0; padding:3px 10px; border-radius:8px; }
-.uno-game-area { display:flex; flex-direction:column; align-items:center; gap:16px; padding:12px 0; }
-.uno-opponent-area { width:100%; display:flex; flex-direction:column; align-items:center; gap:6px; }
-.uno-opponent-label { font-size:14px; font-weight:600; color:#888; }
-.uno-opponent-hand { display:flex; gap:4px; justify-content:center; flex-wrap:wrap; }
-.uno-opp-row { width:100%; display:flex; flex-direction:column; align-items:center; gap:4px; padding:6px 10px; border-radius:10px; transition:0.2s; }
+.uno-game-area { position:relative; width:100%; max-width:520px; margin:0 auto; min-height:440px; padding:8px 0; }
+.uno-table-surface { position:absolute; top:45%; left:50%; transform:translate(-50%,-50%); width:85%; height:65%; background:radial-gradient(ellipse at center, rgba(76,175,80,0.15), rgba(60,140,70,0.06)); border-radius:50%; border:2px dashed rgba(76,175,80,0.2); z-index:0; }
+.uno-opp-row { position:absolute; display:flex; flex-direction:column; align-items:center; gap:3px; padding:5px 8px; border-radius:10px; transition:0.2s; z-index:2; max-width:130px; }
+.uno-opp-row.uno-seat-top { top:4px; left:50%; transform:translateX(-50%); }
+.uno-opp-row.uno-seat-left { top:42%; left:4px; transform:translateY(-50%); }
+.uno-opp-row.uno-seat-right { top:42%; right:4px; transform:translateY(-50%); }
 .uno-opp-row.uno-opp-active { background:rgba(84,160,255,0.12); box-shadow:0 0 0 2px rgba(84,160,255,0.3) inset; }
-.uno-opp-name { font-size:13px; font-weight:600; color:#888; }
+.uno-opp-name { font-size:12px; font-weight:600; color:#888; white-space:nowrap; }
 .uno-opp-row.uno-opp-active .uno-opp-name { color:#3a7adb; }
-.uno-opp-cards { display:flex; gap:3px; justify-content:center; flex-wrap:wrap; }
-.uno-opp-more { font-size:12px; color:#aaa; align-self:center; padding:0 4px; }
-.uno-center-area { display:flex; gap:24px; align-items:center; justify-content:center; padding:10px 0; }
+.uno-opp-cards { display:flex; gap:2px; justify-content:center; flex-wrap:wrap; }
+.uno-opp-more { font-size:11px; color:#aaa; align-self:center; padding:0 2px; }
+.uno-center-area { position:absolute; top:42%; left:50%; transform:translate(-50%,-50%); display:flex; gap:16px; align-items:center; justify-content:center; z-index:1; }
 .uno-draw-pile { position:relative; cursor:pointer; }
 .uno-discard-pile { position:relative; }
-.uno-direction-arrow { font-size:28px; color:#f0a020; }
-.uno-player-area { width:100%; display:flex; flex-direction:column; align-items:center; gap:8px; }
-.uno-player-label { font-size:14px; font-weight:600; color:#5a4a2a; }
-.uno-player-hand { display:flex; gap:6px; justify-content:center; flex-wrap:wrap; max-width:100%; overflow-x:auto; padding:8px 4px; }
-.uno-actions { display:flex; gap:12px; justify-content:center; margin-top:4px; }
+.uno-direction-arrow { font-size:24px; color:#f0a020; }
+.uno-player-area { position:absolute; bottom:0; left:50%; transform:translateX(-50%); width:100%; display:flex; flex-direction:column; align-items:center; gap:6px; z-index:2; }
+.uno-player-label { font-size:13px; font-weight:600; color:#5a4a2a; }
+.uno-player-hand { display:flex; gap:5px; justify-content:center; flex-wrap:wrap; max-width:100%; overflow-x:auto; padding:6px 4px; }
+.uno-actions { display:flex; gap:10px; justify-content:center; margin-top:2px; }
+.uno-color-picker { position:absolute; top:42%; left:50%; transform:translate(-50%,-50%); display:flex; gap:12px; z-index:3; }
 .uno-action-btn { padding:12px 28px; border:none; border-radius:14px; font-size:16px; font-weight:700; cursor:pointer; font-family:inherit; transition:0.2s; }
 .uno-action-btn:active { transform:scale(0.97); }
 .uno-draw-btn { background:linear-gradient(135deg,#54a0ff,#3a7adb); color:#fff; box-shadow:0 4px 14px rgba(84,160,255,0.3); }
 .uno-pass-btn { background:linear-gradient(135deg,#54a0ff,#3a7adb); color:#fff; box-shadow:0 4px 14px rgba(84,160,255,0.3); }
-.uno-color-picker { display:flex; gap:16px; justify-content:center; padding:12px 0; }
 .uno-color-btn { width:64px; height:64px; border-radius:16px; border:3px solid #fff; cursor:pointer; font-size:24px; font-weight:700; color:#fff; box-shadow:0 4px 12px rgba(0,0,0,0.2); transition:0.2s; font-family:inherit; }
 .uno-color-btn:active { transform:scale(0.92); }
 .uno-card { width:64px; height:92px; border-radius:12px; border:3px solid #1a1a1a; position:relative; cursor:pointer; transition:transform 0.25s ease, box-shadow 0.25s ease; box-shadow:0 4px 12px rgba(0,0,0,0.3); flex-shrink:0; overflow:hidden; }
@@ -2651,7 +2652,9 @@
   .uno-card-back { width:42px; height:62px; }
   .uno-card-back::after { font-size:9px; }
   .uno-color-btn { width:56px; height:56px; font-size:20px; }
-  .uno-center-area { gap:16px; }
+  .uno-center-area { gap:12px; }
+  .uno-opp-row { max-width:100px; }
+  .uno-game-area { min-height:400px; }
 }
 
 </style>
@@ -6742,7 +6745,10 @@ function renderUnoGame() {
   
   html += '<div class="uno-game-area">';
   
-  // Opponent area - show all non-me players
+  // Table surface
+  html += '<div class="uno-table-surface"></div>';
+  
+  // Opponents positioned around the table
   var oppIndices = [];
   for (var pi = 0; pi < numP; pi++) {
     if (pi !== unoMyPlayer) oppIndices.push(pi);
@@ -6754,14 +6760,22 @@ function renderUnoGame() {
     var oppName = (unoMode === 'ai' && unoState.aiNames) ? unoState.aiNames[oppIdx - 1] : '对手';
     var isOppTurn = !unoGameOver && unoState.currentTurn === oppIdx;
     var oppActive = isOppTurn ? ' uno-opp-active' : '';
-    html += '<div class="uno-opp-row' + oppActive + '" data-p="' + oppIdx + '">' +
+    var seatClass = 'uno-seat-top';
+    if (numP === 4) {
+      if (oppIdx === 1) seatClass = 'uno-seat-left';
+      else if (oppIdx === 2) seatClass = 'uno-seat-top';
+      else if (oppIdx === 3) seatClass = 'uno-seat-right';
+    } else {
+      seatClass = 'uno-seat-top';
+    }
+    html += '<div class="uno-opp-row ' + seatClass + oppActive + '" data-p="' + oppIdx + '">' +
       '<span class="uno-opp-name">' + oppName + ' ' + oppHand.length + '张' + (oppHand.length === 1 ? '<span class="uno-badge">UNO!</span>' : '') + '</span>' +
       '<div class="uno-opp-cards">';
-    var maxShow = Math.min(oppHand.length, 10);
+    var maxShow = Math.min(oppHand.length, numP === 4 ? 5 : 10);
     for (var ci = 0; ci < maxShow; ci++) {
       html += unoRenderCardBack();
     }
-    if (oppHand.length > 10) html += '<span class="uno-opp-more">+' + (oppHand.length - 10) + '</span>';
+    if (oppHand.length > maxShow) html += '<span class="uno-opp-more">+' + (oppHand.length - maxShow) + '</span>';
     html += '</div></div>';
   }
   
@@ -6770,7 +6784,7 @@ function renderUnoGame() {
   html += '<div class="uno-draw-pile" id="uno-draw-pile">';
   html += unoRenderCardBack();
   html += '</div>';
-  html += '<span class="uno-direction-arrow">⇄</span>';
+  html += '<span class="uno-direction-arrow">' + (unoState.direction === 1 ? '⟳' : '⟲') + '</span>';
   html += '<div class="uno-discard-pile">';
   html += unoRenderCard(top, false, '', unoAnimateDiscard ? 'uno-discard-pop' : '');
   html += '</div>';
@@ -6779,7 +6793,7 @@ function renderUnoGame() {
   // Current color indicator
   var colorNames = { red: '红色', yellow: '黄色', green: '绿色', blue: '蓝色' };
   if (top.color === 'wild') {
-    html += '<div style="font-size:14px;color:#888;">当前颜色: ' + (colorNames[unoState.currentColor] || unoState.currentColor) + '</div>';
+    html += '<div style="position:absolute;top:56%;left:50%;transform:translateX(-50%);font-size:12px;color:#888;white-space:nowrap;z-index:1;">当前颜色: ' + (colorNames[unoState.currentColor] || unoState.currentColor) + '</div>';
   }
   
   // Color picker
@@ -6805,9 +6819,9 @@ function renderUnoGame() {
     }
     html += unoRenderCard(myHand[i], myTurn ? isPlayable : null, click);
   }
-  html += '</div></div>';
+  html += '</div>';
   
-  // Action buttons
+  // Action buttons (inside player-area)
   if (myTurn && !unoGameOver && !unoAwaitingColor) {
     if (myHand.length === 2 && !unoState.unoCalled[unoMyPlayer]) {
       html += '<div class="uno-actions"><button class="uno-call-btn" onclick="unoCallUno()">喊 UNO</button></div>';
@@ -6832,7 +6846,7 @@ function renderUnoGame() {
     }
   }
   
-  html += '</div>';
+  html += '</div></div>';  // close player-area + game-area
   a.innerHTML = html;
 }
 
