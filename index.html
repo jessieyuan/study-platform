@@ -2572,23 +2572,34 @@
 .uno-color-picker { display:flex; gap:16px; justify-content:center; padding:12px 0; }
 .uno-color-btn { width:64px; height:64px; border-radius:16px; border:3px solid #fff; cursor:pointer; font-size:24px; font-weight:700; color:#fff; box-shadow:0 4px 12px rgba(0,0,0,0.2); transition:0.2s; font-family:inherit; }
 .uno-color-btn:active { transform:scale(0.92); }
-.uno-card { width:64px; height:92px; border-radius:10px; display:inline-flex; align-items:center; justify-content:center; position:relative; cursor:pointer; transition:0.2s; box-shadow:0 3px 8px rgba(0,0,0,0.2); flex-shrink:0; font-family:inherit; }
-.uno-card.playable { box-shadow:0 0 0 3px #f0a020, 0 3px 12px rgba(240,160,32,0.4); transform:translateY(-6px); }
-.uno-card.playable:active { transform:translateY(-6px) scale(0.95); }
-.uno-card.unplayable { opacity:0.5; cursor:default; }
-.uno-card-back { width:48px; height:70px; border-radius:8px; background:linear-gradient(135deg,#1a1a4e,#2a2a6e); border:2px solid #444; display:inline-flex; align-items:center; justify-content:center; flex-shrink:0; box-shadow:0 2px 6px rgba(0,0,0,0.2); }
-.uno-card-back::after { content:'UNO'; color:#fff; font-size:11px; font-weight:900; font-style:italic; }
-.uno-card-inner { position:absolute; top:4px; left:4px; right:4px; bottom:4px; background:rgba(255,255,255,0.9); border-radius:6px; display:flex; align-items:center; justify-content:center; }
-.uno-card-value { font-size:28px; font-weight:900; }
-.uno-card-corner { position:absolute; font-size:12px; font-weight:700; color:rgba(255,255,255,0.9); z-index:2; }
-.uno-card-corner.tl { top:4px; left:6px; }
-.uno-card-corner.br { bottom:4px; right:6px; transform:rotate(180deg); }
-.uno-card.red { background:linear-gradient(135deg,#e74c3c,#c0392b); }
-.uno-card.yellow { background:linear-gradient(135deg,#f1c40f,#e6a800); }
-.uno-card.green { background:linear-gradient(135deg,#27ae60,#1e8449); }
-.uno-card.blue { background:linear-gradient(135deg,#3498db,#2874a6); }
-.uno-card.wild { background:linear-gradient(135deg,#2c3e50,#1a1a2e); }
-.uno-card.wild .uno-card-inner { background:conic-gradient(from 0deg, #e74c3c 0deg 90deg, #f1c40f 90deg 180deg, #27ae60 180deg 270deg, #3498db 270deg 360deg); }
+.uno-card { width:64px; height:92px; border-radius:12px; border:3px solid #1a1a1a; position:relative; cursor:pointer; transition:transform 0.25s ease, box-shadow 0.25s ease; box-shadow:0 4px 12px rgba(0,0,0,0.3); flex-shrink:0; overflow:hidden; }
+.uno-card::before { content:''; position:absolute; top:0; left:0; right:0; height:35%; background:linear-gradient(to bottom, rgba(255,255,255,0.18), transparent); border-radius:9px 9px 0 0; z-index:1; pointer-events:none; }
+.uno-card.playable { box-shadow:0 0 0 3px #f0a020, 0 6px 20px rgba(240,160,32,0.5); transform:translateY(-8px); }
+.uno-card.playable:active { transform:translateY(-8px) scale(0.93); }
+.uno-card.unplayable { opacity:0.45; cursor:default; filter:grayscale(0.3); }
+.uno-card-back { width:48px; height:70px; border-radius:10px; background:linear-gradient(145deg,#1a1a4e,#0d0d2e); border:3px solid #1a1a1a; display:inline-flex; align-items:center; justify-content:center; flex-shrink:0; box-shadow:0 3px 8px rgba(0,0,0,0.25); position:relative; overflow:hidden; }
+.uno-card-back::before { content:''; position:absolute; top:50%; left:50%; width:65%; height:48%; transform:translate(-50%,-50%) rotate(-15deg); background:conic-gradient(from 0deg, #ff5252 0deg 90deg, #ffeb3b 90deg 180deg, #4caf50 180deg 270deg, #42a5f5 270deg 360deg); border-radius:50%; opacity:0.85; }
+.uno-card-back::after { content:'UNO'; color:#fff; font-size:11px; font-weight:900; font-style:italic; z-index:1; position:relative; text-shadow:0 1px 2px rgba(0,0,0,0.8); }
+.uno-card-oval { position:absolute; top:50%; left:50%; width:75%; height:58%; transform:translate(-50%,-50%) rotate(-15deg); background:#fff; border-radius:50%; display:flex; align-items:center; justify-content:center; z-index:2; }
+.uno-card-value { font-size:26px; font-weight:900; text-shadow:0 1px 2px rgba(0,0,0,0.1); }
+.uno-card-corner { position:absolute; font-size:11px; font-weight:800; color:#fff; text-shadow:1px 1px 2px rgba(0,0,0,0.6); z-index:3; }
+.uno-card-corner.tl { top:5px; left:7px; }
+.uno-card-corner.br { bottom:5px; right:7px; transform:rotate(180deg); }
+.uno-card.red { background:linear-gradient(145deg,#ff5252,#c0392b); }
+.uno-card.red .uno-card-value { color:#c0392b; }
+.uno-card.yellow { background:linear-gradient(145deg,#ffeb3b,#f9a825); }
+.uno-card.yellow .uno-card-value { color:#b8860b; }
+.uno-card.green { background:linear-gradient(145deg,#4caf50,#1b5e20); }
+.uno-card.green .uno-card-value { color:#1b5e20; }
+.uno-card.blue { background:linear-gradient(145deg,#42a5f5,#1565c0); }
+.uno-card.blue .uno-card-value { color:#1565c0; }
+.uno-card.wild { background:linear-gradient(145deg,#2c3e50,#0d1b2a); }
+.uno-card.wild .uno-card-oval { background:conic-gradient(from 0deg, #ff5252 0deg 90deg, #ffeb3b 90deg 180deg, #4caf50 180deg 270deg, #42a5f5 270deg 360deg); }
+.uno-card.wild .uno-card-value { color:#fff; text-shadow:0 1px 3px rgba(0,0,0,0.5); }
+@keyframes unoDiscardPop { 0% { transform:scale(0.5) rotate(-10deg); opacity:0.3; } 50% { transform:scale(1.15) rotate(3deg); } 100% { transform:scale(1) rotate(0deg); opacity:1; } }
+.uno-discard-pop { animation:unoDiscardPop 0.35s ease; }
+@keyframes unoHandNew { 0% { transform:scale(0) translateY(20px); opacity:0; } 100% { transform:scale(1) translateY(0); opacity:1; } }
+.uno-hand-new { animation:unoHandNew 0.3s ease; }
 .uno-result-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.5); display:flex; align-items:center; justify-content:center; z-index:9999; }
 .uno-result-box { background:#fff; border-radius:20px; padding:30px 40px; text-align:center; box-shadow:0 20px 60px rgba(0,0,0,0.3); }
 .uno-result-title { font-size:24px; font-weight:800; margin-bottom:8px; }
@@ -2625,10 +2636,10 @@
 .uno-rejoin-btn:active { transform:scale(0.95); }
 @media(max-width:520px) {
   .uno-card { width:56px; height:80px; }
-  .uno-card-value { font-size:24px; }
+  .uno-card-value { font-size:22px; }
+  .uno-card-corner { font-size:9px; }
   .uno-card-back { width:42px; height:62px; }
   .uno-card-back::after { font-size:9px; }
-  .uno-card-corner { font-size:10px; }
   .uno-color-btn { width:56px; height:56px; font-size:20px; }
   .uno-center-area { gap:16px; }
 }
@@ -6513,7 +6524,9 @@ function unoAIMove() {
         var idx = hand.indexOf(card);
         setTimeout(function() {
           var color = card.color === 'wild' ? unoPickAIColor() : null;
-          unoPlayCard(1, idx, color);
+          var oppCards = document.querySelectorAll('.uno-opponent-hand .uno-card-back');
+          var srcEl = oppCards.length > 0 ? oppCards[oppCards.length-1] : null;
+          unoFlyAndPlayAI(idx, color, srcEl);
         }, 600);
         return;
       }
@@ -6556,7 +6569,9 @@ function unoAIMove() {
   
   var card = hand[chosenIdx];
   var color = card.color === 'wild' ? unoPickAIColor() : null;
-  unoPlayCard(1, chosenIdx, color);
+  var oppCards = document.querySelectorAll('.uno-opponent-hand .uno-card-back');
+  var srcEl = oppCards.length > 0 ? oppCards[0] : null;
+  unoFlyAndPlayAI(chosenIdx, color, srcEl);
 }
 
 function unoPickAIColor() {
@@ -6591,7 +6606,7 @@ function unoRenderCard(card, playable, onclick, extraClass) {
   var clickAttr = onclick ? ' onclick="' + onclick + '"' : '';
   return '<div class="' + cls + '"' + clickAttr + '>' +
     '<span class="uno-card-corner tl">' + corner + '</span>' +
-    '<div class="uno-card-inner"><span class="uno-card-value">' + display + '</span></div>' +
+    '<div class="uno-card-oval"><span class="uno-card-value">' + display + '</span></div>' +
     '<span class="uno-card-corner br">' + corner + '</span>' +
   '</div>';
 }
@@ -6643,7 +6658,7 @@ function renderUnoGame() {
   html += '</div>';
   html += '<span class="uno-direction-arrow">⇄</span>';
   html += '<div class="uno-discard-pile">';
-  html += unoRenderCard(top, false, '', '');
+  html += unoRenderCard(top, false, '', unoAnimateDiscard ? 'uno-discard-pop' : '');
   html += '</div>';
   html += '</div>';
   
@@ -6672,7 +6687,7 @@ function renderUnoGame() {
     var isPlayable = playableIndices.indexOf(i) >= 0;
     var click = '';
     if (myTurn && isPlayable && !unoAwaitingColor) {
-      click = 'unoTryPlay(' + i + ')';
+      click = 'unoTryPlay(event,' + i + ')';
     }
     html += unoRenderCard(myHand[i], myTurn ? isPlayable : null, click);
   }
@@ -6704,17 +6719,69 @@ function renderUnoGame() {
   a.innerHTML = html;
 }
 
-function unoTryPlay(idx) {
+function unoAnimateFlyCard(srcEl, callback) {
+  if (!srcEl) { callback(); return; }
+  var srcRect = srcEl.getBoundingClientRect();
+  var discardEl = document.querySelector('.uno-discard-pile');
+  var dstRect = discardEl ? discardEl.getBoundingClientRect() : null;
+  if (!dstRect) { callback(); return; }
+  var clone = srcEl.cloneNode(true);
+  clone.style.position = 'fixed';
+  clone.style.left = srcRect.left + 'px';
+  clone.style.top = srcRect.top + 'px';
+  clone.style.width = srcRect.width + 'px';
+  clone.style.height = srcRect.height + 'px';
+  clone.style.zIndex = '9999';
+  clone.style.margin = '0';
+  clone.style.transition = 'none';
+  clone.classList.remove('playable', 'unplayable');
+  clone.style.opacity = '1';
+  clone.style.transform = '';
+  document.body.appendChild(clone);
+  void clone.offsetHeight;
+  var cx = dstRect.left + dstRect.width / 2 - srcRect.left - srcRect.width / 2;
+  var cy = dstRect.top + dstRect.height / 2 - srcRect.top - srcRect.height / 2;
+  var scale = dstRect.width / srcRect.width;
+  clone.style.transition = 'left 0.4s cubic-bezier(0.34,1.2,0.64,1), top 0.4s cubic-bezier(0.34,1.2,0.64,1), transform 0.4s cubic-bezier(0.34,1.2,0.64,1)';
+  clone.style.left = (srcRect.left + cx) + 'px';
+  clone.style.top = (srcRect.top + cy) + 'px';
+  clone.style.transform = 'rotate(' + (Math.random()*20-10).toFixed(1) + 'deg) scale(' + scale.toFixed(2) + ')';
+  setTimeout(function() { clone.remove(); callback(); }, 400);
+}
+
+function unoFlyAndPlay(idx, srcEl, chosenColor) {
+  unoActionLock = true;
+  unoAnimateFlyCard(srcEl, function() {
+    unoAnimateDiscard = true;
+    unoPlayCard(unoMyPlayer, idx, chosenColor);
+    unoAnimateDiscard = false;
+  });
+}
+
+function unoFlyAndPlayAI(idx, color, srcEl) {
+  unoActionLock = true;
+  unoAnimateFlyCard(srcEl, function() {
+    unoAnimateDiscard = true;
+    unoPlayCard(1, idx, color);
+    unoAnimateDiscard = false;
+  });
+}
+
+var unoAnimateDiscard = false;
+
+function unoTryPlay(evt, idx) {
   if (unoActionLock) return;
   if (unoState.currentTurn !== unoMyPlayer) return;
   var card = unoState.hands[unoMyPlayer][idx];
+  if (!card) return;
+  var srcEl = evt ? evt.currentTarget : null;
   if (card.color === 'wild') {
     unoAwaitingColor = true;
     unoPendingCardIdx = idx;
     renderUnoGame();
     return;
   }
-  unoPlayCard(unoMyPlayer, idx, null);
+  unoFlyAndPlay(idx, srcEl, null);
 }
 
 var unoPendingCardIdx = null;
@@ -6724,13 +6791,17 @@ function unoChooseColor(color) {
   var idx = unoPendingCardIdx;
   unoPendingCardIdx = null;
   unoAwaitingColor = false;
-  unoPlayCard(unoMyPlayer, idx, color);
+  var handCards = document.querySelectorAll('.uno-player-hand .uno-card');
+  var srcEl = handCards[idx] || null;
+  unoFlyAndPlay(idx, srcEl, color);
 }
 
 function unoPlayDrawn(idx) {
   if (unoActionLock) return;
   var card = unoState.hands[unoMyPlayer][idx];
   if (!card || card !== unoJustDrew) return;
+  var handCards = document.querySelectorAll('.uno-player-hand .uno-card');
+  var srcEl = handCards[idx] || null;
   if (card.color === 'wild') {
     unoAwaitingColor = true;
     unoPendingCardIdx = idx;
@@ -6738,7 +6809,7 @@ function unoPlayDrawn(idx) {
     return;
   }
   unoJustDrew = null;
-  unoPlayCard(unoMyPlayer, idx, null);
+  unoFlyAndPlay(idx, srcEl, null);
 }
 
 function showUnoResult(title, desc) {
