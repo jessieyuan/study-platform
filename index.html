@@ -6387,7 +6387,7 @@ function unoStartAIGame() {
     if (unoState.currentTurn === 1) {
       setTimeout(unoAIMove, 1200);
     }
-  }, 900);
+  }, 1200);
 }
 
 function unoCanPlay(card, currentColor, topValue) {
@@ -6485,7 +6485,7 @@ function unoPlayCard(player, handIdx, chosenColor) {
   }
   
   if (unoMode === 'ai' && nextP === 1 && !unoGameOver) {
-    setTimeout(unoAIMove, 1000);
+    setTimeout(unoAIMove, 1500);
   }
 }
 
@@ -6527,7 +6527,7 @@ function unoPassTurn() {
   renderUnoGame();
   
   if (unoMode === 'ai' && nextP === 1 && !unoGameOver) {
-    setTimeout(unoAIMove, 800);
+    setTimeout(unoAIMove, 1200);
   }
 }
 
@@ -6552,7 +6552,7 @@ function unoAIMove() {
           var oppCards = document.querySelectorAll('.uno-opponent-hand .uno-card-back');
           var srcEl = oppCards.length > 0 ? oppCards[oppCards.length-1] : null;
           unoFlyAndPlayAI(idx, color, srcEl);
-        }, 600);
+        }, 900);
         return;
       }
     }
@@ -6767,11 +6767,11 @@ function unoAnimateFlyCard(srcEl, callback) {
   var cx = dstRect.left + dstRect.width / 2 - srcRect.left - srcRect.width / 2;
   var cy = dstRect.top + dstRect.height / 2 - srcRect.top - srcRect.height / 2;
   var scale = dstRect.width / srcRect.width;
-  clone.style.transition = 'left 0.4s cubic-bezier(0.34,1.2,0.64,1), top 0.4s cubic-bezier(0.34,1.2,0.64,1), transform 0.4s cubic-bezier(0.34,1.2,0.64,1)';
+  clone.style.transition = 'left 0.6s cubic-bezier(0.34,1.2,0.64,1), top 0.6s cubic-bezier(0.34,1.2,0.64,1), transform 0.6s cubic-bezier(0.34,1.2,0.64,1)';
   clone.style.left = (srcRect.left + cx) + 'px';
   clone.style.top = (srcRect.top + cy) + 'px';
   clone.style.transform = 'rotate(' + (Math.random()*20-10).toFixed(1) + 'deg) scale(' + scale.toFixed(2) + ')';
-  setTimeout(function() { clone.remove(); callback(); }, 400);
+  setTimeout(function() { clone.remove(); callback(); }, 600);
 }
 
 function unoFlyAndPlay(idx, srcEl, chosenColor) {
