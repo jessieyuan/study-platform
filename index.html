@@ -2534,6 +2534,105 @@
 .xq-move-trail { position:absolute; pointer-events:none; z-index:5; }
 
 @media(max-width:520px){ .xq-cell{ width:32px; height:32px; background-size:32px 32px; background-position:16px 16px; } .xq-board{ background-size:32px 32px; background-position:16px 16px; } .xq-piece{ width:27px; height:27px; font-size:14px; } .xq-river-text{ font-size:13px; letter-spacing:4px; } .xq-captured-piece{ width:20px; height:20px; font-size:10px; } }
+/* ---- UNO 卡牌游戏 ---- */
+.uno-lobby { max-width:560px; margin:0 auto; }
+.uno-mode-tabs { display:flex; gap:10px; margin-bottom:16px; }
+.uno-mode-tab { flex:1; padding:12px; border:2px solid #e8e0d0; border-radius:14px; background:#fff; font-size:15px; font-weight:600; cursor:pointer; transition:0.2s; font-family:inherit; text-align:center; }
+.uno-mode-tab.active { border-color:#f0a020; background:#fff8e8; color:#d49020; }
+.uno-setup { text-align:center; padding:30px 0; }
+.uno-diff-row { display:flex; align-items:center; justify-content:center; gap:8px; margin-bottom:20px; flex-wrap:wrap; }
+.uno-label { font-size:15px; font-weight:600; color:#5a4a2a; }
+.uno-diff-btn { padding:8px 20px; border:2px solid #e8e0d0; border-radius:10px; background:#fff; font-size:14px; cursor:pointer; transition:0.2s; font-family:inherit; }
+.uno-diff-btn.active { border-color:#f0a020; background:#fff8e8; color:#d49020; }
+.uno-start-btn { padding:12px 40px; border:none; border-radius:14px; background:linear-gradient(135deg,#f0a020,#e89010); color:#fff; font-size:17px; font-weight:700; cursor:pointer; box-shadow:0 4px 14px rgba(240,160,32,0.4); transition:0.2s; font-family:inherit; margin-bottom:12px; }
+.uno-start-btn:active { transform:scale(0.97); }
+.uno-tutorial-btn { display:block; margin:12px auto 0; padding:10px 28px; border:2px solid #667eea; border-radius:12px; background:#f0f0ff; color:#5566cc; font-size:14px; font-weight:600; cursor:pointer; font-family:inherit; }
+.uno-tutorial-btn:active { transform:scale(0.97); }
+.uno-hint { margin-top:12px; font-size:13px; color:#b0a080; }
+.uno-status { display:flex; align-items:center; justify-content:center; gap:12px; margin-bottom:12px; flex-wrap:wrap; }
+.uno-turn { font-size:16px; font-weight:700; color:#5a4a2a; }
+.uno-restart { padding:6px 14px; border:1px solid #d0c0a0; border-radius:8px; background:#fff; font-size:13px; cursor:pointer; font-family:inherit; }
+.uno-room-id { font-size:13px; color:#888; background:#f5f0e0; padding:3px 10px; border-radius:8px; }
+.uno-game-area { display:flex; flex-direction:column; align-items:center; gap:16px; padding:12px 0; }
+.uno-opponent-area { width:100%; display:flex; flex-direction:column; align-items:center; gap:6px; }
+.uno-opponent-label { font-size:14px; font-weight:600; color:#888; }
+.uno-opponent-hand { display:flex; gap:4px; justify-content:center; flex-wrap:wrap; }
+.uno-center-area { display:flex; gap:24px; align-items:center; justify-content:center; padding:10px 0; }
+.uno-draw-pile { position:relative; cursor:pointer; }
+.uno-discard-pile { position:relative; }
+.uno-direction-arrow { font-size:28px; color:#f0a020; }
+.uno-player-area { width:100%; display:flex; flex-direction:column; align-items:center; gap:8px; }
+.uno-player-label { font-size:14px; font-weight:600; color:#5a4a2a; }
+.uno-player-hand { display:flex; gap:6px; justify-content:center; flex-wrap:wrap; max-width:100%; overflow-x:auto; padding:8px 4px; }
+.uno-actions { display:flex; gap:12px; justify-content:center; margin-top:4px; }
+.uno-action-btn { padding:12px 28px; border:none; border-radius:14px; font-size:16px; font-weight:700; cursor:pointer; font-family:inherit; transition:0.2s; }
+.uno-action-btn:active { transform:scale(0.97); }
+.uno-draw-btn { background:linear-gradient(135deg,#54a0ff,#3a7adb); color:#fff; box-shadow:0 4px 14px rgba(84,160,255,0.3); }
+.uno-pass-btn { background:linear-gradient(135deg,#aaa,#888); color:#fff; box-shadow:0 4px 14px rgba(150,150,150,0.3); }
+.uno-color-picker { display:flex; gap:16px; justify-content:center; padding:12px 0; }
+.uno-color-btn { width:64px; height:64px; border-radius:16px; border:3px solid #fff; cursor:pointer; font-size:24px; font-weight:700; color:#fff; box-shadow:0 4px 12px rgba(0,0,0,0.2); transition:0.2s; font-family:inherit; }
+.uno-color-btn:active { transform:scale(0.92); }
+.uno-card { width:64px; height:92px; border-radius:10px; display:inline-flex; align-items:center; justify-content:center; position:relative; cursor:pointer; transition:0.2s; box-shadow:0 3px 8px rgba(0,0,0,0.2); flex-shrink:0; font-family:inherit; }
+.uno-card.playable { box-shadow:0 0 0 3px #f0a020, 0 3px 12px rgba(240,160,32,0.4); transform:translateY(-6px); }
+.uno-card.playable:active { transform:translateY(-6px) scale(0.95); }
+.uno-card.unplayable { opacity:0.5; cursor:default; }
+.uno-card-back { width:48px; height:70px; border-radius:8px; background:linear-gradient(135deg,#1a1a4e,#2a2a6e); border:2px solid #444; display:inline-flex; align-items:center; justify-content:center; flex-shrink:0; box-shadow:0 2px 6px rgba(0,0,0,0.2); }
+.uno-card-back::after { content:'UNO'; color:#fff; font-size:11px; font-weight:900; font-style:italic; }
+.uno-card-inner { position:absolute; top:4px; left:4px; right:4px; bottom:4px; background:rgba(255,255,255,0.9); border-radius:6px; display:flex; align-items:center; justify-content:center; }
+.uno-card-value { font-size:28px; font-weight:900; }
+.uno-card-corner { position:absolute; font-size:12px; font-weight:700; color:rgba(255,255,255,0.9); z-index:2; }
+.uno-card-corner.tl { top:4px; left:6px; }
+.uno-card-corner.br { bottom:4px; right:6px; transform:rotate(180deg); }
+.uno-card.red { background:linear-gradient(135deg,#e74c3c,#c0392b); }
+.uno-card.yellow { background:linear-gradient(135deg,#f1c40f,#e6a800); }
+.uno-card.green { background:linear-gradient(135deg,#27ae60,#1e8449); }
+.uno-card.blue { background:linear-gradient(135deg,#3498db,#2874a6); }
+.uno-card.wild { background:linear-gradient(135deg,#2c3e50,#1a1a2e); }
+.uno-card.wild .uno-card-inner { background:conic-gradient(from 0deg, #e74c3c 0deg 90deg, #f1c40f 90deg 180deg, #27ae60 180deg 270deg, #3498db 270deg 360deg); }
+.uno-result-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.5); display:flex; align-items:center; justify-content:center; z-index:9999; }
+.uno-result-box { background:#fff; border-radius:20px; padding:30px 40px; text-align:center; box-shadow:0 20px 60px rgba(0,0,0,0.3); }
+.uno-result-title { font-size:24px; font-weight:800; margin-bottom:8px; }
+.uno-result-desc { font-size:15px; color:#888; margin-bottom:20px; }
+.uno-result-btn { padding:12px 36px; border:none; border-radius:14px; background:linear-gradient(135deg,#f0a020,#e89010); color:#fff; font-size:16px; font-weight:700; cursor:pointer; font-family:inherit; }
+.uno-tut-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.5); display:flex; align-items:center; justify-content:center; z-index:9999; }
+.uno-tut-box { background:#fff; border-radius:20px; padding:24px 28px; max-width:440px; max-height:85vh; overflow-y:auto; box-shadow:0 20px 60px rgba(0,0,0,0.3); }
+.uno-tut-title { font-size:20px; font-weight:800; color:#5a4a2a; margin-bottom:12px; text-align:center; }
+.uno-tut-section { margin-bottom:14px; }
+.uno-tut-section h4 { font-size:15px; font-weight:700; color:#d49020; margin-bottom:4px; }
+.uno-tut-section p { font-size:13px; color:#666; line-height:1.6; }
+.uno-tut-close { display:block; margin:16px auto 0; padding:10px 32px; border:none; border-radius:12px; background:linear-gradient(135deg,#f0a020,#e89010); color:#fff; font-size:15px; font-weight:700; cursor:pointer; font-family:inherit; }
+.uno-waiting-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.4); display:flex; align-items:center; justify-content:center; z-index:100; }
+.uno-waiting-box { background:#fff; border-radius:16px; padding:24px 32px; text-align:center; }
+.uno-waiting-text { font-size:16px; color:#5a4a2a; margin-bottom:12px; }
+.uno-waiting-room { font-size:22px; font-weight:800; color:#f0a020; margin-bottom:8px; }
+.uno-online-lobby { max-width:480px; margin:0 auto; }
+.uno-online-actions { text-align:center; margin-bottom:20px; }
+.uno-create-btn { padding:12px 36px; border:none; border-radius:14px; background:linear-gradient(135deg,#54a0ff,#3a7adb); color:#fff; font-size:16px; font-weight:700; cursor:pointer; box-shadow:0 4px 14px rgba(84,160,255,0.3); font-family:inherit; }
+.uno-history-btn { padding:10px 20px; border:none; border-radius:12px; background:linear-gradient(135deg,#667eea,#764ba2); color:#fff; font-size:14px; font-weight:700; cursor:pointer; font-family:inherit; box-shadow:0 3px 10px rgba(102,126,234,0.3); transition:transform 0.15s; margin-left:8px; }
+.uno-history-btn:hover { transform:scale(1.05); }
+.uno-join-by-id { display:flex; gap:8px; margin-bottom:16px; max-width:360px; margin-left:auto; margin-right:auto; }
+.uno-join-input { flex:1; padding:10px 14px; border:2px solid #e0d4b8; border-radius:10px; font-size:15px; font-family:inherit; background:#fff; }
+.uno-join-input:focus { outline:none; border-color:#54a0ff; }
+.uno-join-id-btn { padding:10px 20px; border:none; border-radius:10px; background:#52c41a; color:#fff; font-size:14px; font-weight:600; cursor:pointer; font-family:inherit; white-space:nowrap; }
+.uno-room-list { display:flex; flex-direction:column; gap:8px; }
+.uno-room-item { display:flex; align-items:center; justify-content:space-between; padding:12px 16px; background:#fff; border:1px solid #e8e0d0; border-radius:12px; }
+.uno-room-name { font-size:14px; font-weight:600; color:#5a4a2a; }
+.uno-join-btn { padding:6px 20px; border:none; border-radius:8px; background:#54a0ff; color:#fff; font-size:13px; font-weight:600; cursor:pointer; font-family:inherit; }
+.uno-empty, .uno-loading { text-align:center; color:#b0a080; padding:24px; font-size:14px; }
+.uno-active-banner { background:#fff8e8; border:1px solid #f0e0c0; border-radius:12px; padding:12px 16px; display:flex; align-items:center; justify-content:space-between; margin-bottom:16px; }
+.uno-active-info { font-size:14px; color:#5a4a2a; }
+.uno-rejoin-btn { padding:8px 20px; border:none; border-radius:10px; background:linear-gradient(135deg,#52c41a,#3a9a10); color:#fff; font-size:14px; font-weight:700; cursor:pointer; font-family:inherit; box-shadow:0 3px 10px rgba(82,196,26,0.3); }
+.uno-rejoin-btn:active { transform:scale(0.95); }
+@media(max-width:520px) {
+  .uno-card { width:56px; height:80px; }
+  .uno-card-value { font-size:24px; }
+  .uno-card-back { width:42px; height:62px; }
+  .uno-card-back::after { font-size:9px; }
+  .uno-card-corner { font-size:10px; }
+  .uno-color-btn { width:56px; height:56px; font-size:20px; }
+  .uno-center-area { gap:16px; }
+}
+
 </style>
 </head>
 <body>
@@ -2922,6 +3021,9 @@
     <div class="cm-cat-tabs">
       <button class="cm-cat-tab active" data-cat="chess" onclick="switchBrainCat('chess',this)">棋类</button>
       <button class="cm-cat-tab" data-cat="cards" onclick="switchBrainCat('cards',this)">牌类</button>
+    </div>
+    <div class="cm-sub-tabs" id="brain-cards-sub-tabs" style="display:none;">
+      <span class="breadcrumb-item active" onclick="switchBrainGame('uno',this)">UNO</span>
     </div>
     <div class="cm-sub-tabs" id="brain-sub-tabs">
       <span class="breadcrumb-item active" onclick="switchBrainGame('gomoku',this)">五子棋</span>
@@ -5703,28 +5805,31 @@ function switchBrainCat(cat, el) {
   document.querySelectorAll('#page-brain .cm-cat-tab').forEach(function(t) {
     t.classList.toggle('active', t.getAttribute('data-cat') === cat);
   });
-  var subTabs = document.getElementById('brain-sub-tabs');
-  subTabs.style.display = cat === 'chess' ? '' : 'none';
+  document.getElementById('brain-sub-tabs').style.display = cat === 'chess' ? '' : 'none';
+  document.getElementById('brain-cards-sub-tabs').style.display = cat === 'cards' ? '' : 'none';
   if (cat === 'chess') {
     switchBrainGame(brainGame || 'gomoku');
-  } else {
-    document.getElementById('brain-content').innerHTML = '<div class="task-empty" style="padding:60px 0;">牌类游戏即将上线，敬请期待~</div>';
+  } else if (cat === 'cards') {
+    switchBrainGame('uno');
   }
 }
 
 function switchBrainGame(game, el) {
   brainGame = game;
-  document.querySelectorAll('#brain-sub-tabs .breadcrumb-item').forEach(function(t) {
+  document.querySelectorAll('#brain-sub-tabs .breadcrumb-item, #brain-cards-sub-tabs .breadcrumb-item').forEach(function(t) {
     t.classList.remove('active');
   });
   if (el) el.classList.add('active');
   else {
-    var items = document.querySelectorAll('#brain-sub-tabs .breadcrumb-item');
-    var map = { gomoku: 0, xiangqi: 1, chess: 2 };
-    if (items[map[game]]) items[map[game]].classList.add('active');
+    var chessItems = document.querySelectorAll('#brain-sub-tabs .breadcrumb-item');
+    var cardItems = document.querySelectorAll('#brain-cards-sub-tabs .breadcrumb-item');
+    var chessMap = { gomoku: 0, xiangqi: 1, chess: 2 };
+    if (chessMap[game] !== undefined && chessItems[chessMap[game]]) chessItems[chessMap[game]].classList.add('active');
+    if (game === 'uno' && cardItems[0]) cardItems[0].classList.add('active');
   }
   if (game === 'gomoku') renderGomokuLobby();
   else if (game === 'xiangqi') renderXqLobby();
+  else if (game === 'uno') renderUnoLobby();
   else document.getElementById('brain-content').innerHTML = '<div class="task-empty" style="padding:60px 0;">国际象棋即将上线，敬请期待~</div>';
 }
 
@@ -6169,9 +6274,714 @@ function showGomokuResult(title, desc) {
   a.appendChild(overlay);
 }
 
+// ---- UNO 卡牌游戏 ----
+var unoState = null;
+var unoMode = 'ai';
+var unoAIDifficulty = 'medium';
+var unoGameId = null;
+var unoMyPlayer = 0;
+var unoPollTimer = null;
+var unoRoomPollTimer = null;
+var unoGameOver = false;
+var unoAwaitingColor = false;
+var unoJustDrew = null;
+var unoActionLock = false;
+
+function unoSaveGameId(id) { unoGameId = id; if (id) localStorage.setItem('uno-game-id', id); else localStorage.removeItem('uno-game-id'); }
+function unoRestoreGameId() { var id = parseInt(localStorage.getItem('uno-game-id')); if (id) unoGameId = id; }
+
+function unoCloseRoom() {
+  if (unoGameId) {
+    apiCall('POST', '/api/games/abandon', { game_id: unoGameId }).catch(function(){});
+    unoSaveGameId(null);
+  }
+  if (unoPollTimer) { clearInterval(unoPollTimer); unoPollTimer = null; }
+  if (unoRoomPollTimer) { clearInterval(unoRoomPollTimer); unoRoomPollTimer = null; }
+}
+
+function unoCreateDeck() {
+  var colors = ['red', 'yellow', 'green', 'blue'];
+  var deck = [];
+  var id = 0;
+  for (var ci = 0; ci < 4; ci++) {
+    deck.push({ color: colors[ci], value: '0', id: id++ });
+    for (var v = 1; v <= 9; v++) {
+      deck.push({ color: colors[ci], value: String(v), id: id++ });
+      deck.push({ color: colors[ci], value: String(v), id: id++ });
+    }
+    for (var j = 0; j < 2; j++) {
+      deck.push({ color: colors[ci], value: 'skip', id: id++ });
+      deck.push({ color: colors[ci], value: 'reverse', id: id++ });
+      deck.push({ color: colors[ci], value: 'draw2', id: id++ });
+    }
+  }
+  for (var j = 0; j < 4; j++) {
+    deck.push({ color: 'wild', value: 'wild', id: id++ });
+    deck.push({ color: 'wild', value: 'wild4', id: id++ });
+  }
+  return deck;
+}
+
+function unoShuffle(deck) {
+  for (var i = deck.length - 1; i > 0; i--) {
+    var j = Math.floor(Math.random() * (i + 1));
+    var tmp = deck[i]; deck[i] = deck[j]; deck[j] = tmp;
+  }
+  return deck;
+}
+
+function unoStartAIGame() {
+  var deck = unoShuffle(unoCreateDeck());
+  var hand0 = deck.splice(0, 7);
+  var hand1 = deck.splice(0, 7);
+  var first;
+  while (true) {
+    first = deck.shift();
+    if (first.value === 'wild4') { deck.push(first); continue; }
+    break;
+  }
+  var currentColor = first.color === 'wild' ? ['red','yellow','green','blue'][Math.floor(Math.random()*4)] : first.color;
+  unoState = {
+    deck: deck,
+    hands: [hand0, hand1],
+    discard: [first],
+    currentColor: currentColor,
+    direction: 1,
+    drawCount: 0,
+    winner: null,
+    currentTurn: (first.value === 'skip' || first.value === 'reverse') ? 1 : 0
+  };
+  if (first.value === 'draw2') {
+    unoState.hands[0] = unoState.hands[0].concat(unoState.deck.splice(0, 2));
+    unoState.currentTurn = 1;
+  }
+  unoGameOver = false;
+  unoAwaitingColor = false;
+  unoJustDrew = null;
+  unoActionLock = false;
+  unoMyPlayer = 0;
+  renderUnoGame();
+  if (unoState.currentTurn === 1) {
+    setTimeout(unoAIMove, 800);
+  }
+}
+
+function unoCanPlay(card, currentColor, topValue) {
+  if (card.color === 'wild') return true;
+  if (card.color === currentColor) return true;
+  if (card.value === topValue) return true;
+  return false;
+}
+
+function unoGetPlayableIndices(hand) {
+  var top = unoState.discard[unoState.discard.length - 1];
+  var indices = [];
+  for (var i = 0; i < hand.length; i++) {
+    if (unoCanPlay(hand[i], unoState.currentColor, top.value)) indices.push(i);
+  }
+  return indices;
+}
+
+function unoNextPlayer(p) {
+  return p === 0 ? 1 : 0;
+}
+
+function unoPlayCard(player, handIdx, chosenColor) {
+  if (unoActionLock) return;
+  var card = unoState.hands[player][handIdx];
+  if (!card) return;
+  var top = unoState.discard[unoState.discard.length - 1];
+  if (!unoCanPlay(card, unoState.currentColor, top.value)) return;
+  
+  unoActionLock = true;
+  unoState.hands[player].splice(handIdx, 1);
+  unoState.discard.push(card);
+  
+  if (card.color === 'wild') {
+    unoState.currentColor = chosenColor || 'red';
+  } else {
+    unoState.currentColor = card.color;
+  }
+  
+  var skipNext = false;
+  var drawAmount = 0;
+  
+  if (card.value === 'skip') { skipNext = true; }
+  else if (card.value === 'reverse') { skipNext = true; }
+  else if (card.value === 'draw2') { drawAmount = 2; skipNext = true; }
+  else if (card.value === 'wild4') { drawAmount = 4; skipNext = true; }
+  
+  if (unoState.hands[player].length === 0) {
+    unoState.winner = player;
+    unoGameOver = true;
+    renderUnoGame();
+    var youWin = player === unoMyPlayer;
+    setTimeout(function() {
+      showUnoResult(youWin ? '🎉 你赢了！' : '😢 你输了', youWin ? '你出完了所有牌！' : '对手出完了所有牌');
+    }, 300);
+    if (unoMode === 'online') unoSendState(true);
+    unoActionLock = false;
+    return;
+  }
+  
+  if (drawAmount > 0) {
+    var next = unoNextPlayer(player);
+    var drawn = unoState.deck.splice(0, drawAmount);
+    if (drawn.length < drawAmount) {
+      var reshuffled = unoShuffle(unoState.discard.splice(0, unoState.discard.length - 1));
+      unoState.deck = unoState.deck.concat(reshuffled);
+      drawn = drawn.concat(unoState.deck.splice(0, drawAmount - drawn.length));
+    }
+    unoState.hands[next] = unoState.hands[next].concat(drawn);
+  }
+  
+  var nextP = skipNext ? player : unoNextPlayer(player);
+  unoState.currentTurn = nextP;
+  
+  unoJustDrew = null;
+  unoAwaitingColor = false;
+  
+  if (unoMode === 'online') {
+    unoSendState(false);
+  }
+  
+  renderUnoGame();
+  unoActionLock = false;
+  
+  if (unoMode === 'ai' && nextP === 1 && !unoGameOver) {
+    setTimeout(unoAIMove, 800);
+  }
+}
+
+function unoDrawCard() {
+  if (unoActionLock) return;
+  if (unoState.currentTurn !== unoMyPlayer) return;
+  if (unoJustDrew !== null) return;
+  
+  unoActionLock = true;
+  if (unoState.deck.length === 0) {
+    var reshuffled = unoShuffle(unoState.discard.splice(0, unoState.discard.length - 1));
+    unoState.deck = unoState.deck.concat(reshuffled);
+  }
+  if (unoState.deck.length === 0) { unoActionLock = false; return; }
+  
+  var card = unoState.deck.shift();
+  unoState.hands[unoMyPlayer].push(card);
+  unoJustDrew = card;
+  
+  if (unoMode === 'online') {
+    unoSendState(false);
+  }
+  
+  renderUnoGame();
+  unoActionLock = false;
+}
+
+function unoPassTurn() {
+  if (unoActionLock) return;
+  if (unoJustDrew === null) return;
+  var nextP = unoNextPlayer(unoMyPlayer);
+  unoState.currentTurn = nextP;
+  unoJustDrew = null;
+  
+  if (unoMode === 'online') {
+    unoSendState(false);
+  }
+  
+  renderUnoGame();
+  
+  if (unoMode === 'ai' && nextP === 1 && !unoGameOver) {
+    setTimeout(unoAIMove, 800);
+  }
+}
+
+function unoAIMove() {
+  if (unoGameOver || unoState.currentTurn !== 1) return;
+  var hand = unoState.hands[1];
+  var playable = unoGetPlayableIndices(hand);
+  
+  if (playable.length === 0) {
+    if (unoState.deck.length === 0) {
+      var reshuffled = unoShuffle(unoState.discard.splice(0, unoState.discard.length - 1));
+      unoState.deck = unoState.deck.concat(reshuffled);
+    }
+    if (unoState.deck.length > 0) {
+      var card = unoState.deck.shift();
+      hand.push(card);
+      renderUnoGame();
+      if (unoCanPlay(card, unoState.currentColor, unoState.discard[unoState.discard.length-1].value)) {
+        var idx = hand.indexOf(card);
+        setTimeout(function() {
+          var color = card.color === 'wild' ? unoPickAIColor() : null;
+          unoPlayCard(1, idx, color);
+        }, 600);
+        return;
+      }
+    }
+    unoState.currentTurn = 0;
+    renderUnoGame();
+    return;
+  }
+  
+  var chosenIdx;
+  if (unoAIDifficulty === 'easy') {
+    chosenIdx = playable[Math.floor(Math.random() * playable.length)];
+  } else if (unoAIDifficulty === 'medium') {
+    var actionCards = playable.filter(function(i) {
+      var v = hand[i].value;
+      return v === 'skip' || v === 'reverse' || v === 'draw2' || v === 'wild4';
+    });
+    if (actionCards.length > 0) {
+      chosenIdx = actionCards[Math.floor(Math.random() * actionCards.length)];
+    } else {
+      chosenIdx = playable[Math.floor(Math.random() * playable.length)];
+    }
+  } else {
+    var nonWild = playable.filter(function(i) { return hand[i].color !== 'wild'; });
+    if (nonWild.length > 0) {
+      var counts = { red: 0, yellow: 0, green: 0, blue: 0 };
+      hand.forEach(function(c) { if (c.color !== 'wild') counts[c.color]++; });
+      nonWild.sort(function(a, b) { return counts[hand[b].color] - counts[hand[a].color]; });
+      chosenIdx = nonWild[0];
+    } else {
+      var playerHandSize = unoState.hands[0].length;
+      var wild4 = playable.filter(function(i) { return hand[i].value === 'wild4'; });
+      if (wild4.length > 0 && playerHandSize <= 3) {
+        chosenIdx = wild4[0];
+      } else {
+        chosenIdx = playable[Math.floor(Math.random() * playable.length)];
+      }
+    }
+  }
+  
+  var card = hand[chosenIdx];
+  var color = card.color === 'wild' ? unoPickAIColor() : null;
+  unoPlayCard(1, chosenIdx, color);
+}
+
+function unoPickAIColor() {
+  var counts = { red: 0, yellow: 0, green: 0, blue: 0 };
+  unoState.hands[1].forEach(function(c) { if (c.color !== 'wild') counts[c.color]++; });
+  var best = 'red', max = -1;
+  for (var c in counts) { if (counts[c] > max) { max = counts[c]; best = c; } }
+  return best;
+}
+
+function unoCardDisplay(card) {
+  var v = card.value;
+  if (v === 'skip') return '⊘';
+  if (v === 'reverse') return '⇄';
+  if (v === 'draw2') return '+2';
+  if (v === 'wild') return '★';
+  if (v === 'wild4') return '+4';
+  return v;
+}
+
+function unoCardCorner(card) {
+  return unoCardDisplay(card);
+}
+
+function unoRenderCard(card, playable, onclick, extraClass) {
+  var cls = 'uno-card ' + card.color;
+  if (playable === true) cls += ' playable';
+  else if (playable === false) cls += ' unplayable';
+  if (extraClass) cls += ' ' + extraClass;
+  var display = unoCardDisplay(card);
+  var corner = unoCardCorner(card);
+  var clickAttr = onclick ? ' onclick="' + onclick + '"' : '';
+  return '<div class="' + cls + '"' + clickAttr + '>' +
+    '<span class="uno-card-corner tl">' + corner + '</span>' +
+    '<div class="uno-card-inner"><span class="uno-card-value">' + display + '</span></div>' +
+    '<span class="uno-card-corner br">' + corner + '</span>' +
+  '</div>';
+}
+
+function unoRenderCardBack() {
+  return '<div class="uno-card-back"></div>';
+}
+
+function renderUnoGame() {
+  var a = document.getElementById('uno-arena');
+  if (!a) return;
+  if (!unoState) { a.innerHTML = ''; return; }
+  
+  var top = unoState.discard[unoState.discard.length - 1];
+  var myTurn = !unoGameOver && unoState.currentTurn === unoMyPlayer;
+  var opponentIdx = unoMyPlayer === 0 ? 1 : 0;
+  var myHand = unoState.hands[unoMyPlayer];
+  var oppHand = unoState.hands[opponentIdx];
+  
+  var turnText;
+  if (unoGameOver) { turnText = '游戏结束'; }
+  else if (unoMode === 'online') { turnText = myTurn ? '🔵 轮到你了' : '⏳ 等待对手...'; }
+  else { turnText = myTurn ? '🔵 轮到你了' : '⏳ AI思考中...'; }
+  
+  var playableIndices = myTurn ? unoGetPlayableIndices(myHand) : [];
+  var showColorPicker = unoAwaitingColor && myTurn;
+  
+  var html = '<div class="uno-status">' +
+    '<span class="uno-turn">' + turnText + '</span>' +
+    (unoMode === 'online' && unoGameId ? '<span class="uno-room-id">房间号: ' + unoGameId + '</span>' : '') +
+    '<button class="uno-restart" onclick="renderUnoLobby()">返回</button>' +
+  '</div>';
+  
+  html += '<div class="uno-game-area">';
+  
+  // Opponent area
+  html += '<div class="uno-opponent-area">' +
+    '<span class="uno-opponent-label">对手 ' + oppHand.length + ' 张</span>' +
+    '<div class="uno-opponent-hand">';
+  for (var i = 0; i < oppHand.length; i++) {
+    html += unoRenderCardBack();
+  }
+  html += '</div></div>';
+  
+  // Center area: draw pile + discard pile + direction
+  html += '<div class="uno-center-area">';
+  html += '<div class="uno-draw-pile" id="uno-draw-pile">';
+  html += unoRenderCardBack();
+  html += '</div>';
+  html += '<span class="uno-direction-arrow">⇄</span>';
+  html += '<div class="uno-discard-pile">';
+  html += unoRenderCard(top, false, '', '');
+  html += '</div>';
+  html += '</div>';
+  
+  // Current color indicator
+  var colorNames = { red: '红色', yellow: '黄色', green: '绿色', blue: '蓝色' };
+  if (top.color === 'wild') {
+    html += '<div style="font-size:14px;color:#888;">当前颜色: ' + (colorNames[unoState.currentColor] || unoState.currentColor) + '</div>';
+  }
+  
+  // Color picker
+  if (showColorPicker) {
+    html += '<div class="uno-color-picker">' +
+      '<button class="uno-color-btn" style="background:#e74c3c;" onclick="unoChooseColor(\'red\')">红</button>' +
+      '<button class="uno-color-btn" style="background:#f1c40f;" onclick="unoChooseColor(\'yellow\')">黄</button>' +
+      '<button class="uno-color-btn" style="background:#27ae60;" onclick="unoChooseColor(\'green\')">绿</button>' +
+      '<button class="uno-color-btn" style="background:#3498db;" onclick="unoChooseColor(\'blue\')">蓝</button>' +
+    '</div>';
+  }
+  
+  // Player hand
+  html += '<div class="uno-player-area">' +
+    '<span class="uno-player-label">你的手牌 ' + myHand.length + ' 张</span>' +
+    '<div class="uno-player-hand">';
+  
+  for (var i = 0; i < myHand.length; i++) {
+    var isPlayable = playableIndices.indexOf(i) >= 0;
+    var click = '';
+    if (myTurn && isPlayable && !unoAwaitingColor) {
+      click = 'unoTryPlay(' + i + ')';
+    }
+    html += unoRenderCard(myHand[i], myTurn ? isPlayable : null, click);
+  }
+  html += '</div></div>';
+  
+  // Action buttons
+  if (myTurn && !unoGameOver && !unoAwaitingColor) {
+    if (unoJustDrew !== null) {
+      var canPlayDrawn = unoCanPlay(unoJustDrew, unoState.currentColor, top.value);
+      if (canPlayDrawn) {
+        var drawnIdx = myHand.indexOf(unoJustDrew);
+        html += '<div class="uno-actions">' +
+          '<button class="uno-action-btn uno-draw-btn" onclick="unoPlayDrawn(' + drawnIdx + ')">打出这张牌</button>' +
+          '<button class="uno-action-btn uno-pass-btn" onclick="unoPassTurn()">不出，跳过</button>' +
+        '</div>';
+      } else {
+        html += '<div class="uno-actions">' +
+          '<button class="uno-action-btn uno-pass-btn" onclick="unoPassTurn()">抽到的牌不能出，跳过</button>' +
+        '</div>';
+      }
+    } else if (playableIndices.length === 0) {
+      html += '<div class="uno-actions">' +
+        '<button class="uno-action-btn uno-draw-btn" onclick="unoDrawCard()">没有可出的牌，抽一张</button>' +
+      '</div>';
+    }
+  }
+  
+  html += '</div>';
+  a.innerHTML = html;
+}
+
+function unoTryPlay(idx) {
+  if (unoActionLock) return;
+  if (unoState.currentTurn !== unoMyPlayer) return;
+  var card = unoState.hands[unoMyPlayer][idx];
+  if (card.color === 'wild') {
+    unoAwaitingColor = true;
+    unoPendingCardIdx = idx;
+    renderUnoGame();
+    return;
+  }
+  unoPlayCard(unoMyPlayer, idx, null);
+}
+
+var unoPendingCardIdx = null;
+
+function unoChooseColor(color) {
+  if (unoPendingCardIdx === null) return;
+  var idx = unoPendingCardIdx;
+  unoPendingCardIdx = null;
+  unoAwaitingColor = false;
+  unoPlayCard(unoMyPlayer, idx, color);
+}
+
+function unoPlayDrawn(idx) {
+  if (unoActionLock) return;
+  var card = unoState.hands[unoMyPlayer][idx];
+  if (!card || card !== unoJustDrew) return;
+  if (card.color === 'wild') {
+    unoAwaitingColor = true;
+    unoPendingCardIdx = idx;
+    renderUnoGame();
+    return;
+  }
+  unoJustDrew = null;
+  unoPlayCard(unoMyPlayer, idx, null);
+}
+
+function showUnoResult(title, desc) {
+  var a = document.getElementById('uno-arena');
+  if (!a) return;
+  var overlay = document.createElement('div');
+  overlay.className = 'uno-result-overlay';
+  overlay.innerHTML = '<div class="uno-result-box">' +
+    '<div class="uno-result-title">' + title + '</div>' +
+    '<div class="uno-result-desc">' + desc + '</div>' +
+    '<button class="uno-result-btn" onclick="this.closest(\'.uno-result-overlay\').remove();renderUnoLobby();">再来一局</button>' +
+  '</div>';
+  a.appendChild(overlay);
+}
+
+function showUnoTutorial() {
+  var overlay = document.createElement('div');
+  overlay.className = 'uno-tut-overlay';
+  overlay.innerHTML = '<div class="uno-tut-box">' +
+    '<div class="uno-tut-title">📖 UNO 规则教程</div>' +
+    '<div class="uno-tut-section"><h4>🎯 目标</h4><p>最先出完手中所有牌的玩家获胜！每人开局发7张牌。</p></div>' +
+    '<div class="uno-tut-section"><h4>🎨 颜色与数字</h4><p>牌有4种颜色：红、黄、绿、蓝。出牌规则：必须和桌面上一张牌<b>颜色相同</b>或<b>数字相同</b>才能出。万能牌（黑色）任何时候都可以出。</p></div>' +
+    '<div class="uno-tut-section"><h4>⏭ 跳过牌 ⊘</h4><p>跳过下一位玩家的回合，对方不能出牌。</p></div>' +
+    '<div class="uno-tut-section"><h4>⇄ 反转牌</h4><p>反转出牌顺序。两人对战时，效果和跳过牌一样。</p></div>' +
+    '<div class="uno-tut-section"><h4>+2 罚牌</h4><p>下一位玩家罚抽2张牌，并跳过其回合。</p></div>' +
+    '<div class="uno-tut-section"><h4>★ 万能牌</h4><p>可以随时出，出牌后你可以选择新的颜色。</p></div>' +
+    '<div class="uno-tut-section"><h4>+4 万能罚牌</h4><p>下一位玩家罚抽4张牌，并跳过其回合。你还可以选择新的颜色。这是最强的牌！</p></div>' +
+    '<div class="uno-tut-section"><h4>🃏 抽牌</h4><p>如果你没有可以出的牌，就点"抽一张"从牌堆抽牌。如果抽到的牌可以出，你可以选择出或不出。</p></div>' +
+    '<div class="uno-tut-section"><h4>🔔 UNO!</h4><p>当你手中只剩1张牌时，系统会自动喊"UNO！"提醒对手。</p></div>' +
+    '<button class="uno-tut-close" onclick="this.closest(\'.uno-tut-overlay\').remove()">我知道了，开始玩！</button>' +
+  '</div>';
+  document.body.appendChild(overlay);
+  overlay.addEventListener('click', function(e) { if (e.target === overlay) overlay.remove(); });
+}
+
+// ---- UNO Lobby ----
+function renderUnoLobby() {
+  if (unoPollTimer) { clearInterval(unoPollTimer); unoPollTimer = null; }
+  if (unoRoomPollTimer) { clearInterval(unoRoomPollTimer); unoRoomPollTimer = null; }
+  unoCloseRoom();
+  unoGameOver = false;
+  var c = document.getElementById('brain-content');
+  if (!c) return;
+  c.innerHTML =
+    '<div class="uno-lobby">' +
+      '<div class="uno-mode-tabs">' +
+        '<button class="uno-mode-tab' + (unoMode === 'ai' ? ' active' : '') + '" onclick="setUnoMode(\'ai\')">🤖 人机对战</button>' +
+        '<button class="uno-mode-tab' + (unoMode === 'online' ? ' active' : '') + '" onclick="setUnoMode(\'online\')">👥 在线对战</button>' +
+      '</div>' +
+      '<div id="uno-arena"></div>' +
+    '</div>';
+  if (unoMode === 'ai') renderUnoAISetup();
+  else renderUnoOnlineLobby();
+}
+
+function setUnoMode(mode) {
+  unoMode = mode;
+  if (unoPollTimer) { clearInterval(unoPollTimer); unoPollTimer = null; }
+  if (unoRoomPollTimer) { clearInterval(unoRoomPollTimer); unoRoomPollTimer = null; }
+  renderUnoLobby();
+}
+
+function renderUnoAISetup() {
+  var a = document.getElementById('uno-arena');
+  if (!a) return;
+  a.innerHTML =
+    '<div class="uno-setup">' +
+      '<div class="uno-diff-row">' +
+        '<span class="uno-label">选择难度：</span>' +
+        '<button class="uno-diff-btn' + (unoAIDifficulty === 'easy' ? ' active' : '') + '" onclick="setUnoDiff(\'easy\')">简单</button>' +
+        '<button class="uno-diff-btn' + (unoAIDifficulty === 'medium' ? ' active' : '') + '" onclick="setUnoDiff(\'medium\')">中等</button>' +
+        '<button class="uno-diff-btn' + (unoAIDifficulty === 'hard' ? ' active' : '') + '" onclick="setUnoDiff(\'hard\')">困难</button>' +
+      '</div>' +
+      '<button class="uno-start-btn" onclick="unoStartAIGame()">开始对局</button>' +
+      '<button class="uno-tutorial-btn" onclick="showUnoTutorial()">📖 规则教程</button>' +
+      '<div class="uno-hint">每人发7张牌，最先出完获胜！</div>' +
+    '</div>';
+}
+
+function setUnoDiff(d) {
+  unoAIDifficulty = d;
+  renderUnoAISetup();
+}
+
+// ---- UNO Online ----
+function renderUnoOnlineLobby() {
+  var a = document.getElementById('uno-arena');
+  if (!a) return;
+  a.innerHTML = '<div class="uno-online-lobby">' +
+    '<div class="uno-online-actions">' +
+      '<button class="uno-create-btn" onclick="unoCreateRoom()">🏠 创建房间</button>' +
+      '<button class="uno-history-btn" onclick="showGameRecords(\'uno\')">📜 对战记录</button>' +
+    '</div>' +
+    '<div class="uno-join-by-id">' +
+      '<input type="number" id="uno-join-id-input" placeholder="输入房间号" class="uno-join-input" autocomplete="off" />' +
+      '<button class="uno-join-id-btn" onclick="unoJoinById()">加入房间</button>' +
+    '</div>' +
+    '<div class="uno-room-list" id="uno-room-list"><div class="uno-loading">加载中...</div></div>' +
+  '</div>';
+  unoLoadRooms();
+  unoCheckActiveGame();
+}
+
+function unoLoadRooms() {
+  apiCall('GET', '/api/games/open?type=uno').then(function(res) {
+    var el = document.getElementById('uno-room-list');
+    if (!el) return;
+    var rooms = res.rooms || [];
+    if (rooms.length === 0) {
+      el.innerHTML = '<div class="uno-empty">暂无开放房间，创建一个吧！</div>';
+    } else {
+      el.innerHTML = rooms.map(function(r) {
+        return '<div class="uno-room-item">' +
+          '<span class="uno-room-name">' + (r.player1_name || '玩家') + ' 的房间</span>' +
+          '<button class="uno-join-btn" onclick="unoJoinRoom(' + r.id + ')">加入</button>' +
+        '</div>';
+      }).join('');
+    }
+  }).catch(function(e) {
+    var el = document.getElementById('uno-room-list');
+    if (el) el.innerHTML = '<div class="uno-empty">加载失败</div>';
+  });
+}
+
+function unoCreateRoom() {
+  apiCall('POST', '/api/games/create', { type: 'uno' }).then(function(res) {
+    if (res.error) { showToast(res.error, 'error'); return; }
+    unoSaveGameId(res.game_id);
+    unoMyPlayer = 0;
+    renderUnoWaitingRoom(res.game_id);
+    unoStartPolling();
+    showToast('房间号 ' + res.game_id + '，分享给对手加入吧！', 'info');
+  }).catch(function(e) { showToast('创建失败', 'error'); });
+}
+
+function unoJoinRoom(id) {
+  apiCall('POST', '/api/games/join', { game_id: id }).then(function(res) {
+    if (res.error) { showToast(res.error, 'error'); return; }
+    unoSaveGameId(id);
+    unoMyPlayer = 1;
+    unoStartPolling();
+  }).catch(function(e) { showToast('加入失败', 'error'); });
+}
+
+function unoJoinById() {
+  var input = document.getElementById('uno-join-id-input');
+  if (!input) return;
+  var id = parseInt(input.value);
+  if (!id) { showToast('请输入有效的房间号', 'error'); return; }
+  unoJoinRoom(id);
+}
+
+function renderUnoWaitingRoom(roomId) {
+  var a = document.getElementById('uno-arena');
+  if (!a) return;
+  a.innerHTML = '<div class="uno-game-area">' +
+    '<div style="font-size:18px;font-weight:700;color:#5a4a2a;">等待对手加入...</div>' +
+    '<div style="font-size:28px;font-weight:800;color:#f0a020;">房间号 ' + roomId + '</div>' +
+    '<div style="font-size:14px;color:#888;">把房间号分享给朋友，等他加入后自动开始！</div>' +
+    '<button class="uno-restart" onclick="renderUnoLobby()">返回</button>' +
+  '</div>';
+}
+
+function unoStartPolling() {
+  if (unoPollTimer) clearInterval(unoPollTimer);
+  unoPollTimer = setInterval(unoPollState, 2000);
+  unoPollState();
+}
+
+function unoPollState() {
+  if (!unoGameId) return;
+  apiCall('GET', '/api/games/' + unoGameId).then(function(res) {
+    if (res.error) { showToast(res.error, 'error'); if (unoPollTimer) clearInterval(unoPollTimer); return; }
+    if (res.status === 'waiting') {
+      renderUnoWaitingRoom(unoGameId);
+      return;
+    }
+    if (res.status === 'finished' || res.status === 'abandoned') {
+      if (unoPollTimer) { clearInterval(unoPollTimer); unoPollTimer = null; }
+      if (!unoState) {
+        showToast('房间已结束', 'info');
+        setTimeout(function() { renderUnoLobby(); }, 1000);
+        return;
+      }
+      if (!unoGameOver) {
+        unoGameOver = true;
+        var youWin = res.winner === (unoMyPlayer + 1);
+        showUnoResult(youWin ? '🎉 你赢了！' : '😢 你输了', res.status === 'abandoned' ? '对手离开了' : '游戏结束');
+      }
+      return;
+    }
+    if (res.status === 'active' && res.game_data) {
+      var prevTurn = unoState ? unoState.currentTurn : -1;
+      unoState = res.game_data;
+      unoGameOver = false;
+      unoJustDrew = null;
+      unoAwaitingColor = false;
+      unoActionLock = false;
+      renderUnoGame();
+    }
+  }).catch(function(e) {});
+}
+
+function unoSendState(isWin) {
+  if (!unoGameId) return;
+  var body = { game_id: unoGameId, state: unoState, current_turn: unoState.currentTurn + 1 };
+  if (isWin) body.winner = true;
+  apiCall('POST', '/api/games/uno-action', body).catch(function(e) {});
+}
+
+function unoCheckActiveGame() {
+  apiCall('GET', '/api/games/my-active?type=uno').then(function(res) {
+    if (res.game && res.game.type === 'uno') {
+      var el = document.getElementById('uno-arena');
+      if (!el) return;
+      var banner = document.getElementById('uno-active-banner');
+      if (!banner) {
+        banner = document.createElement('div');
+        banner.id = 'uno-active-banner';
+        banner.className = 'uno-active-banner';
+        el.insertBefore(banner, el.firstChild);
+      }
+      var statusText = res.game.status === 'waiting' ? '等待对手加入' : (res.game.status === 'abandoned' ? '对手已离开' : '对局进行中');
+      banner.innerHTML = '<div class="uno-active-info">房间号 ' + res.game.id + ' · ' + statusText + '</div><button class="uno-rejoin-btn" onclick="unoRejoin(' + res.game.id + ',' + res.game.my_color + ',\'' + res.game.status + '\')">🎮 回到对局</button>';
+    }
+  }).catch(function(){});
+}
+
+function unoRejoin(id, color, status) {
+  unoSaveGameId(id);
+  unoMyPlayer = color - 1;
+  if (status === 'active' || status === 'abandoned') {
+    unoStartPolling();
+  } else {
+    renderUnoWaitingRoom(id);
+    unoStartPolling();
+  }
+}
+
+
 // ---- Gomoku Online ----
 function showGameRecords(type) {
-  var title = type === 'gomoku' ? '五子棋对战记录' : (type === 'xiangqi' ? '象棋对战记录' : '对战记录');
+  var title = type === 'gomoku' ? '五子棋对战记录' : (type === 'xiangqi' ? '象棋对战记录' : (type === 'uno' ? 'UNO对战记录' : '对战记录'));
   var overlay = document.createElement('div');
   overlay.className = 'gr-overlay';
   overlay.innerHTML = '<div class="gr-box"><div class="gr-title">' + title + '</div><div class="gr-loading">加载中...</div></div>';

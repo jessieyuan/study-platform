@@ -219,6 +219,7 @@ db.exec(`
   // Migration: add last_seen columns for disconnect detection
   try { db.exec('ALTER TABLE games ADD COLUMN last_seen1 TEXT'); } catch(e) {}
   try { db.exec('ALTER TABLE games ADD COLUMN last_seen2 TEXT'); } catch(e) {}
+  try { db.exec('ALTER TABLE games ADD COLUMN game_data TEXT'); } catch(e) {}
 
   db.exec(`
     CREATE TABLE IF NOT EXISTS game_moves (
@@ -918,6 +919,60 @@ async function handleAdminStats(req, res) {
 }
 
 
+// ==================== UNO 游戏状态初始化 ====================
+function initUnoState() {
+  var colors = ['red', 'yellow', 'green', 'blue'];
+  var deck = [];
+  var id = 0;
+  for (var ci = 0; ci < 4; ci++) {
+    deck.push({ color: colors[ci], value: '0', id: id++ });
+    for (var v = 1; v <= 9; v++) {
+      deck.push({ color: colors[ci], value: String(v), id: id++ });
+      deck.push({ color: colors[ci], value: String(v), id: id++ });
+    }
+    for (var j = 0; j < 2; j++) {
+      deck.push({ color: colors[ci], value: 'skip', id: id++ });
+      deck.push({ color: colors[ci], value: 'reverse', id: id++ });
+      deck.push({ color: colors[ci], value: 'draw2', id: id++ });
+    }
+  }
+  for (var j = 0; j < 4; j++) {
+    deck.push({ color: 'wild', value: 'wild', id: id++ });
+    deck.push({ color: 'wild', value: 'wild4', id: id++ });
+  }
+  for (var i = deck.length - 1; i > 0; i--) {
+    var j = Math.floor(Math.random() * (i + 1));
+    var tmp = deck[i]; deck[i] = deck[j]; deck[j] = tmp;
+  }
+  var hand1 = deck.splice(0, 7);
+  var hand2 = deck.splice(0, 7);
+  var first;
+  while (true) {
+    first = deck.shift();
+    if (first.value === 'wild4') { deck.push(first); continue; }
+    break;
+  }
+  var currentColor = first.color === 'wild' ? colors[Math.floor(Math.random()*4)] : first.color;
+  var state = {
+    deck: deck,
+    hands: [hand1, hand2],
+    discard: [first],
+    currentColor: currentColor,
+    direction: 1,
+    drawCount: 0,
+    winner: null
+  };
+  if (first.value === 'skip' || first.value === 'reverse') {
+    state.currentTurn = 1;
+  } else if (first.value === 'draw2') {
+    state.hands[0] = state.hands[0].concat(deck.splice(0, 2));
+    state.currentTurn = 1;
+  } else {
+    state.currentTurn = 0;
+  }
+  return JSON.stringify(state);
+}
+
 // ==================== 棋类游戏 API ====================
 
 /** POST /api/games/create */
@@ -962,6 +1017,10 @@ async function handleGameJoin(req, res) {
   if (game.status !== 'waiting') return sendJSON(res, 400, { error: '房间已开始或已结束' });
   if (game.player1_id === userId) return sendJSON(res, 400, { error: '不能加入自己的房间' });
   db.prepare("UPDATE games SET player2_id = ?, status = ?, last_seen2 = datetime('now','localtime') WHERE id = ?").run(userId, 'active', gameId);
+  if (game.type === 'uno') {
+    var state = initUnoState();
+    db.prepare('UPDATE games SET game_data = ?, current_turn = 1 WHERE id = ?').run(state, gameId);
+  }
   sendJSON(res, 200, { ok: true });
 }
 
@@ -1068,9 +1127,35 @@ async function handleGameGet(req, res, gameId) {
   else db.prepare("UPDATE games SET last_seen2 = datetime('now','localtime') WHERE id = ?").run(gameId);
   const moves = db.prepare('SELECT player_id, move_r as r, move_c as c, move_no, from_r, from_c FROM game_moves WHERE game_id = ? ORDER BY move_no ASC').all(gameId);
   const movesMapped = moves.map(function(m) { return { player: m.player_id === game.player1_id ? 1 : 2, r: m.r, c: m.c, from_r: m.from_r, from_c: m.from_c, to_r: m.from_r !== null ? m.r : undefined, to_c: m.from_c !== null ? m.c : undefined }; });
-  sendJSON(res, 200, { game_id: game.id, status: game.status, winner: game.winner, current_turn: game.current_turn, moves: movesMapped });
+  var stateData = game.game_data ? JSON.parse(game.game_data) : null;
+  sendJSON(res, 200, { game_id: game.id, status: game.status, winner: game.winner, current_turn: game.current_turn, moves: movesMapped, game_data: stateData });
 }
 
+
+/** POST /api/games/uno-action - update UNO game state */
+async function handleGameUnoAction(req, res) {
+  const userId = getAuthUserId(req);
+  if (!userId) return sendJSON(res, 401, { error: '未登录' });
+  const body = await parseBody(req);
+  const gameId = body.game_id;
+  if (!gameId) return sendJSON(res, 400, { error: '参数缺失' });
+  const game = db.prepare('SELECT * FROM games WHERE id = ?').get(gameId);
+  if (!game) return sendJSON(res, 404, { error: '游戏不存在' });
+  if (game.type !== 'uno') return sendJSON(res, 400, { error: '非UNO游戏' });
+  if (game.status !== 'active') return sendJSON(res, 400, { error: '游戏未进行中' });
+  if (game.player1_id !== userId && game.player2_id !== userId) return sendJSON(res, 403, { error: '你不在此局游戏中' });
+  var state = JSON.stringify(body.state);
+  if (body.winner) {
+    var playerNum = game.player1_id === userId ? 1 : 2;
+    db.prepare('UPDATE games SET game_data = ?, status = ?, winner = ?, current_turn = ? WHERE id = ?').run(state, 'finished', playerNum, playerNum, gameId);
+    recordGameResult(gameId);
+    sendJSON(res, 200, { ok: true, win: true });
+  } else {
+    var nextTurn = body.current_turn || (game.current_turn === 1 ? 2 : 1);
+    db.prepare('UPDATE games SET game_data = ?, current_turn = ? WHERE id = ?').run(state, nextTurn, gameId);
+    sendJSON(res, 200, { ok: true });
+  }
+}
 
 /** POST /api/games/abandon - close/abandon a game */
 async function handleGameAbandon(req, res) {
@@ -1306,6 +1391,7 @@ const server = http.createServer(async (req, res) => {
     if (pathname === '/api/games/join' && req.method === 'POST') return await handleGameJoin(req, res);
     if (pathname === '/api/games/move' && req.method === 'POST') return await handleGameMove(req, res);
     if (pathname === '/api/games/abandon' && req.method === 'POST') return await handleGameAbandon(req, res);
+    if (pathname === '/api/games/uno-action' && req.method === 'POST') return await handleGameUnoAction(req, res);
     if (pathname.startsWith('/api/games/') && req.method === 'GET') { const gameId = parseInt(pathname.split('/')[3]); if (gameId) return await handleGameGet(req, res, gameId); }
 
     // 静态文件
