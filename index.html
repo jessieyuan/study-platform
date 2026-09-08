@@ -2554,15 +2554,16 @@
 .uno-restart { padding:6px 14px; border:1px solid #d0c0a0; border-radius:8px; background:#fff; font-size:13px; cursor:pointer; font-family:inherit; }
 .uno-room-id { font-size:13px; color:#888; background:#f5f0e0; padding:3px 10px; border-radius:8px; }
 .uno-game-area { position:relative; display:grid; grid-template-areas:"top top top" "left center right" "player player player"; grid-template-columns:minmax(0,90px) 1fr minmax(0,90px); grid-template-rows:auto 1fr auto; gap:4px; width:100%; max-width:480px; margin:0 auto; min-height:500px; padding:6px 4px; align-items:center; justify-items:center; }
-.uno-table-surface { grid-area:1 / 1 / -1 / -1; align-self:center; justify-self:center; width:min(72%,280px); height:min(72%,280px); background:radial-gradient(circle at center, rgba(76,175,80,0.2), rgba(60,140,70,0.06)); border-radius:50%; border:2px dashed rgba(76,175,80,0.25); z-index:0; }
-.uno-opp-row { display:flex; flex-direction:column; align-items:center; gap:3px; padding:4px 6px; border-radius:10px; transition:0.2s; z-index:2; max-width:90px; }
+.uno-table-surface { grid-area:1 / 1 / -1 / -1; align-self:center; justify-self:center; width:min(55%,220px); height:min(55%,220px); background:radial-gradient(circle at center, rgba(76,175,80,0.16), rgba(60,140,70,0.04)); border-radius:50%; border:2px dashed rgba(76,175,80,0.22); z-index:0; position:relative; }
+.uno-opp-row { display:flex; flex-direction:column; align-items:center; gap:3px; padding:4px 6px; border-radius:10px; transition:0.2s; z-index:2; position:relative; max-width:90px; }
 .uno-opp-row.uno-seat-top { grid-area:top; max-width:140px; }
 .uno-opp-row.uno-seat-left { grid-area:left; }
 .uno-opp-row.uno-seat-right { grid-area:right; }
 .uno-opp-row.uno-opp-active { background:rgba(84,160,255,0.12); box-shadow:0 0 0 2px rgba(84,160,255,0.3) inset; }
 .uno-opp-name { font-size:12px; font-weight:600; color:#888; white-space:nowrap; }
 .uno-opp-row.uno-opp-active .uno-opp-name { color:#3a7adb; }
-.uno-opp-cards { display:flex; gap:1px; justify-content:center; align-items:center; flex-wrap:nowrap; overflow:hidden; max-width:100%; }
+.uno-opp-cards { display:flex; gap:1px; justify-content:center; align-items:center; flex-wrap:nowrap; overflow:hidden; max-width:100%; max-height:100%; }
+.uno-opp-row.uno-seat-left .uno-opp-cards, .uno-opp-row.uno-seat-right .uno-opp-cards { flex-direction:column; max-height:180px; }
 .uno-opp-cards .uno-card-back { width:24px; height:34px; border-width:2px; border-radius:6px; }
 .uno-opp-cards .uno-card-back::before { width:60%; height:44%; }
 .uno-opp-cards .uno-card-back::after { font-size:6px; }
@@ -2658,10 +2659,11 @@
   .uno-card-back::after { font-size:9px; }
   .uno-color-btn { width:56px; height:56px; font-size:20px; }
   .uno-center-row { gap:8px; }
-  .uno-opp-row { max-width:80px; }
-  .uno-opp-row.uno-seat-top { max-width:180px; }
+  .uno-opp-row { max-width:70px; }
+  .uno-opp-row.uno-seat-top { max-width:160px; }
   .uno-game-area { min-height:460px; }
-  .uno-table-surface { width:min(70%,240px); height:min(70%,240px); }
+  .uno-table-surface { width:min(45%,160px); height:min(45%,160px); }
+  .uno-opp-row.uno-seat-left .uno-opp-cards, .uno-opp-row.uno-seat-right .uno-opp-cards { max-height:140px; }
 }
 
 </style>
@@ -6796,7 +6798,7 @@ function renderUnoGame() {
       '<span class="uno-opp-name">' + oppName + ' ' + oppHand.length + '张' + (oppHand.length === 1 ? '<span class="uno-badge">UNO!</span>' : '') + '</span>' +
       '<div class="uno-opp-cards">';
     var isSide = (seatClass === 'uno-seat-left' || seatClass === 'uno-seat-right');
-    var maxShow = isSide ? Math.min(oppHand.length, 3) : Math.min(oppHand.length, 8);
+    var maxShow = isSide ? Math.min(oppHand.length, 5) : Math.min(oppHand.length, 8);
     for (var ci = 0; ci < maxShow; ci++) {
       html += unoRenderCardBack();
     }
