@@ -2553,26 +2553,28 @@
 .uno-turn { font-size:16px; font-weight:700; color:#5a4a2a; }
 .uno-restart { padding:6px 14px; border:1px solid #d0c0a0; border-radius:8px; background:#fff; font-size:13px; cursor:pointer; font-family:inherit; }
 .uno-room-id { font-size:13px; color:#888; background:#f5f0e0; padding:3px 10px; border-radius:8px; }
-.uno-game-area { position:relative; width:100%; max-width:520px; margin:0 auto; min-height:440px; padding:8px 0; }
-.uno-table-surface { position:absolute; top:45%; left:50%; transform:translate(-50%,-50%); width:85%; height:65%; background:radial-gradient(ellipse at center, rgba(76,175,80,0.15), rgba(60,140,70,0.06)); border-radius:50%; border:2px dashed rgba(76,175,80,0.2); z-index:0; }
-.uno-opp-row { position:absolute; display:flex; flex-direction:column; align-items:center; gap:3px; padding:5px 8px; border-radius:10px; transition:0.2s; z-index:2; max-width:130px; }
-.uno-opp-row.uno-seat-top { top:4px; left:50%; transform:translateX(-50%); }
-.uno-opp-row.uno-seat-left { top:42%; left:4px; transform:translateY(-50%); }
-.uno-opp-row.uno-seat-right { top:42%; right:4px; transform:translateY(-50%); }
+.uno-game-area { position:relative; display:grid; grid-template-areas:"top top top" "left center right" "player player player"; grid-template-columns:minmax(0,90px) 1fr minmax(0,90px); grid-template-rows:auto 1fr auto; gap:4px; width:100%; max-width:480px; margin:0 auto; min-height:500px; padding:6px 4px; align-items:center; justify-items:center; }
+.uno-table-surface { grid-area:1 / 1 / -1 / -1; align-self:center; justify-self:center; width:min(72%,280px); height:min(72%,280px); background:radial-gradient(circle at center, rgba(76,175,80,0.2), rgba(60,140,70,0.06)); border-radius:50%; border:2px dashed rgba(76,175,80,0.25); z-index:0; }
+.uno-opp-row { display:flex; flex-direction:column; align-items:center; gap:3px; padding:4px 6px; border-radius:10px; transition:0.2s; z-index:2; max-width:90px; }
+.uno-opp-row.uno-seat-top { grid-area:top; max-width:140px; }
+.uno-opp-row.uno-seat-left { grid-area:left; }
+.uno-opp-row.uno-seat-right { grid-area:right; }
 .uno-opp-row.uno-opp-active { background:rgba(84,160,255,0.12); box-shadow:0 0 0 2px rgba(84,160,255,0.3) inset; }
 .uno-opp-name { font-size:12px; font-weight:600; color:#888; white-space:nowrap; }
 .uno-opp-row.uno-opp-active .uno-opp-name { color:#3a7adb; }
 .uno-opp-cards { display:flex; gap:2px; justify-content:center; flex-wrap:wrap; }
 .uno-opp-more { font-size:11px; color:#aaa; align-self:center; padding:0 2px; }
-.uno-center-area { position:absolute; top:42%; left:50%; transform:translate(-50%,-50%); display:flex; gap:16px; align-items:center; justify-content:center; z-index:1; }
+.uno-center-area { grid-area:center; display:flex; flex-direction:column; gap:4px; align-items:center; justify-content:center; z-index:1; }
+.uno-center-row { display:flex; gap:12px; align-items:center; justify-content:center; }
 .uno-draw-pile { position:relative; cursor:pointer; }
 .uno-discard-pile { position:relative; }
-.uno-direction-arrow { font-size:24px; color:#f0a020; }
-.uno-player-area { position:absolute; bottom:0; left:50%; transform:translateX(-50%); width:100%; display:flex; flex-direction:column; align-items:center; gap:6px; z-index:2; }
+.uno-direction-arrow { font-size:20px; color:#f0a020; }
+.uno-color-text { font-size:11px; color:#888; white-space:nowrap; }
+.uno-player-area { grid-area:player; width:100%; display:flex; flex-direction:column; align-items:center; gap:5px; z-index:2; }
 .uno-player-label { font-size:13px; font-weight:600; color:#5a4a2a; }
-.uno-player-hand { display:flex; gap:5px; justify-content:center; flex-wrap:wrap; max-width:100%; overflow-x:auto; padding:6px 4px; }
+.uno-player-hand { display:flex; gap:5px; justify-content:center; flex-wrap:wrap; max-width:100%; overflow-x:auto; padding:4px 4px; }
 .uno-actions { display:flex; gap:10px; justify-content:center; margin-top:2px; }
-.uno-color-picker { position:absolute; top:42%; left:50%; transform:translate(-50%,-50%); display:flex; gap:12px; z-index:3; }
+.uno-color-picker { grid-area:center; display:flex; gap:10px; z-index:3; }
 .uno-action-btn { padding:12px 28px; border:none; border-radius:14px; font-size:16px; font-weight:700; cursor:pointer; font-family:inherit; transition:0.2s; }
 .uno-action-btn:active { transform:scale(0.97); }
 .uno-draw-btn { background:linear-gradient(135deg,#54a0ff,#3a7adb); color:#fff; box-shadow:0 4px 14px rgba(84,160,255,0.3); }
@@ -2652,9 +2654,11 @@
   .uno-card-back { width:42px; height:62px; }
   .uno-card-back::after { font-size:9px; }
   .uno-color-btn { width:56px; height:56px; font-size:20px; }
-  .uno-center-area { gap:12px; }
-  .uno-opp-row { max-width:100px; }
-  .uno-game-area { min-height:400px; }
+  .uno-center-row { gap:8px; }
+  .uno-opp-row { max-width:75px; }
+  .uno-opp-row.uno-seat-top { max-width:120px; }
+  .uno-game-area { min-height:460px; }
+  .uno-table-surface { width:min(70%,240px); height:min(70%,240px); }
 }
 
 </style>
@@ -6743,6 +6747,8 @@ function renderUnoGame() {
     '<button class="uno-restart" onclick="renderUnoLobby()">返回</button>' +
   '</div>';
   
+  var colorNames = { red: '红色', yellow: '黄色', green: '绿色', blue: '蓝色' };
+  
   html += '<div class="uno-game-area">';
   
   // Table surface
@@ -6771,7 +6777,8 @@ function renderUnoGame() {
     html += '<div class="uno-opp-row ' + seatClass + oppActive + '" data-p="' + oppIdx + '">' +
       '<span class="uno-opp-name">' + oppName + ' ' + oppHand.length + '张' + (oppHand.length === 1 ? '<span class="uno-badge">UNO!</span>' : '') + '</span>' +
       '<div class="uno-opp-cards">';
-    var maxShow = Math.min(oppHand.length, numP === 4 ? 5 : 10);
+    var isSide = (seatClass === 'uno-seat-left' || seatClass === 'uno-seat-right');
+    var maxShow = Math.min(oppHand.length, isSide ? 3 : (numP === 4 ? 6 : 10));
     for (var ci = 0; ci < maxShow; ci++) {
       html += unoRenderCardBack();
     }
@@ -6781,6 +6788,7 @@ function renderUnoGame() {
   
   // Center area: draw pile + discard pile + direction
   html += '<div class="uno-center-area">';
+  html += '<div class="uno-center-row">';
   html += '<div class="uno-draw-pile" id="uno-draw-pile">';
   html += unoRenderCardBack();
   html += '</div>';
@@ -6789,12 +6797,10 @@ function renderUnoGame() {
   html += unoRenderCard(top, false, '', unoAnimateDiscard ? 'uno-discard-pop' : '');
   html += '</div>';
   html += '</div>';
-  
-  // Current color indicator
-  var colorNames = { red: '红色', yellow: '黄色', green: '绿色', blue: '蓝色' };
   if (top.color === 'wild') {
-    html += '<div style="position:absolute;top:56%;left:50%;transform:translateX(-50%);font-size:12px;color:#888;white-space:nowrap;z-index:1;">当前颜色: ' + (colorNames[unoState.currentColor] || unoState.currentColor) + '</div>';
+    html += '<span class="uno-color-text">当前颜色: ' + (colorNames[unoState.currentColor] || unoState.currentColor) + '</span>';
   }
+  html += '</div>';
   
   // Color picker
   if (showColorPicker) {
