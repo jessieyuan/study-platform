@@ -2562,8 +2562,11 @@
 .uno-opp-row.uno-opp-active { background:rgba(84,160,255,0.12); box-shadow:0 0 0 2px rgba(84,160,255,0.3) inset; }
 .uno-opp-name { font-size:12px; font-weight:600; color:#888; white-space:nowrap; }
 .uno-opp-row.uno-opp-active .uno-opp-name { color:#3a7adb; }
-.uno-opp-cards { display:flex; gap:2px; justify-content:center; flex-wrap:wrap; }
-.uno-opp-more { font-size:11px; color:#aaa; align-self:center; padding:0 2px; }
+.uno-opp-cards { display:flex; gap:1px; justify-content:center; align-items:center; flex-wrap:nowrap; overflow:hidden; max-width:100%; }
+.uno-opp-cards .uno-card-back { width:24px; height:34px; border-width:2px; border-radius:6px; }
+.uno-opp-cards .uno-card-back::before { width:60%; height:44%; }
+.uno-opp-cards .uno-card-back::after { font-size:6px; }
+.uno-opp-more { font-size:10px; color:#aaa; align-self:center; padding:0 2px; white-space:nowrap; }
 .uno-center-area { grid-area:center; display:flex; flex-direction:column; gap:4px; align-items:center; justify-content:center; z-index:1; }
 .uno-center-row { display:flex; gap:12px; align-items:center; justify-content:center; }
 .uno-draw-pile { position:relative; cursor:pointer; }
@@ -2572,7 +2575,7 @@
 .uno-color-text { font-size:11px; color:#888; white-space:nowrap; }
 .uno-player-area { grid-area:player; width:100%; display:flex; flex-direction:column; align-items:center; gap:5px; z-index:2; }
 .uno-player-label { font-size:13px; font-weight:600; color:#5a4a2a; }
-.uno-player-hand { display:flex; gap:5px; justify-content:center; flex-wrap:wrap; max-width:100%; overflow-x:auto; padding:4px 4px; }
+.uno-player-hand { display:flex; gap:4px; justify-content:center; flex-wrap:nowrap; overflow-x:auto; padding:4px 4px; max-width:100%; }
 .uno-actions { display:flex; gap:10px; justify-content:center; margin-top:2px; }
 .uno-color-picker { grid-area:center; display:flex; gap:10px; z-index:3; }
 .uno-action-btn { padding:12px 28px; border:none; border-radius:14px; font-size:16px; font-weight:700; cursor:pointer; font-family:inherit; transition:0.2s; }
@@ -2655,8 +2658,8 @@
   .uno-card-back::after { font-size:9px; }
   .uno-color-btn { width:56px; height:56px; font-size:20px; }
   .uno-center-row { gap:8px; }
-  .uno-opp-row { max-width:75px; }
-  .uno-opp-row.uno-seat-top { max-width:120px; }
+  .uno-opp-row { max-width:80px; }
+  .uno-opp-row.uno-seat-top { max-width:180px; }
   .uno-game-area { min-height:460px; }
   .uno-table-surface { width:min(70%,240px); height:min(70%,240px); }
 }
@@ -6360,8 +6363,6 @@ function unoShuffle(deck) {
 
 function unoStartAIGame() {
   var deck = unoShuffle(unoCreateDeck());
-  var hands = [];
-  for (var h = 0; h < 4; h++) hands.push(deck.splice(0, 7));
   var first;
   while (true) {
     first = deck.shift();
@@ -6371,13 +6372,10 @@ function unoStartAIGame() {
   var currentColor = first.color === 'wild' ? ['red','yellow','green','blue'][Math.floor(Math.random()*4)] : first.color;
   var firstTurn = 0;
   if (first.value === 'skip' || first.value === 'reverse') firstTurn = 1;
-  if (first.value === 'draw2') {
-    hands[0] = hands[0].concat(deck.splice(0, 2));
-    firstTurn = 1;
-  }
+  if (first.value === 'draw2') firstTurn = 1;
   unoState = {
     deck: deck,
-    hands: hands,
+    hands: [[], [], [], []],
     discard: [first],
     currentColor: currentColor,
     direction: first.value === 'reverse' ? -1 : 1,
@@ -6386,30 +6384,48 @@ function unoStartAIGame() {
     unoCalled: [false, false, false, false],
     numPlayers: 4,
     aiNames: ['小明', '小红', '小刚'],
-    currentTurn: firstTurn
+    currentTurn: firstTurn,
+    dealing: true
   };
   unoGameOver = false;
   unoAwaitingColor = false;
   unoJustDrew = null;
-  unoActionLock = false;
+  unoActionLock = true;
   unoMyPlayer = 0;
-  var a = document.getElementById('uno-arena');
-  if (a) {
-    a.innerHTML = '<div style="text-align:center;padding:60px 0;">' +
-      '<div style="font-size:48px;animation:unoHandPop 0.5s ease;">🎴</div>' +
-      '<div style="font-size:18px;color:#5a4a2a;margin-top:12px;font-weight:700;">正在发牌...</div>' +
-    '</div>';
-  }
-  setTimeout(function() {
+  renderUnoGame();
+  unoDealStep(0, 0);
+}
+
+function unoDealStep(round, playerIdx) {
+  if (!unoState || !unoState.dealing) return;
+  if (round >= 7) {
+    if (unoState.discard[0].value === 'draw2') {
+      for (var d = 0; d < 2; d++) {
+        if (unoState.deck.length > 0) unoState.hands[0].push(unoState.deck.shift());
+      }
+    }
+    unoState.dealing = false;
+    unoActionLock = false;
     renderUnoGame();
     var colorNames = {red:'红',yellow:'黄',green:'绿',blue:'蓝'};
     var topCard = unoState.discard[0];
     var topName = (topCard.color === 'wild' ? '万能' : colorNames[topCard.color]) + ' ' + unoCardDisplay(topCard);
     showToast('🎮 4人对局开始！首牌: ' + topName, 'info');
     if (unoState.currentTurn !== 0 && !unoGameOver) {
-      setTimeout(function() { unoAIMove(unoState.currentTurn); }, 1200);
+      setTimeout(function() { unoAIMove(unoState.currentTurn); }, 800);
     }
-  }, 1200);
+    return;
+  }
+  if (playerIdx < unoState.numPlayers) {
+    if (unoState.deck.length > 0) {
+      unoState.hands[playerIdx].push(unoState.deck.shift());
+    }
+    unoState.lastDealtTo = playerIdx;
+    renderUnoGame();
+    setTimeout(function() { unoDealStep(round, playerIdx + 1); }, 80);
+  } else {
+    setTimeout(function() { unoDealStep(round + 1, 0); }, 80);
+  }
 }
 
 function unoCanPlay(card, currentColor, topValue) {
@@ -6723,12 +6739,14 @@ function renderUnoGame() {
   if (!unoState) { a.innerHTML = ''; return; }
   
   var top = unoState.discard[unoState.discard.length - 1];
-  var myTurn = !unoGameOver && unoState.currentTurn === unoMyPlayer;
+  var dealing = unoState.dealing === true;
+  var myTurn = !unoGameOver && !dealing && unoState.currentTurn === unoMyPlayer;
   var myHand = unoState.hands[unoMyPlayer];
   var numP = unoState.numPlayers || 2;
   
   var turnText;
-  if (unoGameOver) { turnText = '游戏结束'; }
+  if (dealing) { turnText = '🎴 发牌中...'; }
+  else if (unoGameOver) { turnText = '游戏结束'; }
   else if (unoMode === 'online') { turnText = myTurn ? '🔵 轮到你了' : '⏳ 等待对手...'; }
   else {
     if (myTurn) { turnText = '🔵 轮到你了'; }
@@ -6778,7 +6796,7 @@ function renderUnoGame() {
       '<span class="uno-opp-name">' + oppName + ' ' + oppHand.length + '张' + (oppHand.length === 1 ? '<span class="uno-badge">UNO!</span>' : '') + '</span>' +
       '<div class="uno-opp-cards">';
     var isSide = (seatClass === 'uno-seat-left' || seatClass === 'uno-seat-right');
-    var maxShow = Math.min(oppHand.length, isSide ? 3 : (numP === 4 ? 6 : 10));
+    var maxShow = isSide ? Math.min(oppHand.length, 3) : Math.min(oppHand.length, 8);
     for (var ci = 0; ci < maxShow; ci++) {
       html += unoRenderCardBack();
     }
