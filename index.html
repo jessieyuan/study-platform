@@ -2557,6 +2557,12 @@
 .uno-opponent-area { width:100%; display:flex; flex-direction:column; align-items:center; gap:6px; }
 .uno-opponent-label { font-size:14px; font-weight:600; color:#888; }
 .uno-opponent-hand { display:flex; gap:4px; justify-content:center; flex-wrap:wrap; }
+.uno-opp-row { width:100%; display:flex; flex-direction:column; align-items:center; gap:4px; padding:6px 10px; border-radius:10px; transition:0.2s; }
+.uno-opp-row.uno-opp-active { background:rgba(84,160,255,0.12); box-shadow:0 0 0 2px rgba(84,160,255,0.3) inset; }
+.uno-opp-name { font-size:13px; font-weight:600; color:#888; }
+.uno-opp-row.uno-opp-active .uno-opp-name { color:#3a7adb; }
+.uno-opp-cards { display:flex; gap:3px; justify-content:center; flex-wrap:wrap; }
+.uno-opp-more { font-size:12px; color:#aaa; align-self:center; padding:0 4px; }
 .uno-center-area { display:flex; gap:24px; align-items:center; justify-content:center; padding:10px 0; }
 .uno-draw-pile { position:relative; cursor:pointer; }
 .uno-discard-pile { position:relative; }
@@ -2600,10 +2606,10 @@
 .uno-discard-pop { animation:unoDiscardPop 0.35s ease; }
 @keyframes unoHandNew { 0% { transform:scale(0) translateY(20px); opacity:0; } 100% { transform:scale(1) translateY(0); opacity:1; } }
 .uno-hand-new { animation:unoHandNew 0.3s ease; }
-.uno-call-btn { padding:12px 28px; border:none; border-radius:14px; background:linear-gradient(135deg,#ff4757,#c0392b); color:#fff; font-size:18px; font-weight:800; cursor:pointer; font-family:inherit; box-shadow:0 4px 14px rgba(255,71,87,0.4); animation:unoPulse 1s infinite; }
-@keyframes unoPulse { 0%,100% { transform:scale(1); box-shadow:0 4px 14px rgba(255,71,87,0.4); } 50% { transform:scale(1.05); box-shadow:0 6px 20px rgba(255,71,87,0.6); } }
-.uno-call-btn:active { transform:scale(0.95); }
-.uno-badge { display:inline-block; padding:2px 10px; border-radius:8px; background:#ff4757; color:#fff; font-size:12px; font-weight:800; font-style:italic; margin-left:6px; animation:unoPulse 1s infinite; }
+.uno-call-btn { padding:6px 14px; border:1px solid #ccc; border-radius:8px; background:#f5f5f5; color:#888; font-size:13px; font-weight:600; cursor:pointer; font-family:inherit; transition:0.2s; }
+.uno-call-btn:active { transform:scale(0.96); }
+@keyframes unoPulse { 0%,100% { transform:scale(1); } 50% { transform:scale(1.1); } }
+.uno-badge { display:inline-block; padding:2px 10px; border-radius:8px; background:#ff4757; color:#fff; font-size:12px; font-weight:800; font-style:italic; margin-left:6px; animation:unoPulse 0.8s infinite; }
 .uno-result-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.5); display:flex; align-items:center; justify-content:center; z-index:9999; }
 .uno-result-box { background:#fff; border-radius:20px; padding:30px 40px; text-align:center; box-shadow:0 20px 60px rgba(0,0,0,0.3); }
 .uno-result-title { font-size:24px; font-weight:800; margin-bottom:8px; }
@@ -6347,8 +6353,8 @@ function unoShuffle(deck) {
 
 function unoStartAIGame() {
   var deck = unoShuffle(unoCreateDeck());
-  var hand0 = deck.splice(0, 7);
-  var hand1 = deck.splice(0, 7);
+  var hands = [];
+  for (var h = 0; h < 4; h++) hands.push(deck.splice(0, 7));
   var first;
   while (true) {
     first = deck.shift();
@@ -6356,21 +6362,25 @@ function unoStartAIGame() {
     break;
   }
   var currentColor = first.color === 'wild' ? ['red','yellow','green','blue'][Math.floor(Math.random()*4)] : first.color;
+  var firstTurn = 0;
+  if (first.value === 'skip' || first.value === 'reverse') firstTurn = 1;
+  if (first.value === 'draw2') {
+    hands[0] = hands[0].concat(deck.splice(0, 2));
+    firstTurn = 1;
+  }
   unoState = {
     deck: deck,
-    hands: [hand0, hand1],
+    hands: hands,
     discard: [first],
     currentColor: currentColor,
-    direction: 1,
+    direction: first.value === 'reverse' ? -1 : 1,
     drawCount: 0,
     winner: null,
-    unoCalled: [false, false],
-    currentTurn: (first.value === 'skip' || first.value === 'reverse') ? 1 : 0
+    unoCalled: [false, false, false, false],
+    numPlayers: 4,
+    aiNames: ['小明', '小红', '小刚'],
+    currentTurn: firstTurn
   };
-  if (first.value === 'draw2') {
-    unoState.hands[0] = unoState.hands[0].concat(unoState.deck.splice(0, 2));
-    unoState.currentTurn = 1;
-  }
   unoGameOver = false;
   unoAwaitingColor = false;
   unoJustDrew = null;
@@ -6388,9 +6398,9 @@ function unoStartAIGame() {
     var colorNames = {red:'红',yellow:'黄',green:'绿',blue:'蓝'};
     var topCard = unoState.discard[0];
     var topName = (topCard.color === 'wild' ? '万能' : colorNames[topCard.color]) + ' ' + unoCardDisplay(topCard);
-    showToast(unoState.currentTurn === 0 ? '🎮 游戏开始！你先出牌。首牌: ' + topName : '🎮 游戏开始！AI先出牌。首牌: ' + topName, 'info');
-    if (unoState.currentTurn === 1) {
-      setTimeout(unoAIMove, 1200);
+    showToast('🎮 4人对局开始！首牌: ' + topName, 'info');
+    if (unoState.currentTurn !== 0 && !unoGameOver) {
+      setTimeout(function() { unoAIMove(unoState.currentTurn); }, 1200);
     }
   }, 1200);
 }
@@ -6412,7 +6422,8 @@ function unoGetPlayableIndices(hand) {
 }
 
 function unoNextPlayer(p) {
-  return p === 0 ? 1 : 0;
+  var n = unoState.numPlayers || 2;
+  return (p + unoState.direction + n) % n;
 }
 
 function unoPlayCard(player, handIdx, chosenColor) {
@@ -6438,7 +6449,8 @@ function unoPlayCard(player, handIdx, chosenColor) {
       if (player === unoMyPlayer) {
         setTimeout(function() { showToast('忘喊UNO! 罚抽2张牌', 'error'); }, 100);
       } else {
-        setTimeout(function() { showToast('AI忘喊UNO! 罚抽2张牌', 'info'); }, 100);
+        var penName = unoState.aiNames ? unoState.aiNames[player - 1] : 'AI';
+        setTimeout(function() { showToast(penName + '忘喊UNO! 罚抽2张牌', 'info'); }, 100);
       }
     } else {
       if (player === unoMyPlayer) {
@@ -6458,11 +6470,18 @@ function unoPlayCard(player, handIdx, chosenColor) {
   
   var skipNext = false;
   var drawAmount = 0;
+  var isReverse = false;
   
   if (card.value === 'skip') { skipNext = true; }
-  else if (card.value === 'reverse') { skipNext = true; }
+  else if (card.value === 'reverse') { isReverse = true; }
   else if (card.value === 'draw2') { drawAmount = 2; skipNext = true; }
   else if (card.value === 'wild4') { drawAmount = 4; skipNext = true; }
+  
+  var numP = unoState.numPlayers || 2;
+  if (isReverse) {
+    unoState.direction *= -1;
+    if (numP === 2) skipNext = true;
+  }
   
   if (unoState.hands[player].length === 0) {
     unoState.winner = player;
@@ -6488,7 +6507,12 @@ function unoPlayCard(player, handIdx, chosenColor) {
     unoState.hands[next] = unoState.hands[next].concat(drawn);
   }
   
-  var nextP = skipNext ? player : unoNextPlayer(player);
+  var nextP;
+  if (skipNext) {
+    nextP = unoNextPlayer(unoNextPlayer(player));
+  } else {
+    nextP = unoNextPlayer(player);
+  }
   unoState.currentTurn = nextP;
   
   unoJustDrew = null;
@@ -6501,20 +6525,21 @@ function unoPlayCard(player, handIdx, chosenColor) {
   renderUnoGame();
   unoActionLock = false;
   
-  if (player === 1 && unoMode === 'ai') {
+  if (player !== unoMyPlayer && unoMode === 'ai') {
     var colorNames2 = {red:'红',yellow:'黄',green:'绿',blue:'蓝'};
+    var aiName = unoState.aiNames ? unoState.aiNames[player - 1] : 'AI';
     var cardName2 = (card.color === 'wild' ? '万能' : colorNames2[card.color]) + ' ' + unoCardDisplay(card);
     var effectMsg = '';
-    if (card.value === 'skip') effectMsg = '（跳过你的回合）';
+    if (card.value === 'skip') effectMsg = '（跳过）';
     else if (card.value === 'reverse') effectMsg = '（反转方向）';
-    else if (card.value === 'draw2') effectMsg = '（你罚抽2张）';
-    else if (card.value === 'wild4') effectMsg = '（你罚抽4张）';
+    else if (card.value === 'draw2') effectMsg = '（罚抽2张）';
+    else if (card.value === 'wild4') effectMsg = '（罚抽4张）';
     else if (card.value === 'wild') effectMsg = '（换色）';
-    setTimeout(function() { showToast('AI出了: ' + cardName2 + effectMsg, 'info'); }, 50);
+    setTimeout(function() { showToast(aiName + '出了: ' + cardName2 + effectMsg, 'info'); }, 50);
   }
   
-  if (unoMode === 'ai' && nextP === 1 && !unoGameOver) {
-    setTimeout(unoAIMove, 1500);
+  if (unoMode === 'ai' && nextP !== unoMyPlayer && !unoGameOver) {
+    setTimeout(function() { unoAIMove(nextP); }, 1500);
   }
 }
 
@@ -6556,14 +6581,15 @@ function unoPassTurn() {
   
   renderUnoGame();
   
-  if (unoMode === 'ai' && nextP === 1 && !unoGameOver) {
-    setTimeout(unoAIMove, 1200);
+  if (unoMode === 'ai' && nextP !== unoMyPlayer && !unoGameOver) {
+    setTimeout(function() { unoAIMove(nextP); }, 1200);
   }
 }
 
-function unoAIMove() {
-  if (unoGameOver || unoState.currentTurn !== 1) return;
-  var hand = unoState.hands[1];
+function unoAIMove(aiPlayer) {
+  aiPlayer = aiPlayer || 1;
+  if (unoGameOver || unoState.currentTurn !== aiPlayer) return;
+  var hand = unoState.hands[aiPlayer];
   var playable = unoGetPlayableIndices(hand);
   
   if (playable.length === 0) {
@@ -6578,16 +6604,20 @@ function unoAIMove() {
       if (unoCanPlay(card, unoState.currentColor, unoState.discard[unoState.discard.length-1].value)) {
         var idx = hand.indexOf(card);
         setTimeout(function() {
-          var color = card.color === 'wild' ? unoPickAIColor() : null;
-          var oppCards = document.querySelectorAll('.uno-opponent-hand .uno-card-back');
+          var color = card.color === 'wild' ? unoPickAIColor(aiPlayer) : null;
+          var oppCards = document.querySelectorAll('.uno-opp-row[data-p="' + aiPlayer + '"] .uno-card-back');
           var srcEl = oppCards.length > 0 ? oppCards[oppCards.length-1] : null;
-          unoFlyAndPlayAI(idx, color, srcEl);
+          unoFlyAndPlayAI(idx, color, srcEl, aiPlayer);
         }, 900);
         return;
       }
     }
-    unoState.currentTurn = 0;
+    var nextAfterDraw = unoNextPlayer(aiPlayer);
+    unoState.currentTurn = nextAfterDraw;
     renderUnoGame();
+    if (unoMode === 'ai' && nextAfterDraw !== unoMyPlayer && !unoGameOver) {
+      setTimeout(function() { unoAIMove(nextAfterDraw); }, 1200);
+    }
     return;
   }
   
@@ -6612,9 +6642,13 @@ function unoAIMove() {
       nonWild.sort(function(a, b) { return counts[hand[b].color] - counts[hand[a].color]; });
       chosenIdx = nonWild[0];
     } else {
-      var playerHandSize = unoState.hands[0].length;
+      var minOpp = 99, minOppIdx = -1;
+      for (var pi = 0; pi < (unoState.numPlayers||2); pi++) {
+        if (pi === aiPlayer) continue;
+        if (unoState.hands[pi].length < minOpp) { minOpp = unoState.hands[pi].length; minOppIdx = pi; }
+      }
       var wild4 = playable.filter(function(i) { return hand[i].value === 'wild4'; });
-      if (wild4.length > 0 && playerHandSize <= 3) {
+      if (wild4.length > 0 && minOpp <= 3) {
         chosenIdx = wild4[0];
       } else {
         chosenIdx = playable[Math.floor(Math.random() * playable.length)];
@@ -6624,18 +6658,20 @@ function unoAIMove() {
   
   var card = hand[chosenIdx];
   if (hand.length === 2) {
-    unoState.unoCalled[1] = true;
-    setTimeout(function() { showToast('AI喊了 UNO!', 'info'); }, 50);
+    unoState.unoCalled[aiPlayer] = true;
+    var aiName = unoState.aiNames ? unoState.aiNames[aiPlayer - 1] : 'AI';
+    setTimeout(function() { showToast(aiName + ' 喊了 UNO!', 'info'); }, 50);
   }
-  var color = card.color === 'wild' ? unoPickAIColor() : null;
-  var oppCards = document.querySelectorAll('.uno-opponent-hand .uno-card-back');
+  var color = card.color === 'wild' ? unoPickAIColor(aiPlayer) : null;
+  var oppCards = document.querySelectorAll('.uno-opp-row[data-p="' + aiPlayer + '"] .uno-card-back');
   var srcEl = oppCards.length > 0 ? oppCards[0] : null;
-  unoFlyAndPlayAI(chosenIdx, color, srcEl);
+  unoFlyAndPlayAI(chosenIdx, color, srcEl, aiPlayer);
 }
 
-function unoPickAIColor() {
+function unoPickAIColor(aiPlayer) {
+  aiPlayer = aiPlayer || 1;
   var counts = { red: 0, yellow: 0, green: 0, blue: 0 };
-  unoState.hands[1].forEach(function(c) { if (c.color !== 'wild') counts[c.color]++; });
+  unoState.hands[aiPlayer].forEach(function(c) { if (c.color !== 'wild') counts[c.color]++; });
   var best = 'red', max = -1;
   for (var c in counts) { if (counts[c] > max) { max = counts[c]; best = c; } }
   return best;
@@ -6681,14 +6717,19 @@ function renderUnoGame() {
   
   var top = unoState.discard[unoState.discard.length - 1];
   var myTurn = !unoGameOver && unoState.currentTurn === unoMyPlayer;
-  var opponentIdx = unoMyPlayer === 0 ? 1 : 0;
   var myHand = unoState.hands[unoMyPlayer];
-  var oppHand = unoState.hands[opponentIdx];
+  var numP = unoState.numPlayers || 2;
   
   var turnText;
   if (unoGameOver) { turnText = '游戏结束'; }
   else if (unoMode === 'online') { turnText = myTurn ? '🔵 轮到你了' : '⏳ 等待对手...'; }
-  else { turnText = myTurn ? '🔵 轮到你了' : '⏳ AI思考中...'; }
+  else {
+    if (myTurn) { turnText = '🔵 轮到你了'; }
+    else {
+      var aiName = unoState.aiNames ? unoState.aiNames[unoState.currentTurn - 1] : 'AI';
+      turnText = '⏳ ' + aiName + ' 思考中...';
+    }
+  }
   
   var playableIndices = myTurn ? unoGetPlayableIndices(myHand) : [];
   var showColorPicker = unoAwaitingColor && myTurn;
@@ -6701,14 +6742,28 @@ function renderUnoGame() {
   
   html += '<div class="uno-game-area">';
   
-  // Opponent area
-  html += '<div class="uno-opponent-area">' +
-    '<span class="uno-opponent-label">对手 ' + oppHand.length + ' 张' + (oppHand.length === 1 ? '<span class="uno-badge">UNO!</span>' : '') + '</span>' +
-    '<div class="uno-opponent-hand">';
-  for (var i = 0; i < oppHand.length; i++) {
-    html += unoRenderCardBack();
+  // Opponent area - show all non-me players
+  var oppIndices = [];
+  for (var pi = 0; pi < numP; pi++) {
+    if (pi !== unoMyPlayer) oppIndices.push(pi);
   }
-  html += '</div></div>';
+  
+  for (var oi = 0; oi < oppIndices.length; oi++) {
+    var oppIdx = oppIndices[oi];
+    var oppHand = unoState.hands[oppIdx];
+    var oppName = (unoMode === 'ai' && unoState.aiNames) ? unoState.aiNames[oppIdx - 1] : '对手';
+    var isOppTurn = !unoGameOver && unoState.currentTurn === oppIdx;
+    var oppActive = isOppTurn ? ' uno-opp-active' : '';
+    html += '<div class="uno-opp-row' + oppActive + '" data-p="' + oppIdx + '">' +
+      '<span class="uno-opp-name">' + oppName + ' ' + oppHand.length + '张' + (oppHand.length === 1 ? '<span class="uno-badge">UNO!</span>' : '') + '</span>' +
+      '<div class="uno-opp-cards">';
+    var maxShow = Math.min(oppHand.length, 10);
+    for (var ci = 0; ci < maxShow; ci++) {
+      html += unoRenderCardBack();
+    }
+    if (oppHand.length > 10) html += '<span class="uno-opp-more">+' + (oppHand.length - 10) + '</span>';
+    html += '</div></div>';
+  }
   
   // Center area: draw pile + discard pile + direction
   html += '<div class="uno-center-area">';
@@ -6755,7 +6810,7 @@ function renderUnoGame() {
   // Action buttons
   if (myTurn && !unoGameOver && !unoAwaitingColor) {
     if (myHand.length === 2 && !unoState.unoCalled[unoMyPlayer]) {
-      html += '<div class="uno-actions"><button class="uno-call-btn" onclick="unoCallUno()">🔊 喊 UNO!</button></div>';
+      html += '<div class="uno-actions"><button class="uno-call-btn" onclick="unoCallUno()">喊 UNO</button></div>';
     }
     if (unoJustDrew !== null) {
       var canPlayDrawn = unoCanPlay(unoJustDrew, unoState.currentColor, top.value);
@@ -6821,12 +6876,13 @@ function unoFlyAndPlay(idx, srcEl, chosenColor) {
   });
 }
 
-function unoFlyAndPlayAI(idx, color, srcEl) {
+function unoFlyAndPlayAI(idx, color, srcEl, aiPlayer) {
+  aiPlayer = aiPlayer || 1;
   unoActionLock = true;
   unoAnimateFlyCard(srcEl, function() {
     unoActionLock = false;
     unoAnimateDiscard = true;
-    unoPlayCard(1, idx, color);
+    unoPlayCard(aiPlayer, idx, color);
     unoAnimateDiscard = false;
   });
 }
@@ -6912,6 +6968,7 @@ function showUnoTutorial() {
     '<div class="uno-tut-section"><h4>+4 万能罚牌</h4><p>下一位玩家罚抽4张牌，并跳过其回合。你还可以选择新的颜色。这是最强的牌！</p></div>' +
     '<div class="uno-tut-section"><h4>🃏 抽牌</h4><p>如果你没有可以出的牌，就点"抽一张"从牌堆抽牌。如果抽到的牌可以出，你可以选择出或不出。</p></div>' +
     '<div class="uno-tut-section"><h4>🔔 UNO!</h4><p>当你手中只剩1张牌时，系统会自动喊"UNO！"提醒对手。</p></div>' +
+    '<div class="uno-tut-section"><h4>👥 人数</h4><p>人机对战为4人（你+3个AI伙伴），在线对战为2人。最先出完手牌的玩家获胜！</p></div>' +
     '<button class="uno-tut-close" onclick="this.closest(\'.uno-tut-overlay\').remove()">我知道了，开始玩！</button>' +
   '</div>';
   document.body.appendChild(overlay);
