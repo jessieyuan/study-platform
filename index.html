@@ -2568,7 +2568,7 @@
 .uno-action-btn { padding:12px 28px; border:none; border-radius:14px; font-size:16px; font-weight:700; cursor:pointer; font-family:inherit; transition:0.2s; }
 .uno-action-btn:active { transform:scale(0.97); }
 .uno-draw-btn { background:linear-gradient(135deg,#54a0ff,#3a7adb); color:#fff; box-shadow:0 4px 14px rgba(84,160,255,0.3); }
-.uno-pass-btn { background:linear-gradient(135deg,#aaa,#888); color:#fff; box-shadow:0 4px 14px rgba(150,150,150,0.3); }
+.uno-pass-btn { background:linear-gradient(135deg,#54a0ff,#3a7adb); color:#fff; box-shadow:0 4px 14px rgba(84,160,255,0.3); }
 .uno-color-picker { display:flex; gap:16px; justify-content:center; padding:12px 0; }
 .uno-color-btn { width:64px; height:64px; border-radius:16px; border:3px solid #fff; cursor:pointer; font-size:24px; font-weight:700; color:#fff; box-shadow:0 4px 12px rgba(0,0,0,0.2); transition:0.2s; font-family:inherit; }
 .uno-color-btn:active { transform:scale(0.92); }
@@ -2600,6 +2600,10 @@
 .uno-discard-pop { animation:unoDiscardPop 0.35s ease; }
 @keyframes unoHandNew { 0% { transform:scale(0) translateY(20px); opacity:0; } 100% { transform:scale(1) translateY(0); opacity:1; } }
 .uno-hand-new { animation:unoHandNew 0.3s ease; }
+.uno-call-btn { padding:12px 28px; border:none; border-radius:14px; background:linear-gradient(135deg,#ff4757,#c0392b); color:#fff; font-size:18px; font-weight:800; cursor:pointer; font-family:inherit; box-shadow:0 4px 14px rgba(255,71,87,0.4); animation:unoPulse 1s infinite; }
+@keyframes unoPulse { 0%,100% { transform:scale(1); box-shadow:0 4px 14px rgba(255,71,87,0.4); } 50% { transform:scale(1.05); box-shadow:0 6px 20px rgba(255,71,87,0.6); } }
+.uno-call-btn:active { transform:scale(0.95); }
+.uno-badge { display:inline-block; padding:2px 10px; border-radius:8px; background:#ff4757; color:#fff; font-size:12px; font-weight:800; font-style:italic; margin-left:6px; animation:unoPulse 1s infinite; }
 .uno-result-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.5); display:flex; align-items:center; justify-content:center; z-index:9999; }
 .uno-result-box { background:#fff; border-radius:20px; padding:30px 40px; text-align:center; box-shadow:0 20px 60px rgba(0,0,0,0.3); }
 .uno-result-title { font-size:24px; font-weight:800; margin-bottom:8px; }
@@ -6360,6 +6364,7 @@ function unoStartAIGame() {
     direction: 1,
     drawCount: 0,
     winner: null,
+    unoCalled: [false, false],
     currentTurn: (first.value === 'skip' || first.value === 'reverse') ? 1 : 0
   };
   if (first.value === 'draw2') {
@@ -6420,6 +6425,30 @@ function unoPlayCard(player, handIdx, chosenColor) {
   unoActionLock = true;
   unoState.hands[player].splice(handIdx, 1);
   unoState.discard.push(card);
+  
+  if (unoState.hands[player].length === 1) {
+    if (!unoState.unoCalled[player]) {
+      var penalty = unoState.deck.splice(0, 2);
+      if (penalty.length < 2) {
+        var resh = unoShuffle(unoState.discard.splice(0, unoState.discard.length - 1));
+        unoState.deck = unoState.deck.concat(resh);
+        penalty = penalty.concat(unoState.deck.splice(0, 2 - penalty.length));
+      }
+      unoState.hands[player] = unoState.hands[player].concat(penalty);
+      if (player === unoMyPlayer) {
+        setTimeout(function() { showToast('忘喊UNO! 罚抽2张牌', 'error'); }, 100);
+      } else {
+        setTimeout(function() { showToast('AI忘喊UNO! 罚抽2张牌', 'info'); }, 100);
+      }
+    } else {
+      if (player === unoMyPlayer) {
+        setTimeout(function() { showToast('UNO! 只剩最后一张了!', 'info'); }, 100);
+      }
+    }
+  }
+  if (unoState.hands[player].length > 1) {
+    unoState.unoCalled[player] = false;
+  }
   
   if (card.color === 'wild') {
     unoState.currentColor = chosenColor || 'red';
@@ -6503,6 +6532,7 @@ function unoDrawCard() {
   
   var card = unoState.deck.shift();
   unoState.hands[unoMyPlayer].push(card);
+  if (unoState.hands[unoMyPlayer].length > 1) unoState.unoCalled[unoMyPlayer] = false;
   unoJustDrew = card;
   
   if (unoMode === 'online') {
@@ -6593,6 +6623,10 @@ function unoAIMove() {
   }
   
   var card = hand[chosenIdx];
+  if (hand.length === 2) {
+    unoState.unoCalled[1] = true;
+    setTimeout(function() { showToast('AI喊了 UNO!', 'info'); }, 50);
+  }
   var color = card.color === 'wild' ? unoPickAIColor() : null;
   var oppCards = document.querySelectorAll('.uno-opponent-hand .uno-card-back');
   var srcEl = oppCards.length > 0 ? oppCards[0] : null;
@@ -6669,7 +6703,7 @@ function renderUnoGame() {
   
   // Opponent area
   html += '<div class="uno-opponent-area">' +
-    '<span class="uno-opponent-label">对手 ' + oppHand.length + ' 张</span>' +
+    '<span class="uno-opponent-label">对手 ' + oppHand.length + ' 张' + (oppHand.length === 1 ? '<span class="uno-badge">UNO!</span>' : '') + '</span>' +
     '<div class="uno-opponent-hand">';
   for (var i = 0; i < oppHand.length; i++) {
     html += unoRenderCardBack();
@@ -6705,7 +6739,7 @@ function renderUnoGame() {
   
   // Player hand
   html += '<div class="uno-player-area">' +
-    '<span class="uno-player-label">你的手牌 ' + myHand.length + ' 张</span>' +
+    '<span class="uno-player-label">你的手牌 ' + myHand.length + ' 张' + (myHand.length === 1 ? '<span class="uno-badge">UNO!</span>' : '') + '</span>' +
     '<div class="uno-player-hand">';
   
   for (var i = 0; i < myHand.length; i++) {
@@ -6720,6 +6754,9 @@ function renderUnoGame() {
   
   // Action buttons
   if (myTurn && !unoGameOver && !unoAwaitingColor) {
+    if (myHand.length === 2 && !unoState.unoCalled[unoMyPlayer]) {
+      html += '<div class="uno-actions"><button class="uno-call-btn" onclick="unoCallUno()">🔊 喊 UNO!</button></div>';
+    }
     if (unoJustDrew !== null) {
       var canPlayDrawn = unoCanPlay(unoJustDrew, unoState.currentColor, top.value);
       if (canPlayDrawn) {
@@ -6795,6 +6832,15 @@ function unoFlyAndPlayAI(idx, color, srcEl) {
 }
 
 var unoAnimateDiscard = false;
+
+function unoCallUno() {
+  if (!unoState || unoState.currentTurn !== unoMyPlayer) return;
+  if (unoState.hands[unoMyPlayer].length !== 2) return;
+  unoState.unoCalled[unoMyPlayer] = true;
+  showToast('🔊 UNO!', 'info');
+  if (unoMode === 'online') unoSendState(false);
+  renderUnoGame();
+}
 
 function unoTryPlay(evt, idx) {
   if (unoActionLock) return;

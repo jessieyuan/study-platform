@@ -960,7 +960,8 @@ function initUnoState() {
     currentColor: currentColor,
     direction: 1,
     drawCount: 0,
-    winner: null
+    winner: null,
+    unoCalled: [false, false]
   };
   if (first.value === 'skip' || first.value === 'reverse') {
     state.currentTurn = 1;
