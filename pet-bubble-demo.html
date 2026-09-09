@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>宠物说话气泡 Demo</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Comic Sans MS','KaiTi',sans-serif;
+    background: linear-gradient(180deg,#fdf6ee 0%,#fef0dc 40%,#fde8c8 100%);
+    min-height: 100vh; display: flex; flex-direction: column; align-items: center;
+    padding: 20px;
+  }
+  h1 { font-size: 24px; color: #4a3020; margin-bottom: 4px; }
+  .sub { font-size: 13px; color: #b08a60; margin-bottom: 16px; }
+
+  /* === 宠物展示区 === */
+  .pp-showcase {
+    position: relative; width: 220px; height: 220px; margin: 4px auto 0;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .pp-showcase .pet-emoji {
+    font-size: 120px; line-height: 1;
+    filter: drop-shadow(0 6px 20px rgba(180,120,40,0.25));
+    animation: pp-idle 2.5s ease-in-out infinite;
+  }
+  @keyframes pp-idle {
+    0%,100%{transform:translateY(0) rotate(0deg) scale(1);}
+    50%{transform:translateY(-6px) rotate(-2deg) scale(1.03);}
+  }
+
+  /* === 说话气泡 === */
+  .pet-speech-bubble {
+    position: absolute; top: -10px; left: 50%;
+    transform: translateX(-50%) scale(0);
+    background: #fff; color: #4a3020;
+    padding: 10px 18px; border-radius: 18px;
+    font-size: 15px; font-weight: 700; line-height: 1.5;
+    white-space: nowrap; text-align: center;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+    z-index: 50; pointer-events: none;
+    opacity: 0; transition: all 0.3s cubic-bezier(0.34,1.56,0.64,1);
+    border: 2px solid #ffd97a; max-width: 280px;
+  }
+  .pet-speech-bubble.show { opacity: 1; transform: translateX(-50%) scale(1); }
+  .pet-speech-bubble::after {
+    content:''; position:absolute; bottom:-10px; left:50%;
+    transform:translateX(-50%);
+    border-width:10px 8px 0 8px; border-style:solid;
+    border-color:#ffd97a transparent transparent transparent;
+  }
+  .pet-speech-bubble::before {
+    content:''; position:absolute; bottom:-7px; left:50%;
+    transform:translateX(-50%);
+    border-width:8px 6px 0 6px; border-style:solid;
+    border-color:#fff transparent transparent transparent;
+    z-index:1;
+  }
+
+  /* === 操作按钮 === */
+  .pp-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 20px; width: 300px; }
+  .pp-action-btn {
+    border: none; border-radius: 14px; padding: 12px 8px;
+    display: flex; flex-direction: column; align-items: center; gap: 2px;
+    cursor: pointer; transition: all 0.15s;
+    font-family: inherit; font-weight: 700;
+  }
+  .pp-btn-feed { background: #fff3d6; color: #c08020; }
+  .pp-btn-bath { background: #d6f0ff; color: #3b7aa0; }
+  .pp-btn-exercise { background: #e8ffe8; color: #2d8a2d; }
+  .pp-btn-play { background: #ffe8f0; color: #c06080; }
+  .pp-action-btn .ppa-icon { font-size: 28px; }
+  .pp-action-btn .ppa-cost { font-size: 10px; opacity: 0.6; }
+  .pp-action-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(0,0,0,0.13); }
+  .pp-action-btn:active { transform: scale(0.94); }
+
+  .tip { margin-top: 24px; font-size: 12px; color: #b08a60; text-align: center; }
+</style>
+</head>
+<body>
+  <h1>🐾 宠物说话气泡 Demo</h1>
+  <div class="sub">点击下面四个按钮，看宠物头顶冒出的说话气泡</div>
+
+  <div class="pp-showcase" id="showcase">
+    <div class="pet-emoji" id="pet-emoji">🐱</div>
+  </div>
+
+  <div class="pp-actions">
+    <button class="pp-action-btn pp-btn-feed" onclick="doAction('feed')">
+      <span class="ppa-icon">🍖</span><span>喂食</span><span class="ppa-cost">10⭐</span>
+    </button>
+    <button class="pp-action-btn pp-btn-bath" onclick="doAction('bath')">
+      <span class="ppa-icon">🛁</span><span>洗澡</span><span class="ppa-cost">10⭐</span>
+    </button>
+    <button class="pp-action-btn pp-btn-exercise" onclick="doAction('exercise')">
+      <span class="ppa-icon">🏃</span><span>运动</span><span class="ppa-cost">5⭐</span>
+    </button>
+    <button class="pp-action-btn pp-btn-play" onclick="doAction('play')">
+      <span class="ppa-icon">🎾</span><span>玩耍</span><span class="ppa-cost">5⭐</span>
+    </button>
+  </div>
+
+  <div class="tip">每个操作有3条台词，随机出现一条 · 2.5秒后自动消失</div>
+
+<script>
+var petSpeechTimer;
+var PET_SPEECH = {
+  feed: ['好好吃呀！谢谢小主人～','这个我最喜欢了！','吃饱饱，有力气啦！'],
+  bath: ['泡泡好多呀！我变干净啦～','香喷喷的，快来闻闻！','洗澡好舒服呀～'],
+  exercise: ['冲冲冲！我是运动小健将！','跑完精神满满！','出汗了但好开心！'],
+  play: ['再玩一会儿嘛！好开心～','和主人玩最开心了！','蹦蹦跳跳停不下来！']
+};
+function showPetBubble(action) {
+  var pool = PET_SPEECH[action];
+  if (!pool) return;
+  var text = pool[Math.floor(Math.random() * pool.length)];
+  var showcase = document.getElementById('showcase');
+  if (!showcase) return;
+  var existing = showcase.querySelector('.pet-speech-bubble');
+  if (existing) existing.remove();
+  var bubble = document.createElement('div');
+  bubble.className = 'pet-speech-bubble';
+  bubble.textContent = text;
+  showcase.appendChild(bubble);
+  setTimeout(function(){ bubble.classList.add('show'); }, 10);
+  if (petSpeechTimer) clearTimeout(petSpeechTimer);
+  petSpeechTimer = setTimeout(function(){
+    bubble.classList.remove('show');
+    setTimeout(function(){ if(bubble.parentNode) bubble.remove(); }, 300);
+  }, 2500);
+}
+function doAction(action) {
+  showPetBubble(action);
+  var emoji = document.getElementById('pet-emoji');
+  emoji.style.animation = 'none';
+  void emoji.offsetWidth;
+  emoji.style.animation = 'pp-idle 2.5s ease-in-out infinite';
+}
+</script>
+</body>
+</html>

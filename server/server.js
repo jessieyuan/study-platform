@@ -220,6 +220,7 @@ db.exec(`
   try { db.exec('ALTER TABLE games ADD COLUMN last_seen1 TEXT'); } catch(e) {}
   try { db.exec('ALTER TABLE games ADD COLUMN last_seen2 TEXT'); } catch(e) {}
   try { db.exec('ALTER TABLE games ADD COLUMN game_data TEXT'); } catch(e) {}
+db.exec('CREATE TABLE IF NOT EXISTS uno_multi_rooms (id INTEGER PRIMARY KEY AUTOINCREMENT, max_players INTEGER NOT NULL, status TEXT DEFAULT \'waiting\', game_data TEXT, current_turn INTEGER DEFAULT 0, winner INTEGER, created_at TEXT DEFAULT (datetime(\'now\',\'localtime\')), player1_id INTEGER, player1_name TEXT, player2_id INTEGER, player2_name TEXT, player3_id INTEGER, player3_name TEXT, player4_id INTEGER, player4_name TEXT);');
 
   db.exec(`
     CREATE TABLE IF NOT EXISTS game_moves (
@@ -1134,6 +1135,198 @@ async function handleGameGet(req, res, gameId) {
 
 
 /** POST /api/games/uno-action - update UNO game state */
+// ==================== UNO Multi-Player (separate from 2-player games) ====================
+
+function initUnoMultiState(numPlayers) {
+  numPlayers = numPlayers || 2;
+  if (numPlayers < 2) numPlayers = 2;
+  if (numPlayers > 4) numPlayers = 4;
+  var colors = ['red', 'yellow', 'green', 'blue'];
+  var deck = [];
+  var id = 0;
+  for (var ci = 0; ci < 4; ci++) {
+    deck.push({ color: colors[ci], value: '0', id: id++ });
+    for (var v = 1; v <= 9; v++) {
+      deck.push({ color: colors[ci], value: String(v), id: id++ });
+      deck.push({ color: colors[ci], value: String(v), id: id++ });
+    }
+    for (var j = 0; j < 2; j++) {
+      deck.push({ color: colors[ci], value: 'skip', id: id++ });
+      deck.push({ color: colors[ci], value: 'reverse', id: id++ });
+      deck.push({ color: colors[ci], value: 'draw2', id: id++ });
+    }
+  }
+  for (var j = 0; j < 4; j++) {
+    deck.push({ color: 'wild', value: 'wild', id: id++ });
+    deck.push({ color: 'wild', value: 'wild4', id: id++ });
+  }
+  for (var i = deck.length - 1; i > 0; i--) {
+    var j = Math.floor(Math.random() * (i + 1));
+    var tmp = deck[i]; deck[i] = deck[j]; deck[j] = tmp;
+  }
+  var hands = [];
+  for (var hi = 0; hi < numPlayers; hi++) hands.push(deck.splice(0, 7));
+  var first;
+  while (true) {
+    first = deck.shift();
+    if (first.value === 'wild4') { deck.push(first); continue; }
+    break;
+  }
+  var currentColor = first.color === 'wild' ? colors[Math.floor(Math.random()*4)] : first.color;
+  var state = {
+    deck: deck, hands: hands, discard: [first],
+    currentColor: currentColor, direction: 1, drawCount: 0,
+    winner: null, unoCalled: new Array(numPlayers).fill(false),
+    numPlayers: numPlayers
+  };
+  if (first.value === 'skip' || first.value === 'reverse') {
+    state.currentTurn = 1;
+  } else if (first.value === 'draw2') {
+    state.hands[0] = state.hands[0].concat(deck.splice(0, 2));
+    state.currentTurn = 1;
+  } else {
+    state.currentTurn = 0;
+  }
+  return JSON.stringify(state);
+}
+
+async function handleUnoMultiCreate(req, res) {
+  const userId = getAuthUserId(req);
+  if (!userId) return sendJSON(res, 401, { error: '未登录' });
+  const body = await parseBody(req);
+  var maxP = body.max_players || 2;
+  if (maxP < 2) maxP = 2;
+  if (maxP > 4) maxP = 4;
+  const user = db.prepare('SELECT username FROM users WHERE id = ?').get(userId);
+  const row = db.prepare("INSERT INTO uno_multi_rooms (max_players, player1_id, player1_name) VALUES (?, ?, ?)").run(maxP, userId, user ? user.username : '玩家1');
+  sendJSON(res, 200, { room_id: row.lastInsertRowid, max_players: maxP });
+}
+
+async function handleUnoMultiRooms(req, res) {
+  const userId = getAuthUserId(req);
+  if (!userId) return sendJSON(res, 401, { error: '未登录' });
+  try {
+    db.prepare("DELETE FROM uno_multi_rooms WHERE status = 'waiting' AND created_at < datetime('now','localtime','-30 minutes')").run();
+    db.prepare("DELETE FROM uno_multi_rooms WHERE status IN ('active','finished','abandoned') AND created_at < datetime('now','localtime','-1 hour')").run();
+  } catch(e) {}
+  const rows = db.prepare("SELECT id, max_players, player1_name, player1_id, player2_id, player3_id, player4_id, status FROM uno_multi_rooms WHERE status = 'waiting' AND player1_id != ? ORDER BY created_at DESC LIMIT 20").all(userId);
+  var rooms = rows.map(function(r) {
+    var joined = 1;
+    if (r.player2_id) joined++;
+    if (r.player3_id) joined++;
+    if (r.player4_id) joined++;
+    return { id: r.id, max_players: r.max_players, player1_name: r.player1_name, joined_count: joined };
+  });
+  sendJSON(res, 200, { rooms: rooms });
+}
+
+async function handleUnoMultiJoin(req, res) {
+  const userId = getAuthUserId(req);
+  if (!userId) return sendJSON(res, 401, { error: '未登录' });
+  const body = await parseBody(req);
+  const roomId = body.room_id;
+  if (!roomId) return sendJSON(res, 400, { error: '参数缺失' });
+  const room = db.prepare('SELECT * FROM uno_multi_rooms WHERE id = ?').get(roomId);
+  if (!room) return sendJSON(res, 404, { error: '房间不存在' });
+  if (room.status !== 'waiting') return sendJSON(res, 400, { error: '房间已开始或已结束' });
+  if (room.player1_id === userId) return sendJSON(res, 400, { error: '不能加入自己的房间' });
+  if (room.player2_id === userId || room.player3_id === userId || room.player4_id === userId) return sendJSON(res, 400, { error: '你已在此房间' });
+  var slot = 0;
+  if (!room.player2_id) slot = 2;
+  else if (!room.player3_id) slot = 3;
+  else if (!room.player4_id) slot = 4;
+  else return sendJSON(res, 400, { error: '房间已满' });
+  if (slot > room.max_players) return sendJSON(res, 400, { error: '房间已满' });
+  const user = db.prepare('SELECT username FROM users WHERE id = ?').get(userId);
+  var colName = 'player' + slot + '_id';
+  var colName2 = 'player' + slot + '_name';
+  var joined = 1 + (room.player2_id ? 1 : 0) + (room.player3_id ? 1 : 0) + (room.player4_id ? 1 : 0);
+  db.prepare("UPDATE uno_multi_rooms SET " + colName + " = ?, " + colName2 + " = ? WHERE id = ?").run(userId, user ? user.username : ('玩家' + slot), roomId);
+  joined++;
+  if (joined >= room.max_players) {
+    var state = initUnoMultiState(room.max_players);
+    db.prepare("UPDATE uno_multi_rooms SET status = 'active', game_data = ?, current_turn = 0 WHERE id = ?").run(state, roomId);
+  }
+  sendJSON(res, 200, { ok: true, player_slot: slot });
+}
+
+async function handleUnoMultiState(req, res) {
+  const userId = getAuthUserId(req);
+  if (!userId) return sendJSON(res, 401, { error: '未登录' });
+  const url = new URL(req.url, 'http://localhost');
+  const roomId = url.searchParams.get('room_id');
+  if (!roomId) return sendJSON(res, 400, { error: '参数缺失' });
+  const room = db.prepare('SELECT * FROM uno_multi_rooms WHERE id = ?').get(roomId);
+  if (!room) return sendJSON(res, 404, { error: '房间不存在' });
+  var mySlot = 0;
+  if (room.player1_id === userId) mySlot = 1;
+  else if (room.player2_id === userId) mySlot = 2;
+  else if (room.player3_id === userId) mySlot = 3;
+  else if (room.player4_id === userId) mySlot = 4;
+  else return sendJSON(res, 403, { error: '无权查看' });
+  var playerNames = [];
+  var pids = [room.player1_id, room.player2_id, room.player3_id, room.player4_id];
+  var pnames = [room.player1_name, room.player2_name, room.player3_name, room.player4_name];
+  var maxP = room.max_players;
+  var joinedCount = 0;
+  for (var pi = 0; pi < maxP; pi++) {
+    if (pids[pi]) { playerNames.push(pnames[pi] || ('玩家' + (pi+1))); joinedCount++; }
+    else playerNames.push(null);
+  }
+  var stateData = room.game_data ? JSON.parse(room.game_data) : null;
+  sendJSON(res, 200, { room_id: room.id, status: room.status, winner: room.winner, current_turn: room.current_turn, game_data: stateData, my_slot: mySlot, player_names: playerNames, max_players: maxP, joined_count: joinedCount });
+}
+
+async function handleUnoMultiAction(req, res) {
+  const userId = getAuthUserId(req);
+  if (!userId) return sendJSON(res, 401, { error: '未登录' });
+  const body = await parseBody(req);
+  const roomId = body.room_id;
+  if (!roomId) return sendJSON(res, 400, { error: '参数缺失' });
+  const room = db.prepare('SELECT * FROM uno_multi_rooms WHERE id = ?').get(roomId);
+  if (!room) return sendJSON(res, 404, { error: '房间不存在' });
+  if (room.status !== 'active') return sendJSON(res, 400, { error: '游戏未进行中' });
+  var mySlot = 0;
+  if (room.player1_id === userId) mySlot = 1;
+  else if (room.player2_id === userId) mySlot = 2;
+  else if (room.player3_id === userId) mySlot = 3;
+  else if (room.player4_id === userId) mySlot = 4;
+  else return sendJSON(res, 403, { error: '你不在此局游戏中' });
+  var state = JSON.stringify(body.state);
+  if (body.winner) {
+    db.prepare('UPDATE uno_multi_rooms SET game_data = ?, status = ?, winner = ?, current_turn = ? WHERE id = ?').run(state, 'finished', mySlot, mySlot, roomId);
+    sendJSON(res, 200, { ok: true, win: true });
+  } else {
+    var nextTurn = body.current_turn !== undefined ? body.current_turn : room.current_turn;
+    db.prepare('UPDATE uno_multi_rooms SET game_data = ?, current_turn = ? WHERE id = ?').run(state, nextTurn, roomId);
+    sendJSON(res, 200, { ok: true });
+  }
+}
+
+async function handleUnoMultiAbandon(req, res) {
+  const userId = getAuthUserId(req);
+  if (!userId) return sendJSON(res, 401, { error: '未登录' });
+  const body = await parseBody(req);
+  const roomId = body.room_id;
+  if (!roomId) return sendJSON(res, 400, { error: '参数缺失' });
+  const room = db.prepare('SELECT * FROM uno_multi_rooms WHERE id = ?').get(roomId);
+  if (!room) return sendJSON(res, 404, { error: '房间不存在' });
+  var mySlot = 0;
+  if (room.player1_id === userId) mySlot = 1;
+  else if (room.player2_id === userId) mySlot = 2;
+  else if (room.player3_id === userId) mySlot = 3;
+  else if (room.player4_id === userId) mySlot = 4;
+  else return sendJSON(res, 403, { error: '无权操作' });
+  if (room.status === 'waiting') {
+    db.prepare('DELETE FROM uno_multi_rooms WHERE id = ?').run(roomId);
+  } else if (room.status === 'active') {
+    var winner = mySlot === 1 ? 2 : 1;
+    db.prepare('UPDATE uno_multi_rooms SET status = ?, winner = ? WHERE id = ?').run('abandoned', winner, roomId);
+  }
+  sendJSON(res, 200, { ok: true });
+}
+
+
 async function handleGameUnoAction(req, res) {
   const userId = getAuthUserId(req);
   if (!userId) return sendJSON(res, 401, { error: '未登录' });
@@ -1393,6 +1586,12 @@ const server = http.createServer(async (req, res) => {
     if (pathname === '/api/games/move' && req.method === 'POST') return await handleGameMove(req, res);
     if (pathname === '/api/games/abandon' && req.method === 'POST') return await handleGameAbandon(req, res);
     if (pathname === '/api/games/uno-action' && req.method === 'POST') return await handleGameUnoAction(req, res);
+    if (pathname === '/api/uno-multi/create' && req.method === 'POST') return await handleUnoMultiCreate(req, res);
+    if (pathname === '/api/uno-multi/rooms' && req.method === 'GET') return await handleUnoMultiRooms(req, res);
+    if (pathname === '/api/uno-multi/join' && req.method === 'POST') return await handleUnoMultiJoin(req, res);
+    if (pathname === '/api/uno-multi/state' && req.method === 'GET') return await handleUnoMultiState(req, res);
+    if (pathname === '/api/uno-multi/action' && req.method === 'POST') return await handleUnoMultiAction(req, res);
+    if (pathname === '/api/uno-multi/abandon' && req.method === 'POST') return await handleUnoMultiAbandon(req, res);
     if (pathname.startsWith('/api/games/') && req.method === 'GET') { const gameId = parseInt(pathname.split('/')[3]); if (gameId) return await handleGameGet(req, res, gameId); }
 
     // 静态文件
