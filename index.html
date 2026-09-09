@@ -883,34 +883,47 @@
     100%{opacity:0;transform:translate(var(--tx),var(--ty)) scale(1.3) rotate(var(--rot))}
   }
 
-  /* ========== 宠物说话气泡 ========== */
+  /* ========== 宠物说话气泡（可爱风） ========== */
   .pet-speech-bubble {
-    position: absolute; top: -10px; left: 50%;
-    transform: translateX(-50%) scale(0);
-    background: #fff; color: #4a3020;
-    padding: 10px 18px; border-radius: 18px;
+    position: absolute; top: -8px; left: 50%;
+    transform: translateX(-50%) translateY(0) scale(0);
+    background: linear-gradient(135deg,#fff5fa,#fff0f6);
+    color: #8b4a6b;
+    padding: 12px 22px; border-radius: 22px;
     font-size: 15px; font-weight: 700; line-height: 1.5;
     white-space: nowrap; text-align: center;
-    box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+    box-shadow: 0 8px 24px rgba(255,150,180,0.25), 0 2px 6px rgba(0,0,0,0.06);
+    border: 2.5px solid #ffc2d9;
     z-index: 50; pointer-events: none;
-    opacity: 0; transition: all 0.3s cubic-bezier(0.34,1.56,0.64,1);
-    border: 2px solid #ffd97a;
-    max-width: 280px;
+    opacity: 0; transition: all 0.35s cubic-bezier(0.34,1.56,0.64,1);
+    max-width: 260px;
   }
-  .pet-speech-bubble.show { opacity: 1; transform: translateX(-50%) scale(1); }
+  .pet-speech-bubble.show { opacity: 1; transform: translateX(-50%) translateY(-6px) scale(1); }
+  .pet-speech-bubble .psb-emoji { font-size: 18px; margin-right: 4px; vertical-align: middle; }
   .pet-speech-bubble::after {
-    content: ''; position: absolute; bottom: -10px; left: 50%;
+    content: ''; position: absolute; bottom: -11px; left: 50%;
     transform: translateX(-50%);
-    border-width: 10px 8px 0 8px; border-style: solid;
-    border-color: #ffd97a transparent transparent transparent;
+    border-width: 11px 9px 0 9px; border-style: solid;
+    border-color: #ffc2d9 transparent transparent transparent;
   }
   .pet-speech-bubble::before {
     content: ''; position: absolute; bottom: -7px; left: 50%;
     transform: translateX(-50%);
     border-width: 8px 6px 0 6px; border-style: solid;
-    border-color: #fff transparent transparent transparent;
+    border-color: #fff5fa transparent transparent transparent;
     z-index: 1;
   }
+  /* ========== 宠物经验浮动数字 ========== */
+  .pet-xp-float {
+    position: absolute; right: -6px; top: 40%;
+    transform: scale(0.6); opacity: 0;
+    font-size: 16px; font-weight: 900; color: #ff8a3d;
+    text-shadow: 0 2px 6px rgba(255,138,61,0.4);
+    z-index: 51; pointer-events: none;
+    white-space: nowrap;
+    transition: all 0.8s cubic-bezier(0.25,0.46,0.45,0.94);
+  }
+  .pet-xp-float.show { opacity: 1; transform: scale(1) translateY(-30px); }
 
   /* ========== 主内容 ========== */
   .main { margin-left: 78px; padding: 20px; max-width: 520px; }
@@ -4648,7 +4661,7 @@ function feedPet() {
   renderPetPage();
   animatePetInPage('feed');
   showPetBubble('feed');
-  showToast('🍖 吃饱啦！+20经验，小宠物很开心~', 'success');
+  showPetXP(20);
 }
 
 function bathPet() {
@@ -4668,7 +4681,7 @@ function bathPet() {
   renderPetPage();
   animatePetInPage('bath');
   showPetBubble('bath');
-  showToast('🛁 洗得干干净净！+30经验，闪闪发光~ ✨', 'success');
+  showPetXP(30);
 }
 
 function exercisePet() {
@@ -4684,7 +4697,7 @@ function exercisePet() {
   renderPetPage();
   animatePetInPage('exerciseAnim');
   showPetBubble('exercise');
-  showToast('🏃 运动完毕！+25经验，身体棒棒~ 💪', 'success');
+  showPetXP(25);
 }
 
 function playWithPet() {
@@ -4700,7 +4713,7 @@ function playWithPet() {
   renderPetPage();
   animatePetInPage('playAnim');
   showPetBubble('play');
-  showToast('🎾 玩得好开心！+15经验，小家伙蹦蹦跳跳~', 'success');
+  showPetXP(15);
 }
 
 function updatePetUI() {
@@ -8431,6 +8444,7 @@ var PET_SPEECH = {
   exercise: ['冲冲冲！我是运动小健将！', '跑完精神满满！', '出汗了但好开心！'],
   play: ['再玩一会儿嘛！好开心～', '和主人玩最开心了！', '蹦蹦跳跳停不下来！']
 };
+var PET_EMOJI = { feed: '🍖', bath: '🛁', exercise: '🏃', play: '🎾' };
 function showPetBubble(action) {
   var pool = PET_SPEECH[action];
   if (!pool) return;
@@ -8441,14 +8455,29 @@ function showPetBubble(action) {
   if (existing) existing.remove();
   var bubble = document.createElement('div');
   bubble.className = 'pet-speech-bubble';
-  bubble.textContent = text;
+  bubble.innerHTML = '<span class="psb-emoji">' + (PET_EMOJI[action] || '') + '</span>' + text;
   showcase.appendChild(bubble);
   setTimeout(function() { bubble.classList.add('show'); }, 10);
   if (petSpeechTimer) clearTimeout(petSpeechTimer);
   petSpeechTimer = setTimeout(function() {
     bubble.classList.remove('show');
-    setTimeout(function() { if (bubble.parentNode) bubble.remove(); }, 300);
+    setTimeout(function() { if (bubble.parentNode) bubble.remove(); }, 350);
   }, 2500);
+}
+function showPetXP(amount) {
+  var showcase = document.querySelector('.pp-showcase');
+  if (!showcase) return;
+  var existing = showcase.querySelector('.pet-xp-float');
+  if (existing) existing.remove();
+  var el = document.createElement('div');
+  el.className = 'pet-xp-float';
+  el.textContent = '+' + amount + ' EXP';
+  showcase.appendChild(el);
+  setTimeout(function() { el.classList.add('show'); }, 10);
+  setTimeout(function() {
+    el.style.opacity = '0';
+    setTimeout(function() { if (el.parentNode) el.remove(); }, 400);
+  }, 1200);
 }
 
 // ==================== 鼓励动画 ====================
