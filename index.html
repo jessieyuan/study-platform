@@ -4609,12 +4609,7 @@ function migrateOldPet() {
 }
 
 function settlePet() {
-  var pet = appData.pet;
-  if (!pet || !pet.owned || !pet.alive) return;
-  if ((pet.todayEarned || 0) < 10) {
-    pet.alive = false;
-    saveData(appData);
-  }
+  // 宠物只通过饥饿(checkPetHunger)死亡，不再因积分不足判死
 }
 
 // ==================== 宠物等级系统 ====================
