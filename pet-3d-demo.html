@@ -15,11 +15,11 @@
   h1 { font-size:24px; color:#4a3020; margin-bottom:4px; }
   .sub { font-size:13px; color:#b08a60; margin-bottom:16px; }
   .pp-showcase {
-    position:relative; width:260px; height:260px; margin:4px auto 0;
+    position:relative; width:340px; height:340px; margin:4px auto 0;
     display:flex; align-items:center; justify-content:center;
   }
   .pp-showcase img {
-    width:220px; height:220px; object-fit:contain;
+    width:300px; height:300px; object-fit:contain;
     filter:drop-shadow(0 6px 20px rgba(180,120,40,0.25));
     border-radius:16px;
   }
@@ -63,6 +63,11 @@
   .pp-action-btn:hover { transform:translateY(-2px); box-shadow:0 6px 16px rgba(0,0,0,0.13); }
   .pp-action-btn:active { transform:scale(0.94); }
   .tip { margin-top:24px; font-size:12px; color:#b08a60; text-align:center; }
+  @media (max-width: 400px) {
+    .pp-showcase { width:280px; height:280px; }
+    .pp-showcase img { width:250px; height:250px; }
+    .pp-actions { width:280px; }
+  }
   #preload { display:none; }
 </style>
 </head>
@@ -130,12 +135,13 @@ function updateStatus() {
 }
 
 function playGif(action) {
+  var btns = document.querySelectorAll(".pp-action-btn"); btns.forEach(function(b){ b.style.opacity="0.5"; b.style.pointerEvents="none"; });
   var pool = ACTIONS[action];
   if (!pool) return;
   var gif = pool[Math.floor(Math.random() * pool.length)];
   var img = document.getElementById('pet-img');
   img.src = gif;
-  setTimeout(function() { img.src = STAND; }, 3500);
+  setTimeout(function() { img.src = STAND; var btns = document.querySelectorAll(".pp-action-btn"); btns.forEach(function(b){ b.style.opacity="1"; b.style.pointerEvents="auto"; }); }, 4200);
 }
 
 function showPetBubble(speechKey) {
