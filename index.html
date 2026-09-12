@@ -4611,10 +4611,10 @@ function play3dPetGif(action, duration) {
   if (!img) return;
   var gif = get3dPetGif(action);
   if (!gif) return;
-  img.src = gif + '?t=' + Date.now();
+  img.src = gif;
   setTimeout(function() {
     var stand = get3dPetGif('stand');
-    if (stand && is3dPet(appData.pet)) img.src = stand + '?t=' + Date.now();
+    if (stand && is3dPet(appData.pet)) img.src = stand;
   }, duration || 3500);
 }
 function getPetPosition(pet) {

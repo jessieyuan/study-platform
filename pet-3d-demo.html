@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>3d伙伴 - 布偶猫 Demo</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    font-family:'PingFang SC','KaiTi',sans-serif;
+    background:linear-gradient(180deg,#fdf6ee 0%,#fef0dc 40%,#fde8c8 100%);
+    min-height:100vh; display:flex; flex-direction:column; align-items:center;
+    padding:20px;
+  }
+  h1 { font-size:24px; color:#4a3020; margin-bottom:4px; }
+  .sub { font-size:13px; color:#b08a60; margin-bottom:16px; }
+  .pp-showcase {
+    position:relative; width:260px; height:260px; margin:4px auto 0;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .pp-showcase img {
+    width:220px; height:220px; object-fit:contain;
+    filter:drop-shadow(0 6px 20px rgba(180,120,40,0.25));
+    border-radius:16px;
+  }
+  .pet-speech-bubble {
+    position:absolute; top:-8px; left:50%;
+    transform:translateX(-50%) translateY(0) scale(0);
+    background:linear-gradient(135deg,#fff5fa,#fff0f6);
+    color:#8b4a6b; padding:12px 22px; border-radius:22px;
+    font-size:15px; font-weight:700; line-height:1.5;
+    white-space:nowrap; text-align:center;
+    box-shadow:0 8px 24px rgba(255,150,180,0.25),0 2px 6px rgba(0,0,0,0.06);
+    border:2.5px solid #ffc2d9; z-index:50; pointer-events:none;
+    opacity:0; transition:all 0.35s cubic-bezier(0.34,1.56,0.64,1);
+    width:max-content; max-width:90vw;
+  }
+  .pet-speech-bubble.show { opacity:1; transform:translateX(-50%) translateY(-6px) scale(1); }
+  .pet-speech-bubble .psb-emoji { font-size:18px; margin-right:4px; vertical-align:middle; }
+  .pet-speech-bubble::after { content:''; position:absolute; bottom:-11px; left:50%; transform:translateX(-50%); border-width:11px 9px 0 9px; border-style:solid; border-color:#ffc2d9 transparent transparent transparent; }
+  .pet-speech-bubble::before { content:''; position:absolute; bottom:-7px; left:50%; transform:translateX(-50%); border-width:8px 6px 0 6px; border-style:solid; border-color:#fff5fa transparent transparent transparent; z-index:1; }
+  .pet-xp-float {
+    position:absolute; right:-6px; top:40%;
+    transform:scale(0.6); opacity:0;
+    font-size:16px; font-weight:900; color:#ff8a3d;
+    text-shadow:0 2px 6px rgba(255,138,61,0.4);
+    z-index:51; pointer-events:none; white-space:nowrap;
+    transition:all 0.8s cubic-bezier(0.25,0.46,0.45,0.94);
+  }
+  .pet-xp-float.show { opacity:1; transform:scale(1) translateY(-30px); }
+  .pp-actions { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:20px; width:320px; }
+  .pp-action-btn {
+    border:none; border-radius:14px; padding:12px 8px;
+    display:flex; flex-direction:column; align-items:center; gap:2px;
+    cursor:pointer; transition:all 0.15s; font-family:inherit; font-weight:700;
+  }
+  .pp-btn-feed { background:#fff3d6; color:#c08020; }
+  .pp-btn-bath { background:#d6f0ff; color:#3b7aa0; }
+  .pp-btn-exercise { background:#e8ffe8; color:#2d8a2d; }
+  .pp-btn-play { background:#ffe8f0; color:#c06080; }
+  .pp-action-btn .ppa-icon { font-size:28px; }
+  .pp-action-btn .ppa-cost { font-size:10px; opacity:0.6; }
+  .pp-action-btn:hover { transform:translateY(-2px); box-shadow:0 6px 16px rgba(0,0,0,0.13); }
+  .pp-action-btn:active { transform:scale(0.94); }
+  .tip { margin-top:24px; font-size:12px; color:#b08a60; text-align:center; }
+  #preload { display:none; }
+</style>
+</head>
+<body>
+  <h1>🐱 3d伙伴 · 布偶猫</h1>
+  <div class="sub" id="status">正在预加载GIF动画...</div>
+
+  <div class="pp-showcase" id="showcase">
+    <img id="pet-img" src="pets/3d/cat/cat-stand.gif" alt="布偶猫" draggable="false">
+  </div>
+
+  <div class="pp-actions" id="actions" style="opacity:0.3;pointer-events:none;">
+    <button class="pp-action-btn pp-btn-feed" onclick="doAction('eat','feed')">
+      <span class="ppa-icon">🍖</span><span>喂食</span><span class="ppa-cost">10⭐ +20EXP</span>
+    </button>
+    <button class="pp-action-btn pp-btn-bath" onclick="doAction('shower','bath')">
+      <span class="ppa-icon">🛁</span><span>洗澡</span><span class="ppa-cost">10⭐ +30EXP</span>
+    </button>
+    <button class="pp-action-btn pp-btn-exercise" onclick="doAction('happy','exercise')">
+      <span class="ppa-icon">🤗</span><span>互动</span><span class="ppa-cost">5⭐ +25EXP</span>
+    </button>
+    <button class="pp-action-btn pp-btn-play" onclick="doAction('play','play')">
+      <span class="ppa-icon">🎾</span><span>玩耍</span><span class="ppa-cost">5⭐ +15EXP</span>
+    </button>
+  </div>
+
+  <div class="tip">stand=默认循环 · eat/shower=固定 · play=随机2选1 · happy=随机3选1 · 3.5秒后回到stand</div>
+  <div id="preload"></div>
+
+<script>
+var STAND = 'pets/3d/cat/cat-stand.gif';
+var ACTIONS = {
+  eat: ['pets/3d/cat/cat-eat.gif'],
+  shower: ['pets/3d/cat/cat-shower.gif'],
+  play: ['pets/3d/cat/cat-play.gif', 'pets/3d/cat/cat-play2.gif'],
+  happy: ['pets/3d/cat/cat-happy.gif', 'pets/3d/cat/cat-happy2.gif', 'pets/3d/cat/cat-happy3.gif']
+};
+var XP_MAP = { feed:20, bath:30, exercise:25, play:15 };
+var PET_SPEECH = {
+  feed: ['吧唧吧唧！这也太好吃了吧！','哇！是小主人亲手做的吗？爱了爱了！','嘿嘿，我的肚子圆滚滚的啦！','再多喂一点点嘛...就一点点！','这是我吃过最好吃的一顿！'],
+  bath: ['咕噜咕噜！泡泡山比我还高啦！','我现在是不是香香软软的？快抱抱我！','搓搓搓...变白白啦！我是不是最可爱的？','嘿嘿，我现在滑溜溜的像条小鱼！','哇！水好暖和，都不想出来了～'],
+  exercise: ['嗖——！你追不上我吧！哈哈！','一二一！一二一！我是超级运动员！','跑完了我浑身都在冒烟！呼呼～','小主人快来比比，谁跑得快！','嘿嘿，看我的肌肉！变大了吧！'],
+  play: ['哈哈哈！太好玩了！再来再来！','小主人，我们永远是好朋友好不好？','蹦蹦蹦！我是弹力小达人！','今天是我最最最开心的一天！','嘿嘿，被挠痒痒了！不许再挠了！']
+};
+var PET_EMOJI = { feed:'🍖', bath:'🛁', exercise:'🏃', play:'🎾' };
+var petSpeechTimer;
+var loaded = 0;
+var totalGifs = 8;
+
+// Preload all GIFs
+var allGifs = [STAND];
+for (var k in ACTIONS) { allGifs = allGifs.concat(ACTIONS[k]); }
+allGifs.forEach(function(src) {
+  var img = new Image();
+  img.onload = function() { loaded++; updateStatus(); };
+  img.onerror = function() { loaded++; updateStatus(); };
+  img.src = src;
+});
+function updateStatus() {
+  if (loaded >= totalGifs) {
+    document.getElementById('status').textContent = 'GIF预加载完成！可以点击操作了~';
+    document.getElementById('actions').style.opacity = '1';
+    document.getElementById('actions').style.pointerEvents = 'auto';
+  }
+}
+
+function playGif(action) {
+  var pool = ACTIONS[action];
+  if (!pool) return;
+  var gif = pool[Math.floor(Math.random() * pool.length)];
+  var img = document.getElementById('pet-img');
+  img.src = gif;
+  setTimeout(function() { img.src = STAND; }, 3500);
+}
+
+function showPetBubble(speechKey) {
+  var pool = PET_SPEECH[speechKey];
+  if (!pool) return;
+  var text = pool[Math.floor(Math.random() * pool.length)];
+  var showcase = document.getElementById('showcase');
+  var existing = showcase.querySelector('.pet-speech-bubble');
+  if (existing) existing.remove();
+  var bubble = document.createElement('div');
+  bubble.className = 'pet-speech-bubble';
+  bubble.innerHTML = '<span class="psb-emoji">' + (PET_EMOJI[speechKey] || '') + '</span>' + text;
+  showcase.appendChild(bubble);
+  setTimeout(function() { bubble.classList.add('show'); }, 10);
+  if (petSpeechTimer) clearTimeout(petSpeechTimer);
+  petSpeechTimer = setTimeout(function() {
+    bubble.classList.remove('show');
+    setTimeout(function() { if (bubble.parentNode) bubble.remove(); }, 350);
+  }, 2500);
+}
+
+function showPetXP(amount) {
+  var showcase = document.getElementById('showcase');
+  var existing = showcase.querySelector('.pet-xp-float');
+  if (existing) existing.remove();
+  var el = document.createElement('div');
+  el.className = 'pet-xp-float';
+  el.textContent = '+' + amount + ' EXP';
+  showcase.appendChild(el);
+  setTimeout(function() { el.classList.add('show'); }, 10);
+  setTimeout(function() { el.style.opacity = '0'; setTimeout(function() { if (el.parentNode) el.remove(); }, 400); }, 1200);
+}
+
+function doAction(gifAction, speechKey) {
+  playGif(gifAction);
+  showPetBubble(speechKey);
+  showPetXP(XP_MAP[speechKey] || 10);
+}
+</script>
+</body>
+</html>
