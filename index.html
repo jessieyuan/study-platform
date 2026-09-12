@@ -4569,6 +4569,20 @@ var PET_STYLES = {
       { name: '星星5号', image: 'pets/star/star5.png' },
       { name: '星星6号', image: 'pets/star/star6.png' }
     ]
+  },
+  '3d': {
+    name: '3d伙伴',
+    icon: '🎭',
+    pets: [
+      { name: '布偶猫', image: 'pets/3d/cat/cat-stand.gif' }
+    ],
+    actions: {
+      stand: 'pets/3d/cat/cat-stand.gif',
+      eat: 'pets/3d/cat/cat-eat.gif',
+      shower: 'pets/3d/cat/cat-shower.gif',
+      play: ['pets/3d/cat/cat-play.gif', 'pets/3d/cat/cat-play2.gif'],
+      happy: ['pets/3d/cat/cat-happy.gif', 'pets/3d/cat/cat-happy2.gif', 'pets/3d/cat/cat-happy3.gif']
+    }
   }
 };
 
@@ -4580,6 +4594,29 @@ function getPetBackgroundImage(pet) {
   return p ? p.image : '';
 }
 
+function is3dPet(pet) {
+  return pet && pet.style === '3d';
+}
+function get3dPetGif(action) {
+  var pet = appData.pet;
+  if (!is3dPet(pet)) return '';
+  var style = PET_STYLES['3d'];
+  if (!style || !style.actions) return '';
+  var act = style.actions[action];
+  if (Array.isArray(act)) return act[Math.floor(Math.random() * act.length)];
+  return act || '';
+}
+function play3dPetGif(action, duration) {
+  var img = document.querySelector('.pp-showcase img');
+  if (!img) return;
+  var gif = get3dPetGif(action);
+  if (!gif) return;
+  img.src = gif + '?t=' + Date.now();
+  setTimeout(function() {
+    var stand = get3dPetGif('stand');
+    if (stand && is3dPet(appData.pet)) img.src = stand + '?t=' + Date.now();
+  }, duration || 3500);
+}
 function getPetPosition(pet) {
   return '';
 }
@@ -4653,7 +4690,8 @@ function feedPet() {
   updatePetUI();
   renderHomePage();
   renderPetPage();
-  animatePetInPage('feed');
+  if (is3dPet(pet)) play3dPetGif('eat', 3500);
+  else animatePetInPage('feed');
   showPetBubble('feed');
   showPetXP(20);
 }
@@ -4673,7 +4711,8 @@ function bathPet() {
   updatePetUI();
   renderHomePage();
   renderPetPage();
-  animatePetInPage('bath');
+  if (is3dPet(pet)) play3dPetGif('shower', 3500);
+  else animatePetInPage('bath');
   showPetBubble('bath');
   showPetXP(30);
 }
@@ -4689,7 +4728,8 @@ function exercisePet() {
   updatePetUI();
   renderHomePage();
   renderPetPage();
-  animatePetInPage('exerciseAnim');
+  if (is3dPet(pet)) play3dPetGif('happy', 3500);
+  else animatePetInPage('exerciseAnim');
   showPetBubble('exercise');
   showPetXP(25);
 }
@@ -4705,7 +4745,8 @@ function playWithPet() {
   updatePetUI();
   renderHomePage();
   renderPetPage();
-  animatePetInPage('playAnim');
+  if (is3dPet(pet)) play3dPetGif('play', 3500);
+  else animatePetInPage('playAnim');
   showPetBubble('play');
   showPetXP(15);
 }
@@ -4854,7 +4895,7 @@ function renderPetPage() {
     '</div>' +
     // 展示区 - 无边框
     '<div class="pp-showcase">' +
-      '<img src="' + imgSrc + '" alt="' + escHtml(pet.name || '') + '" class="idle" draggable="false">' +
+      '<img src="' + (is3dPet(pet) ? get3dPetGif('stand') : imgSrc) + '" alt="' + escHtml(pet.name || '') + '" class="idle" draggable="false">' +
     '</div>' +
     // 名字 + 等级
     '<div class="pp-name-row">' +
@@ -4892,7 +4933,7 @@ function renderPetPage() {
         '<span class="ppa-cost">10⭐</span><span class="ppa-xp">+30EXP</span>' +
       '</button>' +
       '<button class="pp-action-btn pp-btn-exercise" onclick="exercisePet()">' +
-        '<span class="ppa-icon">🏃</span><span>运动</span>' +
+        '<span class="ppa-icon">' + (is3dPet(pet) ? '🤗' : '🏃') + '</span><span>' + (is3dPet(pet) ? '互动' : '运动') + '</span>' +
         '<span class="ppa-cost">5⭐</span><span class="ppa-xp">+25EXP</span>' +
       '</button>' +
       '<button class="pp-action-btn pp-btn-play" onclick="playWithPet()">' +
