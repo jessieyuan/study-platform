@@ -2933,6 +2933,12 @@
         <div class="mmc-info">加减乘除 · 求结果或求未知数</div>
         <div class="mmc-best">最高分: <span id="math-best-mixed">0</span></div>
       </div>
+      <div class="math-mode-card" onclick="startMentalMath('mixedLeft')">
+        
+        <div class="mmc-title">等号左边留空</div>
+        <div class="mmc-info">50题 · 全部求等号左边的未知数</div>
+        <div class="mmc-best">最高分: <span id="math-best-mixedLeft">0</span></div>
+      </div>
     </div>
   </div>
   <div id="math-practice" style="display:none;">
@@ -3579,7 +3585,7 @@ if (appData.englishSub !== 'spell' && appData.englishSub !== 'textbook') appData
   if (typeof appData.cranes === 'undefined') appData.cranes = 0; // 许愿星数量
   if (typeof appData.craneLevel === 'undefined') appData.craneLevel = 1; // 许愿星级别 1-5
   if (typeof appData.craneClaimedToday === 'undefined') appData.craneClaimedToday = null; // 今日是否已领取
-  if (!appData.mathBest) appData.mathBest = { addsub: 0, mul: 0, div: 0, mixed: 0 }; // 速算最高分
+  if (!appData.mathBest) appData.mathBest = { addsub: 0, mul: 0, div: 0, mixed: 0, mixedLeft: 0 }; // 速算最高分
   if (!appData.sudoku) appData.sudoku = { size: 4, diff: {4:0,6:0,9:0}, unlocked: {4:0,6:0,9:0}, wins: {}, bestTime: {} }; // 数独进度
  if (typeof appData.best2048 !== 'number') appData.best2048 = 0;
   if (typeof appData.bestM10 !== 'number') appData.bestM10 = 0; // 2048最高分
@@ -8721,7 +8727,7 @@ document.querySelectorAll('.nav-item').forEach(function(n){n.addEventListener('c
 var mathQuiz = { mode: null, questions: [], idx: 0, score: 0, startTime: 0, timerId: null, answered: false, input: '', results: [] };
 
 function renderMathPage() {
-  if (!appData.mathBest) appData.mathBest = { addsub: 0, mul: 0, div: 0 };
+  if (!appData.mathBest) appData.mathBest = { addsub: 0, mul: 0, div: 0, mixed: 0, mixedLeft: 0 };
   var home = document.getElementById('math-home');
   var practice = document.getElementById('math-practice');
   var result = document.getElementById('math-result');
@@ -8786,6 +8792,8 @@ function generateMathQuestion(mode) {
     answer = a * b;
   } else if (mode === 'mixed') {
     return generateMixedQuestion();
+  } else if (mode === 'mixedLeft') {
+    return generateMixedLeftQuestion();
   } else {
     b = Math.floor(Math.random() * 9) + 1;
     var c = Math.floor(Math.random() * 9) + 1;
@@ -8833,6 +8841,43 @@ function generateMixedQuestion() {
     c = cc;
     if (!hideOperand) { answer = c; display = [a, '÷', b, '=', '?']; }
     else if (Math.random() < 0.5) { answer = b; display = [a, '÷', '?', '=', c]; }
+    else { answer = a; display = ['?', '÷', b, '=', c]; }
+  }
+  return { display: display, answer: answer };
+}
+
+function generateMixedLeftQuestion() {
+  var op;
+  var r = Math.random();
+  if (r < 0.30) op = '+';
+  else if (r < 0.60) op = '-';
+  else if (r < 0.85) op = '×';
+  else op = '÷';
+  var a, b, c, answer, display;
+  if (op === '+') {
+    a = Math.floor(Math.random() * 40) + 10;
+    b = Math.floor(Math.random() * (95 - a)) + 5;
+    c = a + b;
+    if (Math.random() < 0.5) { answer = a; display = ['?', '+', b, '=', c]; }
+    else { answer = b; display = [a, '+', '?', '=', c]; }
+  } else if (op === '-') {
+    a = Math.floor(Math.random() * 70) + 25;
+    b = Math.floor(Math.random() * (a - 5)) + 5;
+    c = a - b;
+    if (Math.random() < 0.5) { answer = a; display = ['?', '-', b, '=', c]; }
+    else { answer = b; display = [a, '-', '?', '=', c]; }
+  } else if (op === '×') {
+    a = Math.floor(Math.random() * 9) + 1;
+    b = Math.floor(Math.random() * 9) + 1;
+    c = a * b;
+    if (Math.random() < 0.5) { answer = a; display = ['?', '×', b, '=', c]; }
+    else { answer = b; display = [a, '×', '?', '=', c]; }
+  } else {
+    b = Math.floor(Math.random() * 9) + 1;
+    var cc = Math.floor(Math.random() * 9) + 1;
+    a = b * cc;
+    c = cc;
+    if (Math.random() < 0.5) { answer = b; display = [a, '÷', '?', '=', c]; }
     else { answer = a; display = ['?', '÷', b, '=', c]; }
   }
   return { display: display, answer: answer };
@@ -8919,7 +8964,7 @@ function finishMathQuiz() {
     appData.mathBest[mode] = mathQuiz.score;
     saveData(appData);
   }
-  var modeNames = { addsub: '100以内加减法', mul: '乘法口诀表', div: '除法口诀表', mixed: '混合计算' };
+  var modeNames = { addsub: '100以内加减法', mul: '乘法口诀表', div: '除法口诀表', mixed: '混合计算', mixedLeft: '等号左边留空' };
   document.getElementById('math-practice').style.display = 'none';
   var resultEl = document.getElementById('math-result');
   resultEl.style.display = '';
