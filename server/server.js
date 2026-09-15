@@ -1402,27 +1402,28 @@ function safeResolve(urlPath) {
 }
 
 function serveStaticFile(req, res) {
+  var u = req.url.split("?")[0];
   // 其他 HTML 文件（预览页等）
-  if (req.url.endsWith('.html') && !req.url.includes('..')) {
-    const filePath = safeResolve(req.url);
+  if (u.endsWith('.html') && !u.includes('..')) {
+    const filePath = safeResolve(u);
     if (!filePath) {
       res.writeHead(403, { 'Content-Type': 'text/plain; charset=utf-8' });
       res.end('Forbidden');
       return true;
     }
-    try {
-      const html = fs.readFileSync(filePath, 'utf-8');
-      res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
+   try {
+     const html = fs.readFileSync(filePath, 'utf-8');
+      res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'no-cache, no-store, must-revalidate' });
       res.end(html);
-    } catch (e) {
-      res.writeHead(404, { 'Content-Type': 'text/plain; charset=utf-8' });
-      res.end('404 Not Found');
-    }
-    return true;
-  }
+   } catch (e) {
+     res.writeHead(404, { 'Content-Type': 'text/plain; charset=utf-8' });
+     res.end('404 Not Found');
+   }
+   return true;
+ }
 
-  // 根路径 → index.html
-  if (req.url === '/' || req.url === '/index.html') {
+ // 根路径 → index.html
+  if (u === '/' || u === '/index.html') {
     try {
      const html = fs.readFileSync(HTML_FILE, 'utf-8');
       res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'no-cache, no-store, must-revalidate' });
@@ -1435,8 +1436,8 @@ function serveStaticFile(req, res) {
   }
 
  // 宠物图片静态文件
- if (req.url.startsWith('/pets/')) {
-   const ext = path.extname(req.url).toLowerCase();
+ if (u.startsWith('/pets/')) {
+   const ext = path.extname(u).toLowerCase();
    const mime = {
      '.png': 'image/png',
      '.jpg': 'image/jpeg',
@@ -1446,7 +1447,7 @@ function serveStaticFile(req, res) {
      '.webp': 'image/webp',
    }[ext];
    if (mime) {
-     const filePath = safeResolve(req.url);
+     const filePath = safeResolve(u);
      if (!filePath) {
        res.writeHead(403, { 'Content-Type': 'text/plain; charset=utf-8' });
        res.end('Forbidden');
@@ -1465,8 +1466,8 @@ function serveStaticFile(req, res) {
  }
 
   // 花卉等图片静态文件
-  if (req.url.startsWith('/img/')) {
-    const ext = path.extname(req.url).toLowerCase();
+  if (u.startsWith('/img/')) {
+    const ext = path.extname(u).toLowerCase();
     const mime = {
       '.png': 'image/png',
       '.jpg': 'image/jpeg',
@@ -1476,7 +1477,7 @@ function serveStaticFile(req, res) {
       '.webp': 'image/webp',
     }[ext];
     if (mime) {
-      const filePath = safeResolve(req.url);
+      const filePath = safeResolve(u);
       if (!filePath) {
         res.writeHead(403, { 'Content-Type': 'text/plain; charset=utf-8' });
         res.end('Forbidden');

@@ -17,15 +17,16 @@
 
   /* === 风格选择 === */
   .pm-style-row { display:flex; gap:12px; justify-content:center; margin-bottom:20px; flex-wrap:wrap; }
-  .pm-style-card {
-    border:3px solid transparent; border-radius:16px; padding:8px; cursor:pointer;
-    background:#fff; transition:all 0.2s; text-align:center; width:120px;
-  }
-  .pm-style-card:hover { transform:translateY(-3px); box-shadow:0 6px 20px rgba(0,0,0,0.15); }
-  .pm-style-card.selected { border-color:#f0a020; background:#fff8e0; }
-  .pm-style-card .style-img { width:100px; height:100px; display:flex; align-items:center; justify-content:center; margin:0 auto 4px; }
-  .pm-style-card .style-img img { max-width:100px; max-height:100px; object-fit:contain; }
-  .pm-style-card .style-label { font-size:14px; font-weight:700; color:#4a3020; }
+ .pm-style-card {
+   border:3px solid transparent; border-radius:16px; padding:8px; cursor:pointer;
+    background:#fff; transition:all 0.2s; text-align:center; width:160px;
+ }
+ .pm-style-card:hover { transform:translateY(-3px); box-shadow:0 6px 20px rgba(0,0,0,0.15); }
+ .pm-style-card.selected { border-color:#f0a020; background:#fff8e0; }
+ .pm-style-card .style-img { width:140px; height:135px; display:flex; align-items:center; justify-content:center; margin:0 auto 4px; overflow:hidden; border-radius:12px; }
+ .pm-style-card .style-img img { width:100%; height:100%; object-fit:contain; border-radius:12px; }
+ .pm-style-card .style-img.pm-cover img { object-fit:cover; }
+ .pm-style-card .style-label { font-size:15px; font-weight:700; color:#4a3020; }
 
   /* === 宠物展示区 === */
   .pp-showcase {
@@ -96,22 +97,22 @@
   <!-- 风格选择 -->
   <div class="pm-style-row" id="style-row">
     <div class="pm-style-card" onclick="selectStyle('pokemon',this)">
-      <div class="style-img"><img src="pets/pokemon/pikachu.png" alt="宠物小精灵"></div>
+      <div class="style-img"><img src="pets/pokemon/pikachu.png?v=1789440567691" alt="宠物小精灵"></div>
       <div class="style-label">宠物小精灵</div>
     </div>
     <div class="pm-style-card" onclick="selectStyle('star',this)">
-      <div class="style-img"><img src="pets/star/star1.png" alt="星星人"></div>
+      <div class="style-img"><img src="pets/star/star1.png?v=1789440567691" alt="星星人"></div>
       <div class="style-label">星星人</div>
     </div>
     <div class="pm-style-card selected" onclick="selectStyle('3d',this)">
-      <div class="style-img"><img src="pets/3d/cat/cat-stand.gif" alt="3d伙伴"></div>
+     <div class="style-img pm-cover"><img src="pets/3d/cat/cat.gif?v=1789440567691" alt="3d伙伴"></div>
       <div class="style-label">3d伙伴</div>
     </div>
   </div>
 
   <!-- 宠物展示 + 操作 -->
   <div class="pp-showcase" id="showcase">
-    <img id="pet-img" src="pets/3d/cat/cat-stand.gif" alt="布偶猫" draggable="false">
+    <img id="pet-img" src="pets/3d/cat/cat-stand.gif?v=1789440567691" alt="布偶猫" draggable="false">
   </div>
 
   <div class="pp-actions" id="actions" style="opacity:0.3;pointer-events:none;">
@@ -133,12 +134,34 @@
   <div id="preload"></div>
 
 <script>
-var STAND = 'pets/3d/cat/cat-stand.gif';
+var STAND_GIFS = ['pets/3d/cat/cat-stand.gif?v=1789440567691', 'pets/3d/cat/cat-stand2.gif?v=1789440567691'];
+var STAND_DURATIONS = [3800, 4000];
+var standIndex = 0;
+var standTimer = null;
+var STAND_PATTERN = [0, 0, 1];
+var standPos = 0;
+function startStandCycle() {
+  if (standTimer) clearTimeout(standTimer);
+  standPos = 0;
+  playNextStand();
+}
+function playNextStand() {
+  var idx = STAND_PATTERN[standPos];
+  var img = document.getElementById('pet-img');
+  img.src = STAND_GIFS[idx];
+  standTimer = setTimeout(function() {
+    standPos = (standPos + 1) % STAND_PATTERN.length;
+    playNextStand();
+  }, STAND_DURATIONS[idx]);
+}
+function stopStandCycle() {
+  if (standTimer) { clearTimeout(standTimer); standTimer = null; }
+}
 var ACTIONS = {
-  eat: ['pets/3d/cat/cat-eat.gif'],
-  shower: ['pets/3d/cat/cat-shower.gif'],
-  play: ['pets/3d/cat/cat-play.gif', 'pets/3d/cat/cat-play2.gif'],
-  happy: ['pets/3d/cat/cat-happy.gif', 'pets/3d/cat/cat-happy2.gif', 'pets/3d/cat/cat-happy3.gif']
+  eat: ['pets/3d/cat/cat-eat.gif?v=1789440567691'],
+  shower: ['pets/3d/cat/cat-shower.gif?v=1789440567691'],
+  play: ['pets/3d/cat/cat-play.gif?v=1789440567691', 'pets/3d/cat/cat-play2.gif?v=1789440567691'],
+  happy: ['pets/3d/cat/cat-happy.gif?v=1789440567691', 'pets/3d/cat/cat-happy2.gif?v=1789440567691']
 };
 var XP_MAP = { feed:20, bath:30, exercise:25, play:15 };
 var PET_SPEECH = {
@@ -150,7 +173,7 @@ var PET_SPEECH = {
 var PET_EMOJI = { feed:'🍖', bath:'🛁', exercise:'🏃', play:'🎾' };
 var petSpeechTimer;
 var loaded = 0;
-var totalGifs = 8;
+ var totalGifs = 8;
 var currentStyle = '3d';
 
 function selectStyle(style, el) {
@@ -159,17 +182,17 @@ function selectStyle(style, el) {
   el.classList.add('selected');
   if (style === '3d') {
     document.getElementById('actions').style.display = 'grid';
-    var img = document.getElementById('pet-img');
-    img.src = STAND;
+    startStandCycle();
   } else {
+    stopStandCycle();
     document.getElementById('actions').style.display = 'none';
-    if (style === 'pokemon') document.getElementById('pet-img').src = 'pets/pokemon/pikachu.png';
-    else if (style === 'star') document.getElementById('pet-img').src = 'pets/star/star1.png';
+    if (style === 'pokemon') document.getElementById('pet-img').src = 'pets/pokemon/pikachu.png?v=1789440567691';
+    else if (style === 'star') document.getElementById('pet-img').src = 'pets/star/star1.png?v=1789440567691';
   }
 }
 
 // Preload all GIFs
-var allGifs = [STAND];
+var allGifs = STAND_GIFS.slice();
 for (var k in ACTIONS) { allGifs = allGifs.concat(ACTIONS[k]); }
 allGifs.forEach(function(src) {
   var img = new Image();
@@ -192,9 +215,10 @@ function playGif(action) {
   var img = document.getElementById('pet-img');
   var btns = document.querySelectorAll('.pp-action-btn');
   btns.forEach(function(b){ b.style.opacity="0.5"; b.style.pointerEvents="none"; });
+  stopStandCycle();
   img.src = gif;
   setTimeout(function() { 
-    img.src = STAND; 
+    startStandCycle(); 
     btns.forEach(function(b){ b.style.opacity="1"; b.style.pointerEvents="auto"; });
   }, 4200);
 }
@@ -235,6 +259,7 @@ function doAction(gifAction, speechKey) {
   showPetBubble(speechKey);
   showPetXP(XP_MAP[speechKey] || 10);
 }
+startStandCycle();
 </script>
 </body>
 </html>
