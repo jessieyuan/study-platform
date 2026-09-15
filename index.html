@@ -4642,9 +4642,7 @@ function preload3dPetGifs() {
   _3dGifPreloaded = true;
   var style = PET_STYLES['3d'];
   if (!style || !style.actions) return;
-  var allGifs = [style.actions.stand, style.actions.stand2, style.actions.eat, style.actions.shower];
-  if (Array.isArray(style.actions.play)) allGifs = allGifs.concat(style.actions.play);
-  if (Array.isArray(style.actions.happy)) allGifs = allGifs.concat(style.actions.happy);
+  var allGifs = [style.actions.stand, style.actions.stand2];
   allGifs.forEach(function(src) {
     if (!src) return;
     var img = new Image();
@@ -4682,7 +4680,7 @@ function play3dPetGif(action, duration) {
   stopPetStandCycle();
   if (petActionTimer) clearTimeout(petActionTimer);
   img.onload = null;
-  img.src = gif;
+  img.src = gif + '?v=' + Date.now();
   petActionTimer = setTimeout(function() {
     petActionTimer = null;
     if (is3dPet(appData.pet)) startPetStandCycle();
