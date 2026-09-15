@@ -4634,6 +4634,22 @@ var petStandTimer = null;
 var petStandPos = 0;
 var PET_STAND_PATTERN = [0, 0, 1];
 var PET_STAND_DURATIONS = [3800, 4000];
+var _skipStandCycle = false;
+var _3dGifPreloaded = false;
+function preload3dPetGifs() {
+  if (_3dGifPreloaded || !is3dPet(appData.pet)) return;
+  _3dGifPreloaded = true;
+  var style = PET_STYLES['3d'];
+  if (!style || !style.actions) return;
+  var allGifs = [style.actions.stand, style.actions.stand2, style.actions.eat, style.actions.shower];
+  if (Array.isArray(style.actions.play)) allGifs = allGifs.concat(style.actions.play);
+  if (Array.isArray(style.actions.happy)) allGifs = allGifs.concat(style.actions.happy);
+  allGifs.forEach(function(src) {
+    if (!src) return;
+    var img = new Image();
+    img.src = src;
+  });
+}
 function stopPetStandCycle() {
   if (petStandTimer) { clearTimeout(petStandTimer); petStandTimer = null; }
 }
@@ -4662,10 +4678,17 @@ function play3dPetGif(action, duration) {
   var gif = get3dPetGif(action);
   if (!gif) return;
   stopPetStandCycle();
+  var started = false;
+  function startTimer() {
+    if (started) return;
+    started = true;
+    setTimeout(function() {
+      if (is3dPet(appData.pet)) startPetStandCycle();
+    }, duration || 5000);
+  }
+  img.onload = startTimer;
   img.src = gif;
-  setTimeout(function() {
-    if (is3dPet(appData.pet)) startPetStandCycle();
-  }, duration || 4200);
+  setTimeout(startTimer, 1500);
 }
 function getPetPosition(pet) {
   return '';
@@ -4739,7 +4762,9 @@ function feedPet() {
   saveData(appData);
   updatePetUI();
   renderHomePage();
+  _skipStandCycle = true;
   renderPetPage();
+  _skipStandCycle = false;
   if (is3dPet(pet)) play3dPetGif('eat', 5000);
   else animatePetInPage('feed');
   showPetBubble('feed');
@@ -4760,7 +4785,9 @@ function bathPet() {
   saveData(appData);
   updatePetUI();
   renderHomePage();
+  _skipStandCycle = true;
   renderPetPage();
+  _skipStandCycle = false;
   if (is3dPet(pet)) play3dPetGif('shower', 5000);
   else animatePetInPage('bath');
   showPetBubble('bath');
@@ -4777,7 +4804,9 @@ function exercisePet() {
   saveData(appData);
   updatePetUI();
   renderHomePage();
+  _skipStandCycle = true;
   renderPetPage();
+  _skipStandCycle = false;
   if (is3dPet(pet)) play3dPetGif('happy', 5000);
   else animatePetInPage('exerciseAnim');
   showPetBubble('exercise');
@@ -4794,7 +4823,9 @@ function playWithPet() {
   saveData(appData);
   updatePetUI();
   renderHomePage();
+  _skipStandCycle = true;
   renderPetPage();
+  _skipStandCycle = false;
   if (is3dPet(pet)) play3dPetGif('play', 5000);
   else animatePetInPage('playAnim');
   showPetBubble('play');
@@ -5017,7 +5048,10 @@ function renderPetPage() {
      (hungerDays >= 2 ? '<div class="pp-tips-warn">🚨 警告：已经' + hungerDays + '天没喂食了！再' + (3-hungerDays) + '天不喂宠物就会饿死！</div>' : '') +
    '</div>';
 
-  if (is3d) startPetStandCycle();
+  if (is3d) {
+    preload3dPetGifs();
+    if (!_skipStandCycle) startPetStandCycle();
+  }
 }
 
 function getClothesName(key) {
@@ -5232,9 +5266,9 @@ function switchPage(pageName, el) {
     switchAdminTab('plans', document.querySelector('.ast-btn[data-atab="plans"]'));
   }
   if (pageName === 'home') renderHomePage();
-  if (pageName === 'leaderboard') { switchLbTab('streak'); return; }
- if (pageName === 'pet') renderPetPage();
-  if (pageName === 'idiom') renderIdiomPage();
+ if (pageName === 'leaderboard') { switchLbTab('streak'); return; }
+if (pageName === 'pet') renderPetPage();
+ if (pageName === 'idiom') renderIdiomPage();
   if (pageName === 'brain') renderBrainPage();
 }
 
