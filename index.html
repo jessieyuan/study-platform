@@ -4678,17 +4678,11 @@ function play3dPetGif(action, duration) {
   var gif = get3dPetGif(action);
   if (!gif) return;
   stopPetStandCycle();
-  var started = false;
-  function startTimer() {
-    if (started) return;
-    started = true;
-    setTimeout(function() {
-      if (is3dPet(appData.pet)) startPetStandCycle();
-    }, duration || 5000);
-  }
-  img.onload = startTimer;
+  img.onload = null;
   img.src = gif;
-  setTimeout(startTimer, 1500);
+  setTimeout(function() {
+    if (is3dPet(appData.pet)) startPetStandCycle();
+  }, duration || 8000);
 }
 function getPetPosition(pet) {
   return '';
@@ -4765,7 +4759,7 @@ function feedPet() {
   _skipStandCycle = true;
   renderPetPage();
   _skipStandCycle = false;
-  if (is3dPet(pet)) play3dPetGif('eat', 6000);
+  if (is3dPet(pet)) play3dPetGif('eat', 8000);
   else animatePetInPage('feed');
   showPetBubble('feed');
   showPetXP(20);
@@ -4788,7 +4782,7 @@ function bathPet() {
   _skipStandCycle = true;
   renderPetPage();
   _skipStandCycle = false;
-  if (is3dPet(pet)) play3dPetGif('shower', 6000);
+  if (is3dPet(pet)) play3dPetGif('shower', 8000);
   else animatePetInPage('bath');
   showPetBubble('bath');
   showPetXP(30);
@@ -4807,7 +4801,7 @@ function exercisePet() {
   _skipStandCycle = true;
   renderPetPage();
   _skipStandCycle = false;
-  if (is3dPet(pet)) play3dPetGif('happy', 6000);
+  if (is3dPet(pet)) play3dPetGif('happy', 8000);
   else animatePetInPage('exerciseAnim');
   showPetBubble('exercise');
   showPetXP(25);
@@ -4826,7 +4820,7 @@ function playWithPet() {
   _skipStandCycle = true;
   renderPetPage();
   _skipStandCycle = false;
-  if (is3dPet(pet)) play3dPetGif('play', 6000);
+  if (is3dPet(pet)) play3dPetGif('play', 8000);
   else animatePetInPage('playAnim');
   showPetBubble('play');
   showPetXP(15);
