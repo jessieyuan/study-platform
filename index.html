@@ -4641,9 +4641,7 @@ function preload3dPetGifs() {
   _3dGifPreloaded = true;
   var style = PET_STYLES['3d'];
   if (!style || !style.actions) return;
-  var allGifs = [style.actions.stand, style.actions.stand2, style.actions.eat, style.actions.shower];
-  if (Array.isArray(style.actions.play)) allGifs = allGifs.concat(style.actions.play);
-  if (Array.isArray(style.actions.happy)) allGifs = allGifs.concat(style.actions.happy);
+  var allGifs = [style.actions.stand, style.actions.stand2];
   allGifs.forEach(function(src) {
     if (!src) return;
     var img = new Image();
@@ -4995,9 +4993,10 @@ function renderPetPage() {
      '<div class="pet-page-sub">每天赚积分喂食，好好照顾它！</div>' +
    '</div>' +
    // 展示区 - 无边框
-    '<div class="' + showcaseClass + '">' +
-      '<img src="' + imgSrc2 + '" alt="' + escHtml(pet.name || '') + '" class="' + imgClass + '" draggable="false">' +
-   '</div>' +
+   '<div class="' + showcaseClass + '">' +
+    '<img src="' + imgSrc2 + '" alt="' + escHtml(pet.name || '') + '" class="' + imgClass + '" draggable="false">' +
+     '<img src="' + imgSrc2 + '" alt="' + escHtml(pet.name || '') + '" class="' + imgClass + '" draggable="false" decoding="async">' +
+  '</div>' +
     // 名字 + 等级
     '<div class="pp-name-row">' +
       '<span class="pp-pet-name">' + escHtml(pet.name || '小宠物') + '</span>' +
