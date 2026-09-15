@@ -4632,6 +4632,7 @@ function get3dPetGif(action) {
 }
 var petStandTimer = null;
 var petStandPos = 0;
+var petActionTimer = null;
 var PET_STAND_PATTERN = [0, 0, 1];
 var PET_STAND_DURATIONS = [3800, 4000];
 var _skipStandCycle = false;
@@ -4652,6 +4653,7 @@ function preload3dPetGifs() {
 }
 function stopPetStandCycle() {
   if (petStandTimer) { clearTimeout(petStandTimer); petStandTimer = null; }
+  if (petActionTimer) { clearTimeout(petActionTimer); petActionTimer = null; }
 }
 function startPetStandCycle() {
   stopPetStandCycle();
@@ -4678,9 +4680,11 @@ function play3dPetGif(action, duration) {
   var gif = get3dPetGif(action);
   if (!gif) return;
   stopPetStandCycle();
+  if (petActionTimer) clearTimeout(petActionTimer);
   img.onload = null;
   img.src = gif;
-  setTimeout(function() {
+  petActionTimer = setTimeout(function() {
+    petActionTimer = null;
     if (is3dPet(appData.pet)) startPetStandCycle();
   }, duration || 8000);
 }
