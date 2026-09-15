@@ -517,13 +517,13 @@
   .pp-showcase img.playAnim { animation: pp-play-tama 0.8s ease-in-out; }
   .pp-showcase img.exerciseAnim { animation: pp-exercise-tama 1s ease-in-out; }
   /* 3d宠物展示区 */
-  .pp-showcase.pp-showcase-3d {
-    width: 100%; max-width: 380px; height: auto; min-height: 200px;
-  }
-  .pp-showcase.pp-showcase-3d img {
-    width: 100%; max-width: 380px; height: auto; max-height: 280px;
-    object-fit: contain; animation: none !important; filter: none;
-  }
+ .pp-showcase.pp-showcase-3d {
+    width: 100%; max-width: 420px; height: auto; min-height: 180px;
+ }
+ .pp-showcase.pp-showcase-3d img {
+    width: 100%; max-width: 420px; height: auto; max-height: 340px;
+   object-fit: contain; animation: none !important; filter: none;
+ }
   @keyframes pp-idle-tama {
     0%,100%{transform:translateY(0) rotate(0deg) scale(1);}
     15%{transform:translateY(-8px) rotate(-1deg) scale(1.04);}
@@ -594,33 +594,32 @@
   .pp-status-badge.starving { background: #ffe0e0; color: #c0392b; animation: pp-blink-badge 0.5s ease-in-out infinite; }
   @keyframes pp-blink-badge { 0%,100%{opacity:1;} 50%{opacity:0.4;} }
   /* 健康指数 */
-  .pp-health-wrap {
-    width: 90%; max-width: 340px; margin: 0 auto 12px;
-    background: rgba(255,255,255,0.7); border-radius: 16px;
-    padding: 10px 14px; border: 2px solid #f0e4c0;
-  }
-  .pp-health-header {
-    display: flex; align-items: center; gap: 6px; margin-bottom: 6px;
-  }
-  .pp-health-icon { font-size: 16px; }
-  .pp-health-title { font-size: 13px; font-weight: 700; color: #5c3a1e; }
-  .pp-health-val { font-size: 15px; font-weight: 800; margin-left: auto; }
-  .pp-health-bar {
-    height: 14px; background: #f0e0c8; border-radius: 8px; overflow: hidden;
-    border: 2px solid #e0c890; box-shadow: inset 0 2px 4px rgba(0,0,0,0.08);
-    margin-bottom: 8px;
-  }
-  .pp-health-fill {
-    height: 100%; border-radius: 6px; transition: width 0.8s cubic-bezier(0.25,0.8,0.25,1.2);
-  }
-  .pp-health-detail {
-    display: flex; flex-wrap: wrap; gap: 4px; justify-content: center;
-  }
-  .pp-hd-item {
-    font-size: 11px; padding: 2px 8px; border-radius: 8px; font-weight: 600;
-  }
-  .pp-hd-item.done { background: #d4edda; color: #2d6a3f; }
-  .pp-hd-item.miss { background: #f5f0e5; color: #b8a080; }
+ .pp-health-wrap {
+    width: 90%; max-width: 340px; margin: 0 auto 6px;
+    background: rgba(255,255,255,0.5); border-radius: 10px;
+    padding: 4px 10px; border: none;
+ }
+ .pp-health-header {
+    display: flex; align-items: center; gap: 4px; margin-bottom: 2px;
+ }
+  .pp-health-icon { font-size: 12px; }
+  .pp-health-title { font-size: 11px; font-weight: 700; color: #8a7a6a; }
+  .pp-health-val { font-size: 12px; font-weight: 800; margin-left: auto; }
+ .pp-health-bar {
+    height: 6px; background: #f0e8d8; border-radius: 4px; overflow: hidden;
+    margin-bottom: 4px;
+ }
+ .pp-health-fill {
+   height: 100%; border-radius: 6px; transition: width 0.8s cubic-bezier(0.25,0.8,0.25,1.2);
+ }
+ .pp-health-detail {
+    display: flex; flex-wrap: wrap; gap: 3px; justify-content: center;
+ }
+ .pp-hd-item {
+    font-size: 10px; padding: 1px 6px; border-radius: 6px; font-weight: 600;
+ }
+  .pp-hd-item.done { background: #e8f5e9; color: #4caf50; }
+  .pp-hd-item.miss { background: #fce4ec; color: #e8a0a0; }
   /* 2x2 操作按钮网格 - 电子宠物风格 */
   .pp-actions {
     display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
