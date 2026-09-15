@@ -615,11 +615,12 @@
  .pp-health-detail {
     display: flex; flex-wrap: wrap; gap: 3px; justify-content: center;
  }
- .pp-hd-item {
-    font-size: 10px; padding: 1px 6px; border-radius: 6px; font-weight: 600;
- }
-  .pp-hd-item.done { background: #e8f5e9; color: #4caf50; }
-  .pp-hd-item.miss { background: #fce4ec; color: #e8a0a0; }
+  .pp-hd-dot {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 22px; height: 22px; border-radius: 50%; font-size: 12px;
+  }
+  .pp-hd-dot.done { background: #e8f5e9; }
+  .pp-hd-dot.miss { background: #fce4ec; opacity: 0.5; }
   /* 2x2 操作按钮网格 - 电子宠物风格 */
   .pp-actions {
     display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
@@ -4979,12 +4980,12 @@ function renderPetPage() {
     '<div class="pp-health-wrap">' +
       '<div class="pp-health-header"><span class="pp-health-icon">❤️</span><span class="pp-health-title">健康指数</span><span class="pp-health-val" style="color:' + (health >= 80 ? '#2d6a3f' : health >= 50 ? '#e67e22' : '#c0392b') + '">' + health + '/100</span></div>' +
       '<div class="pp-health-bar"><div class="pp-health-fill" style="width:' + health + '%;background:' + (health >= 80 ? 'linear-gradient(90deg,#4caf50,#8bc34a)' : health >= 50 ? 'linear-gradient(90deg,#ff9800,#ffc107)' : 'linear-gradient(90deg,#f44336,#ff5722)') + '"></div></div>' +
-      '<div class="pp-health-detail">' +
-       (pet.lastFedDate === todayStr() ? '<span class="pp-hd-item done">🍖 已喂食</span>' : '<span class="pp-hd-item miss">🍖 未喂食</span>') +
-        (pet.lastExerciseDate === todayStr() ? '<span class="pp-hd-item done">' + exIcon + ' 已' + exLabel + '</span>' : '<span class="pp-hd-item miss">' + exIcon + ' 未' + exLabel + '</span>') +
-       (pet.lastPlayDate === todayStr() ? '<span class="pp-hd-item done">🎾 已玩耍</span>' : '<span class="pp-hd-item miss">🎾 未玩耍</span>') +
-        (pet.lastBathDate && daysSinceBath(pet.lastBathDate) <= 7 ? '<span class="pp-hd-item done">🛁 已洗澡</span>' : '<span class="pp-hd-item miss">🛁 未洗澡</span>') +
-      '</div>' +
+     '<div class="pp-health-detail">' +
+       (pet.lastFedDate === todayStr() ? '<span class="pp-hd-dot done" title="已喂食">🍖</span>' : '<span class="pp-hd-dot miss" title="未喂食">🍖</span>') +
+        (pet.lastExerciseDate === todayStr() ? '<span class="pp-hd-dot done" title="已' + exLabel + '">' + (is3d ? '🤗' : '🏃') + '</span>' : '<span class="pp-hd-dot miss" title="未' + exLabel + '">' + (is3d ? '🤗' : '🏃') + '</span>') +
+       (pet.lastPlayDate === todayStr() ? '<span class="pp-hd-dot done" title="已玩耍">🎾</span>' : '<span class="pp-hd-dot miss" title="未玩耍">🎾</span>') +
+        (pet.lastBathDate && daysSinceBath(pet.lastBathDate) <= 7 ? '<span class="pp-hd-dot done" title="已洗澡">🛁</span>' : '<span class="pp-hd-dot miss" title="未洗澡">🛁</span>') +
+     '</div>' +
     '</div>' +
    // 2x2 操作按钮
     '<div class="' + actionsClass + '">' +
