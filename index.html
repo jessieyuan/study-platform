@@ -4641,7 +4641,9 @@ function preload3dPetGifs() {
   _3dGifPreloaded = true;
   var style = PET_STYLES['3d'];
   if (!style || !style.actions) return;
-  var allGifs = [style.actions.stand, style.actions.stand2];
+  var allGifs = [style.actions.stand, style.actions.stand2, style.actions.eat, style.actions.shower];
+  if (Array.isArray(style.actions.play)) allGifs = allGifs.concat(style.actions.play);
+  if (Array.isArray(style.actions.happy)) allGifs = allGifs.concat(style.actions.happy);
   allGifs.forEach(function(src) {
     if (!src) return;
     var img = new Image();
@@ -4763,7 +4765,7 @@ function feedPet() {
   _skipStandCycle = true;
   renderPetPage();
   _skipStandCycle = false;
-  if (is3dPet(pet)) play3dPetGif('eat', 5000);
+  if (is3dPet(pet)) play3dPetGif('eat', 6000);
   else animatePetInPage('feed');
   showPetBubble('feed');
   showPetXP(20);
@@ -4786,7 +4788,7 @@ function bathPet() {
   _skipStandCycle = true;
   renderPetPage();
   _skipStandCycle = false;
-  if (is3dPet(pet)) play3dPetGif('shower', 5000);
+  if (is3dPet(pet)) play3dPetGif('shower', 6000);
   else animatePetInPage('bath');
   showPetBubble('bath');
   showPetXP(30);
@@ -4805,7 +4807,7 @@ function exercisePet() {
   _skipStandCycle = true;
   renderPetPage();
   _skipStandCycle = false;
-  if (is3dPet(pet)) play3dPetGif('happy', 5000);
+  if (is3dPet(pet)) play3dPetGif('happy', 6000);
   else animatePetInPage('exerciseAnim');
   showPetBubble('exercise');
   showPetXP(25);
@@ -4824,7 +4826,7 @@ function playWithPet() {
   _skipStandCycle = true;
   renderPetPage();
   _skipStandCycle = false;
-  if (is3dPet(pet)) play3dPetGif('play', 5000);
+  if (is3dPet(pet)) play3dPetGif('play', 6000);
   else animatePetInPage('playAnim');
   showPetBubble('play');
   showPetXP(15);
