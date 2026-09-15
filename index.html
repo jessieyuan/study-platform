@@ -516,6 +516,14 @@
   .pp-showcase img.bath { animation: pp-spin-tama 1.1s ease-in-out; }
   .pp-showcase img.playAnim { animation: pp-play-tama 0.8s ease-in-out; }
   .pp-showcase img.exerciseAnim { animation: pp-exercise-tama 1s ease-in-out; }
+  /* 3d宠物展示区 */
+  .pp-showcase.pp-showcase-3d {
+    width: 100%; max-width: 380px; height: auto; min-height: 200px;
+  }
+  .pp-showcase.pp-showcase-3d img {
+    width: 100%; max-width: 380px; height: auto; max-height: 280px;
+    object-fit: contain; animation: none !important; filter: none;
+  }
   @keyframes pp-idle-tama {
     0%,100%{transform:translateY(0) rotate(0deg) scale(1);}
     15%{transform:translateY(-8px) rotate(-1deg) scale(1.04);}
@@ -642,6 +650,30 @@
   /* 玩耍 */
   .pp-btn-play { background: #ffe8f4; border-color: #e890b0; color: #801a40; }
   .pp-btn-play:hover { background: #ffd4e8; }
+  /* 3d宠物操作按钮 - 纯色+白色SVG图标 */
+  .pp-actions.pp-actions-3d {
+    display: flex; gap: 8px; max-width: 380px; padding: 0 4px;
+  }
+  .pp-actions-3d .pp-action-btn {
+    border: none; border-radius: 14px; padding: 8px 4px;
+    flex: 1; min-width: 0; gap: 1px; font-size: 12px;
+    box-shadow: 0 3px 8px rgba(0,0,0,0.1), inset 0 -3px 0 rgba(0,0,0,0.07);
+    color: #fff; overflow: hidden;
+  }
+  .pp-actions-3d .pp-action-btn:hover { transform: translateY(-3px) scale(1.04); box-shadow: 0 7px 16px rgba(0,0,0,0.12); }
+  .pp-actions-3d .pp-action-btn:active { transform: scale(0.93); }
+  .pp-actions-3d .pp-btn-feed { background: #ffbe5c; }
+  .pp-actions-3d .pp-btn-bath { background: #6bb8e8; }
+  .pp-actions-3d .pp-btn-exercise { background: #6dc86d; }
+  .pp-actions-3d .pp-btn-play { background: #f58aae; }
+  .pp-actions-3d .pp-action-btn .ppa-icon { font-size: 24px; display: flex; align-items: center; justify-content: center; }
+  .pp-actions-3d .pp-action-btn .ppa-icon svg {
+    width: 26px; height: 26px; fill: none; stroke: #fff; stroke-width: 2.5;
+    stroke-linecap: round; stroke-linejoin: round; filter: drop-shadow(0 1px 3px rgba(0,0,0,0.2));
+  }
+  .pp-actions-3d .pp-action-btn .ppa-cost { font-size: 10px; opacity: 1; font-weight: 700; text-shadow: 0 1px 3px rgba(0,0,0,0.15); }
+  .pp-actions-3d .pp-action-btn .ppa-xp { opacity: 0.8; margin-left: 4px; }
+  .pp-actions-3d .pp-action-btn:disabled { opacity: 0.4; }
   /* 等级提示弹出 */
   .pp-levelup {
     position: absolute; top: -16px; left: 50%; transform: translateX(-50%);
@@ -887,30 +919,21 @@
   .pet-speech-bubble {
     position: absolute; top: -8px; left: 50%;
     transform: translateX(-50%) translateY(0) scale(0);
-    background: linear-gradient(135deg,#fff5fa,#fff0f6);
-    color: #8b4a6b;
-    padding: 12px 22px; border-radius: 22px;
-    font-size: 15px; font-weight: 700; line-height: 1.5;
+    background: #fff; color: #5a4a3a;
+    padding: 10px 18px; border-radius: 24px;
+    font-size: 14px; font-weight: 700; line-height: 1.5;
     white-space: nowrap; text-align: center; width: max-content; max-width: 90vw;
-    box-shadow: 0 8px 24px rgba(255,150,180,0.25), 0 2px 6px rgba(0,0,0,0.06);
-    border: 2.5px solid #ffc2d9;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.1), 0 2px 6px rgba(0,0,0,0.05);
+    border: none;
     z-index: 50; pointer-events: none;
     opacity: 0; transition: all 0.35s cubic-bezier(0.34,1.56,0.64,1);
   }
   .pet-speech-bubble.show { opacity: 1; transform: translateX(-50%) translateY(-6px) scale(1); }
-  .pet-speech-bubble .psb-emoji { font-size: 18px; margin-right: 4px; vertical-align: middle; }
+  .pet-speech-bubble .psb-emoji { font-size: 16px; margin-right: 4px; vertical-align: middle; }
   .pet-speech-bubble::after {
-    content: ''; position: absolute; bottom: -11px; left: 50%;
+    content: ''; position: absolute; bottom: -8px; left: 50%;
     transform: translateX(-50%);
-    border-width: 11px 9px 0 9px; border-style: solid;
-    border-color: #ffc2d9 transparent transparent transparent;
-  }
-  .pet-speech-bubble::before {
-    content: ''; position: absolute; bottom: -7px; left: 50%;
-    transform: translateX(-50%);
-    border-width: 8px 6px 0 6px; border-style: solid;
-    border-color: #fff5fa transparent transparent transparent;
-    z-index: 1;
+    width: 0; height: 0; border: 8px solid transparent; border-top-color: #fff;
   }
   /* ========== 宠物经验浮动数字 ========== */
   .pet-xp-float {
@@ -4571,17 +4594,18 @@ var PET_STYLES = {
     ]
   },
   '3d': {
-    name: '3d伙伴',
-    icon: '🎭',
+    name: '专属伙伴',
+    icon: '🐱',
     pets: [
-      { name: '布偶猫', image: 'pets/3d/cat/cat-stand.gif' }
+      { name: '布偶猫', image: 'pets/3d/cat/cat.gif' }
     ],
     actions: {
       stand: 'pets/3d/cat/cat-stand.gif',
+      stand2: 'pets/3d/cat/cat-stand2.gif',
       eat: 'pets/3d/cat/cat-eat.gif',
       shower: 'pets/3d/cat/cat-shower.gif',
       play: ['pets/3d/cat/cat-play.gif', 'pets/3d/cat/cat-play2.gif'],
-      happy: ['pets/3d/cat/cat-happy.gif', 'pets/3d/cat/cat-happy2.gif', 'pets/3d/cat/cat-happy3.gif']
+      happy: ['pets/3d/cat/cat-happy.gif', 'pets/3d/cat/cat-happy2.gif']
     }
   }
 };
@@ -4606,15 +4630,41 @@ function get3dPetGif(action) {
   if (Array.isArray(act)) return act[Math.floor(Math.random() * act.length)];
   return act || '';
 }
+var petStandTimer = null;
+var petStandPos = 0;
+var PET_STAND_PATTERN = [0, 0, 1];
+var PET_STAND_DURATIONS = [3800, 4000];
+function stopPetStandCycle() {
+  if (petStandTimer) { clearTimeout(petStandTimer); petStandTimer = null; }
+}
+function startPetStandCycle() {
+  stopPetStandCycle();
+  if (!is3dPet(appData.pet)) return;
+  petStandPos = 0;
+  playNextPetStand();
+}
+function playNextPetStand() {
+  var img = document.querySelector('.pp-showcase img');
+  if (!img) { stopPetStandCycle(); return; }
+  var style = PET_STYLES['3d'];
+  if (!style || !style.actions) return;
+  var stands = [style.actions.stand, style.actions.stand2 || style.actions.stand];
+  var idx = PET_STAND_PATTERN[petStandPos];
+  img.src = stands[idx];
+  petStandTimer = setTimeout(function() {
+    petStandPos = (petStandPos + 1) % PET_STAND_PATTERN.length;
+    playNextPetStand();
+  }, PET_STAND_DURATIONS[idx] || 3800);
+}
 function play3dPetGif(action, duration) {
   var img = document.querySelector('.pp-showcase img');
   if (!img) return;
   var gif = get3dPetGif(action);
   if (!gif) return;
+  stopPetStandCycle();
   img.src = gif;
   setTimeout(function() {
-    var stand = get3dPetGif('stand');
-    if (stand && is3dPet(appData.pet)) img.src = stand;
+    if (is3dPet(appData.pet)) startPetStandCycle();
   }, duration || 4200);
 }
 function getPetPosition(pet) {
@@ -4886,17 +4936,32 @@ function renderPetPage() {
   var statusClass, statusText;
   if (fedToday || hungerDays === 0) { statusClass = 'full'; statusText = '😊 很饱'; }
   else if (hungerDays === 1) { statusClass = 'hungry'; statusText = '😐 有点饿了'; }
-  else { statusClass = 'starving'; statusText = '😫 快饿晕了！'; }
+ else { statusClass = 'starving'; statusText = '😫 快饿晕了！'; }
 
-  container.innerHTML =
-    '<div class="pet-page-header">' +
-      '<div class="pet-page-title">🐾 我的宠物</div>' +
-      '<div class="pet-page-sub">每天赚积分喂食，好好照顾它！</div>' +
-    '</div>' +
-    // 展示区 - 无边框
-    '<div class="pp-showcase">' +
-      '<img src="' + (is3dPet(pet) ? get3dPetGif('stand') : imgSrc) + '" alt="' + escHtml(pet.name || '') + '" class="idle" draggable="false">' +
-    '</div>' +
+  var is3d = is3dPet(pet);
+  var showcaseClass = is3d ? 'pp-showcase pp-showcase-3d' : 'pp-showcase';
+  var imgClass = is3d ? '' : 'idle';
+  var imgSrc2 = is3d ? get3dPetGif('stand') : imgSrc;
+  var actionsClass = is3d ? 'pp-actions pp-actions-3d' : 'pp-actions';
+  var svgFeed = '<svg viewBox="0 0 32 32"><path d="M5 16h22a0 0 0 0 1 0 0 11 11 0 0 1-22 0Z"/><path d="M10 16a6 6 0 0 0 12 0"/><path d="M12 4c0 2-2 3-2 5M16 3c0 2-2 3-2 5M20 4c0 2-2 3-2 5"/></svg>';
+  var svgBath = '<svg viewBox="0 0 32 32"><path d="M12 3v4M12 7c-2 0-3 1-3 3v2M9 7h6"/><path d="M6 16h20a0 0 0 0 1 0 0 6 6 0 0 1-6 6H12a6 6 0 0 1-6-6Z"/><path d="M9 7h6"/><circle cx="12" cy="12" r="0.8" fill="currentColor"/><circle cx="9" cy="13" r="0.8" fill="currentColor"/><circle cx="15" cy="13" r="0.8" fill="currentColor"/></svg>';
+  var svgHeart = '<svg viewBox="0 0 32 32"><path d="M16 27C16 27 5 20 5 13a5 5 0 0 1 5-5c2.5 0 4 1.5 6 4 2-2.5 3.5-4 6-4a5 5 0 0 1 5 5c0 7-11 14-11 14Z"/></svg>';
+  var svgTree = '<svg viewBox="0 0 32 32"><path d="M16 28V18M16 18c-4 0-7-3-7-7 0-3 3-5 7-5s7 2 7 5c0 4-3 7-7 7ZM16 18c4 0 7-3 7-7"/></svg>';
+  var feedIcon = is3d ? svgFeed : '🍖';
+  var bathIcon = is3d ? svgBath : '🛁';
+  var exIcon = is3d ? svgHeart : '🏃';
+  var playIcon = is3d ? svgTree : '🎾';
+  var exLabel = is3d ? '互动' : '运动';
+
+ container.innerHTML =
+   '<div class="pet-page-header">' +
+     '<div class="pet-page-title">🐾 我的宠物</div>' +
+     '<div class="pet-page-sub">每天赚积分喂食，好好照顾它！</div>' +
+   '</div>' +
+   // 展示区 - 无边框
+    '<div class="' + showcaseClass + '">' +
+      '<img src="' + imgSrc2 + '" alt="' + escHtml(pet.name || '') + '" class="' + imgClass + '" draggable="false">' +
+   '</div>' +
     // 名字 + 等级
     '<div class="pp-name-row">' +
       '<span class="pp-pet-name">' + escHtml(pet.name || '小宠物') + '</span>' +
@@ -4916,31 +4981,31 @@ function renderPetPage() {
       '<div class="pp-health-header"><span class="pp-health-icon">❤️</span><span class="pp-health-title">健康指数</span><span class="pp-health-val" style="color:' + (health >= 80 ? '#2d6a3f' : health >= 50 ? '#e67e22' : '#c0392b') + '">' + health + '/100</span></div>' +
       '<div class="pp-health-bar"><div class="pp-health-fill" style="width:' + health + '%;background:' + (health >= 80 ? 'linear-gradient(90deg,#4caf50,#8bc34a)' : health >= 50 ? 'linear-gradient(90deg,#ff9800,#ffc107)' : 'linear-gradient(90deg,#f44336,#ff5722)') + '"></div></div>' +
       '<div class="pp-health-detail">' +
-        (pet.lastFedDate === todayStr() ? '<span class="pp-hd-item done">🍖 已喂食</span>' : '<span class="pp-hd-item miss">🍖 未喂食</span>') +
-        (pet.lastExerciseDate === todayStr() ? '<span class="pp-hd-item done">🏃 已运动</span>' : '<span class="pp-hd-item miss">🏃 未运动</span>') +
-        (pet.lastPlayDate === todayStr() ? '<span class="pp-hd-item done">🎾 已玩耍</span>' : '<span class="pp-hd-item miss">🎾 未玩耍</span>') +
+       (pet.lastFedDate === todayStr() ? '<span class="pp-hd-item done">🍖 已喂食</span>' : '<span class="pp-hd-item miss">🍖 未喂食</span>') +
+        (pet.lastExerciseDate === todayStr() ? '<span class="pp-hd-item done">' + exIcon + ' 已' + exLabel + '</span>' : '<span class="pp-hd-item miss">' + exIcon + ' 未' + exLabel + '</span>') +
+       (pet.lastPlayDate === todayStr() ? '<span class="pp-hd-item done">🎾 已玩耍</span>' : '<span class="pp-hd-item miss">🎾 未玩耍</span>') +
         (pet.lastBathDate && daysSinceBath(pet.lastBathDate) <= 7 ? '<span class="pp-hd-item done">🛁 已洗澡</span>' : '<span class="pp-hd-item miss">🛁 未洗澡</span>') +
       '</div>' +
     '</div>' +
-    // 2x2 操作按钮
-    '<div class="pp-actions">' +
+   // 2x2 操作按钮
+    '<div class="' + actionsClass + '">' +
       '<button class="pp-action-btn pp-btn-feed" onclick="feedPet()"' + (fedToday ? ' disabled' : '') + '>' +
-        '<span class="ppa-icon">🍖</span><span>' + (fedToday ? '已喂食' : '喂食') + '</span>' +
+        '<span class="ppa-icon">' + feedIcon + '</span><span>' + (fedToday ? '已喂食' : '喂食') + '</span>' +
         '<span class="ppa-cost">10⭐</span><span class="ppa-xp">+20EXP</span>' +
       '</button>' +
       '<button class="pp-action-btn pp-btn-bath" onclick="bathPet()">' +
-        '<span class="ppa-icon">🛁</span><span>洗澡</span>' +
+        '<span class="ppa-icon">' + bathIcon + '</span><span>洗澡</span>' +
         '<span class="ppa-cost">10⭐</span><span class="ppa-xp">+30EXP</span>' +
       '</button>' +
       '<button class="pp-action-btn pp-btn-exercise" onclick="exercisePet()">' +
-        '<span class="ppa-icon">' + (is3dPet(pet) ? '🤗' : '🏃') + '</span><span>' + (is3dPet(pet) ? '互动' : '运动') + '</span>' +
+        '<span class="ppa-icon">' + exIcon + '</span><span>' + exLabel + '</span>' +
         '<span class="ppa-cost">5⭐</span><span class="ppa-xp">+25EXP</span>' +
       '</button>' +
       '<button class="pp-action-btn pp-btn-play" onclick="playWithPet()">' +
-        '<span class="ppa-icon">🎾</span><span>玩耍</span>' +
+        '<span class="ppa-icon">' + playIcon + '</span><span>玩耍</span>' +
         '<span class="ppa-cost">5⭐</span><span class="ppa-xp">+15EXP</span>' +
       '</button>' +
-    '</div>' +
+   '</div>' +
     // 小贴士 - 强调积分喂养
     '<div class="pp-tips">' +
       '<div class="pp-tips-title">⚠️ 养宠须知</div>' +
@@ -4950,8 +5015,10 @@ function renderPetPage() {
         '<span>☠️</span> <b style="color:#c0392b;">连续4天不喂食，宠物就会饿死！</b><br>' +
         '<span>⭐</span> 运动、洗澡、玩耍也能赚经验升级' +
       '</div>' +
-      (hungerDays >= 2 ? '<div class="pp-tips-warn">🚨 警告：已经' + hungerDays + '天没喂食了！再' + (3-hungerDays) + '天不喂宠物就会饿死！</div>' : '') +
-    '</div>';
+     (hungerDays >= 2 ? '<div class="pp-tips-warn">🚨 警告：已经' + hungerDays + '天没喂食了！再' + (3-hungerDays) + '天不喂宠物就会饿死！</div>' : '') +
+   '</div>';
+
+  if (is3d) startPetStandCycle();
 }
 
 function getClothesName(key) {
@@ -8489,9 +8556,11 @@ function showPetBubble(action) {
   var existing = showcase.querySelector('.pet-speech-bubble');
   if (existing) existing.remove();
   var bubble = document.createElement('div');
-  bubble.className = 'pet-speech-bubble';
-  bubble.innerHTML = '<span class="psb-emoji">' + (PET_EMOJI[action] || '') + '</span>' + text;
-  showcase.appendChild(bubble);
+ bubble.className = 'pet-speech-bubble';
+  var emoji = PET_EMOJI[action] || '';
+  if (is3dPet(appData.pet) && action === 'exercise') emoji = '🤗';
+  bubble.innerHTML = '<span class="psb-emoji">' + emoji + '</span>' + text;
+ showcase.appendChild(bubble);
   setTimeout(function() { bubble.classList.add('show'); }, 10);
   if (petSpeechTimer) clearTimeout(petSpeechTimer);
   petSpeechTimer = setTimeout(function() {
