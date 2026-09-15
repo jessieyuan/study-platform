@@ -4740,7 +4740,7 @@ function feedPet() {
   updatePetUI();
   renderHomePage();
   renderPetPage();
-  if (is3dPet(pet)) play3dPetGif('eat', 3500);
+  if (is3dPet(pet)) play3dPetGif('eat', 4200);
   else animatePetInPage('feed');
   showPetBubble('feed');
   showPetXP(20);
@@ -4761,7 +4761,7 @@ function bathPet() {
   updatePetUI();
   renderHomePage();
   renderPetPage();
-  if (is3dPet(pet)) play3dPetGif('shower', 3500);
+  if (is3dPet(pet)) play3dPetGif('shower', 4200);
   else animatePetInPage('bath');
   showPetBubble('bath');
   showPetXP(30);
@@ -4778,7 +4778,7 @@ function exercisePet() {
   updatePetUI();
   renderHomePage();
   renderPetPage();
-  if (is3dPet(pet)) play3dPetGif('happy', 3500);
+  if (is3dPet(pet)) play3dPetGif('happy', 4200);
   else animatePetInPage('exerciseAnim');
   showPetBubble('exercise');
   showPetXP(25);
@@ -4795,7 +4795,7 @@ function playWithPet() {
   updatePetUI();
   renderHomePage();
   renderPetPage();
-  if (is3dPet(pet)) play3dPetGif('play', 3500);
+  if (is3dPet(pet)) play3dPetGif('play', 4200);
   else animatePetInPage('playAnim');
   showPetBubble('play');
   showPetXP(15);
@@ -4826,15 +4826,20 @@ function updatePetUI() {
     return;
   }
 
-  var img = getPetBackgroundImage(pet);
-  emojiEl.className = 'nav-pet-emoji pet-img alive';
-  var clothes = getPetClothesOverlay();
-  if (clothes) {
+ var img = getPetBackgroundImage(pet);
+ emojiEl.className = 'nav-pet-emoji pet-img alive';
+ var clothes = getPetClothesOverlay();
+  if (is3dPet(pet)) {
+    var standImg = get3dPetGif('stand');
+    emojiEl.className = 'nav-pet-emoji pet-img alive';
+    emojiEl.style.animation = 'none';
+    emojiEl.innerHTML = '<img src="' + standImg + '" style="width:50px;height:50px;object-fit:contain;animation:none;" draggable="false">';
+  } else if (clothes) {
     emojiEl.innerHTML = '<img src="' + img + '" style="width:50px;height:50px;object-fit:contain;animation:pet-breathe 2.5s ease-in-out infinite;" draggable="false"><span class="clothes-overlay">' + clothes + '</span>';
   } else {
     emojiEl.innerHTML = '<img src="' + img + '" style="width:50px;height:50px;object-fit:contain;animation:pet-breathe 2.5s ease-in-out infinite;" draggable="false">';
   }
-  nameEl.textContent = pet.name || '小宠物';
+ nameEl.textContent = pet.name || '小宠物';
   statusEl.style.display = 'block';
   var fedToday = pet.lastFedDate === todayStr();
   statusEl.innerHTML = fedToday ? '✅ 已喂食' : '⚠ 未喂食';
