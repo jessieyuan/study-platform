@@ -4979,14 +4979,8 @@ function renderPetPage() {
     // 健康指数
     '<div class="pp-health-wrap">' +
       '<div class="pp-health-header"><span class="pp-health-icon">❤️</span><span class="pp-health-title">健康指数</span><span class="pp-health-val" style="color:' + (health >= 80 ? '#2d6a3f' : health >= 50 ? '#e67e22' : '#c0392b') + '">' + health + '/100</span></div>' +
-      '<div class="pp-health-bar"><div class="pp-health-fill" style="width:' + health + '%;background:' + (health >= 80 ? 'linear-gradient(90deg,#4caf50,#8bc34a)' : health >= 50 ? 'linear-gradient(90deg,#ff9800,#ffc107)' : 'linear-gradient(90deg,#f44336,#ff5722)') + '"></div></div>' +
-     '<div class="pp-health-detail">' +
-       (pet.lastFedDate === todayStr() ? '<span class="pp-hd-dot done" title="已喂食">🍖</span>' : '<span class="pp-hd-dot miss" title="未喂食">🍖</span>') +
-        (pet.lastExerciseDate === todayStr() ? '<span class="pp-hd-dot done" title="已' + exLabel + '">' + (is3d ? '🤗' : '🏃') + '</span>' : '<span class="pp-hd-dot miss" title="未' + exLabel + '">' + (is3d ? '🤗' : '🏃') + '</span>') +
-       (pet.lastPlayDate === todayStr() ? '<span class="pp-hd-dot done" title="已玩耍">🎾</span>' : '<span class="pp-hd-dot miss" title="未玩耍">🎾</span>') +
-        (pet.lastBathDate && daysSinceBath(pet.lastBathDate) <= 7 ? '<span class="pp-hd-dot done" title="已洗澡">🛁</span>' : '<span class="pp-hd-dot miss" title="未洗澡">🛁</span>') +
-     '</div>' +
-    '</div>' +
+     '<div class="pp-health-bar"><div class="pp-health-fill" style="width:' + health + '%;background:' + (health >= 80 ? 'linear-gradient(90deg,#4caf50,#8bc34a)' : health >= 50 ? 'linear-gradient(90deg,#ff9800,#ffc107)' : 'linear-gradient(90deg,#f44336,#ff5722)') + '"></div></div>' +
+   '</div>' +
    // 2x2 操作按钮
     '<div class="' + actionsClass + '">' +
       '<button class="pp-action-btn pp-btn-feed" onclick="feedPet()"' + (fedToday ? ' disabled' : '') + '>' +
