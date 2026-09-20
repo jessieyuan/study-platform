@@ -915,26 +915,25 @@
     100%{opacity:0;transform:translate(var(--tx),var(--ty)) scale(1.3) rotate(var(--rot))}
   }
 
-  /* ========== 宠物说话气泡（可爱风） ========== */
-  .pet-speech-bubble {
-    position: absolute; top: -8px; left: 50%;
-    transform: translateX(-50%) translateY(0) scale(0);
-    background: #fff; color: #5a4a3a;
-    padding: 10px 18px; border-radius: 24px;
-    font-size: 14px; font-weight: 700; line-height: 1.5;
-    white-space: nowrap; text-align: center; width: max-content; max-width: 90vw;
-    box-shadow: 0 6px 20px rgba(0,0,0,0.1), 0 2px 6px rgba(0,0,0,0.05);
-    border: none;
-    z-index: 50; pointer-events: none;
-    opacity: 0; transition: all 0.35s cubic-bezier(0.34,1.56,0.64,1);
-  }
-  .pet-speech-bubble.show { opacity: 1; transform: translateX(-50%) translateY(-6px) scale(1); }
-  .pet-speech-bubble .psb-emoji { font-size: 16px; margin-right: 4px; vertical-align: middle; }
-  .pet-speech-bubble::after {
-    content: ''; position: absolute; bottom: -8px; left: 50%;
-    transform: translateX(-50%);
-    width: 0; height: 0; border: 8px solid transparent; border-top-color: #fff;
-  }
+/* ========== 宠物说话气泡（可爱风） ========== */
+.pet-speech-bubble {
+  position: fixed; top: 0; left: 0;
+  transform: scale(0);
+  background: #fff; color: #5a4a3a;
+  padding: 7px 13px; border-radius: 22px;
+  font-size: 13px; font-weight: 700; line-height: 1.4;
+  white-space: normal; text-align: center; max-width: 140px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.08), 0 2px 6px rgba(0,0,0,0.04);
+  border: 2px solid #f0e6d8;
+  z-index: 9999; pointer-events: none;
+  opacity: 0; transition: transform 0.35s cubic-bezier(0.34,1.56,0.64,1), opacity 0.3s ease;
+ }
+ .pet-speech-bubble .psb-emoji { font-size: 16px; margin-right: 4px; vertical-align: middle; }
+.psb-dot {
+  position: fixed; background: #fff; border: 1.5px solid #f0e6d8; border-radius: 50%;
+   pointer-events: none; z-index: 10001; opacity: 0;
+  transition: opacity 0.25s ease;
+}
   /* ========== 宠物经验浮动数字 ========== */
   .pet-xp-float {
     position: absolute; right: -6px; top: 40%;
@@ -1957,19 +1956,20 @@
   .swc-edit, .swc-del { border:none; background:none; cursor:pointer; font-size:14px; padding:2px; }
 
   /* ========== 确认弹窗 ========== */
-  .confirm-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:600; justify-content:center; align-items:center; }
+  .confirm-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:3000; justify-content:center; align-items:center; }
   .confirm-overlay.show { display:flex; }
-  .confirm-dialog { background:#fff; border-radius:20px; padding:28px 24px 20px; width:85%; max-width:340px; text-align:center; box-shadow:0 20px 50px rgba(0,0,0,0.25); animation:popIn 0.2s ease; }
+.confirm-dialog { background:#fff; border-radius:20px; padding:28px 24px 20px; width:85%; max-width:340px; text-align:center; box-shadow:0 20px 50px rgba(0,0,0,0.25); animation:popIn 0.2s ease; }
+.confirm-dialog { background:#fff; border-radius:24px; padding:28px 24px 20px; width:85%; max-width:340px; text-align:center; box-shadow:0 20px 50px rgba(0,0,0,0.25); animation:popIn 0.2s ease; }
   @keyframes popIn { from { transform:scale(0.85); opacity:0; } to { transform:scale(1); opacity:1; } }
-  .cd-icon { font-size:40px; margin-bottom:8px; }
+  .cd-icon { font-size:36px; width:72px; height:72px; margin:0 auto 10px; border-radius:50%; display:flex; align-items:center; justify-content:center; background-color:#fffcf0; border:3px solid #f0e4c0; overflow:hidden; }
   .cd-title { font-size:17px; font-weight:700; color:#5c4a2e; margin-bottom:8px; }
-  .cd-msg { font-size:14px; color:#8a7a5e; line-height:1.5; margin-bottom:20px; }
+  .cd-msg { font-size:14px; color:#8a7a5e; line-height:1.5; margin-bottom:20px; white-space:pre-line; }
   .cd-btns { display:flex; gap:10px; }
   .cd-btn { flex:1; padding:10px; border:none; border-radius:12px; font-size:14px; font-weight:600; cursor:pointer; font-family:inherit; transition:0.15s; }
-  .cd-btn.cancel { background:#f0ebe0; color:#8a7a5a; }
+  .cd-btn.cancel { background:#f5f0e5; color:#8a7a5e; }
   .cd-btn.cancel:hover { background:#e8e0d0; }
-  .cd-btn.ok { background:linear-gradient(135deg,#e85555,#d04040); color:#fff; }
-  .cd-btn.ok:hover { transform:translateY(-1px); box-shadow:0 3px 10px rgba(232,85,85,0.3); }
+  .cd-btn.ok { background:linear-gradient(135deg,#f5a623,#ffc940); color:#fff; }
+  .cd-btn.ok:hover { transform:translateY(-1px); box-shadow:0 3px 10px rgba(245,166,35,0.3); }
 
   /* ========== 排行榜页面 ========== */
   .lb-tabs {
@@ -2152,6 +2152,12 @@
   .mmc-title { font-size:14px; font-weight:700; color:var(--text); }
   .mmc-info { font-size:11px; color:var(--text-secondary); }
   .mmc-best { font-size:12px; color:#b08020; font-weight:600; margin-top:4px; }
+  .mmc-count-row { display:flex; gap:8px; margin-top:2px; }
+  .mmc-count-btn { padding:5px 14px; border:2px solid #d0e4f0; border-radius:12px; background:#f0f6ff; color:#5ba4cf; font-size:13px; font-weight:600; cursor:pointer; font-family:inherit; transition:0.15s; }
+  .mmc-count-btn:active { transform:scale(0.95); }
+  .mp-back-btn { text-align:center; margin-bottom:10px; }
+  .mp-back-btn button { padding:6px 20px; border:1.5px solid #d0e4f0; border-radius:20px; background:#f0f6ff; color:#5ba4cf; font-size:13px; font-weight:600; cursor:pointer; font-family:inherit; }
+  .mp-back-btn button:active { transform:scale(0.95); }
   .mp-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; padding:12px 16px; background:linear-gradient(135deg,#f0f6ff,#e8f0fe); border-radius:14px; }
   .mp-timer { font-size:16px; font-weight:700; color:#5ba4cf; }
   .mp-progress { font-size:14px; font-weight:600; color:var(--text); }
@@ -2921,8 +2927,10 @@
       <span class="breadcrumb-sep">|</span>
       <span class="breadcrumb-item" onclick="switchMathTab('merge10',this)">凑十消消</span>
       <span class="breadcrumb-sep">|</span>
-      <span class="breadcrumb-item" onclick="switchMathTab('geometry',this)">几何</span>
-    </div>
+     <span class="breadcrumb-item" onclick="switchMathTab('geometry',this)">几何</span>
+      <span class="breadcrumb-sep">|</span>
+      <span class="breadcrumb-item" style="color:#f0a020;font-weight:600;" id="math-brain-chances">🎫×0</span>
+   </div>
     <div id="math-sudoku-filters" style="display:none;">
       <div class="cm-unit-row" id="sudoku-size-selector"></div>
       <div class="cm-type-row" id="sudoku-levels"></div>
@@ -2950,10 +2958,9 @@
         <div class="mmc-info">50题 · 满分100分</div>
         <div class="mmc-best">最高分: <span id="math-best-div">0</span></div>
       </div>
-      <div class="math-mode-card" onclick="startMentalMath('mixed')">
-        
+      <div class="math-mode-card" onclick="showMixedCountSelect()">
         <div class="mmc-title">混合计算</div>
-        <div class="mmc-info">100题 · 满分200分 · 含等号左边留空</div>
+        <div class="mmc-info">50/100题可选 · 含等号左边留空</div>
         <div class="mmc-best">最高分: <span id="math-best-mixed">0</span></div>
       </div>
     </div>
@@ -3118,7 +3125,8 @@
 <!-- 脑力风暴 -->
 <div class="page" id="page-brain">
 <main class="main">
-  <div class="subject-page-header"><div class="sph-title">脑力风暴</div></div>
+ <div class="subject-page-header"><div class="sph-title">脑力风暴</div></div>
+  <div style="text-align:center;margin-bottom:8px;"><span style="color:#f0a020;font-weight:600;font-size:14px;" id="brain-chances-display">🎫×0</span></div>
   <div class="chinese-menu">
     <div class="cm-cat-tabs">
       <button class="cm-cat-tab active" data-cat="chess" onclick="switchBrainCat('chess',this)">棋类</button>
@@ -3331,6 +3339,17 @@
 </div>
 
 <!-- 通用确认弹窗 -->
+<!-- 切换宠物弹窗 -->
+<div class="pet-modal-overlay" id="switch-pet-overlay" style="display:none;">
+  <div class="pet-modal">
+   <div class="pm-emoji" id="swm-emoji"><svg viewBox="0 0 24 24" width="48" height="48" fill="none" stroke="#8b7355" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M7 4L3 8l4 4"/><path d="M3 8h14"/><path d="M17 20l4-4-4-4"/><path d="M21 16H7"/></svg></div>
+    <div class="pm-title">换个伙伴</div>
+    <div class="pm-sub" id="swm-sub">选择一只新的伙伴吧！</div>
+    <div class="pm-pick" id="swm-pick"></div>
+    <div id="pm-actions"><button class="pm-btn cancel" onclick="closeSwitchPetModal()">取消</button><button class="pm-btn confirm" id="sw-confirm" onclick="confirmSwitchPet()">确认切换</button></div>
+  </div>
+</div>
+
 <div class="confirm-overlay" id="confirm-overlay" onclick="closeConfirm(event)">
   <div class="confirm-dialog">
     <div class="cd-icon" id="cd-icon">🗑️</div>
@@ -3583,7 +3602,8 @@ function checkAutoLogin() {
 }
 
 function ensureDataFields() {
-  if (!appData.pet) appData.pet = { owned: false, style: 'pokemon', petId: 0, name: '', boughtDate: null, lastFedDate: null, lastBathDate: null, lastExerciseDate: null, lastPlayDate: null, clothes: 'default', alive: true, todayEarned: 0, level: 1, xp: 0 };
+ if (!appData.pet) appData.pet = { owned: false, style: 'pokemon', petId: 0, name: '', boughtDate: null, lastFedDate: null, lastBathDate: null, lastExerciseDate: null, lastPlayDate: null, clothes: 'default', alive: true, todayEarned: 0, level: 1, xp: 0 };
+  if (typeof appData.pet.switchCount === 'undefined') appData.pet.switchCount = 0;
   if (typeof appData.streak === 'undefined') appData.streak = 0;
   if (!appData.subjectTabs) appData.subjectTabs = { chinese:'daily', math:'daily', english:'daily', sport:'daily', reading:'daily', labor:'daily' };
   if (!appData.studyProgress) appData.studyProgress = {};
@@ -3602,7 +3622,8 @@ if (appData.englishSub !== 'spell' && appData.englishSub !== 'textbook') appData
   if (typeof appData.cranes === 'undefined') appData.cranes = 0; // 许愿星数量
   if (typeof appData.craneLevel === 'undefined') appData.craneLevel = 1; // 许愿星级别 1-5
   if (typeof appData.craneClaimedToday === 'undefined') appData.craneClaimedToday = null; // 今日是否已领取
-  if (!appData.mathBest) appData.mathBest = { addsub: 0, mul: 0, div: 0, mixed: 0 }; // 速算最高分
+ if (!appData.mathBest) appData.mathBest = { addsub: 0, mul: 0, div: 0, mixed: 0 }; // 速算最高分
+  if (typeof appData.brainChances !== 'number') appData.brainChances = 0; // 脑力游戏次数
   if (!appData.sudoku) appData.sudoku = { size: 4, diff: {4:0,6:0,9:0}, unlocked: {4:0,6:0,9:0}, wins: {}, bestTime: {} }; // 数独进度
  if (typeof appData.best2048 !== 'number') appData.best2048 = 0;
   if (typeof appData.bestM10 !== 'number') appData.bestM10 = 0; // 2048最高分
@@ -4593,21 +4614,22 @@ var PET_STYLES = {
       { name: '星星6号', image: 'pets/star/star6.png' }
     ]
   },
-  '3d': {
-    name: '专属伙伴',
-    icon: '🐱',
-    pets: [
-      { name: '布偶猫', image: 'pets/3d/cat/cat.gif' }
-    ],
-    actions: {
-      stand: 'pets/3d/cat/cat-stand.gif',
-      stand2: 'pets/3d/cat/cat-stand2.gif',
-      eat: 'pets/3d/cat/cat-eat.gif',
-      shower: 'pets/3d/cat/cat-shower.gif',
-      play: ['pets/3d/cat/cat-play.gif', 'pets/3d/cat/cat-play2.gif'],
-      happy: ['pets/3d/cat/cat-happy.gif', 'pets/3d/cat/cat-happy2.gif']
-    }
-  }
+ '3d': {
+   name: '专属伙伴',
+   icon: '🐱',
+   pets: [
+      { name: '布偶猫', image: 'pets/3d/cat/cat.gif', type: 'cat' },
+      { name: '胖丁', image: 'pets/3d/pangding/pangding.gif', type: 'pangding' }
+   ],
+   actions: {
+     stand: 'pets/3d/cat/cat-stand.gif',
+     stand2: 'pets/3d/cat/cat-stand2.gif',
+     eat: 'pets/3d/cat/cat-eat.gif',
+     shower: 'pets/3d/cat/cat-shower.gif',
+     play: ['pets/3d/cat/cat-play.gif', 'pets/3d/cat/cat-play2.gif'],
+     happy: ['pets/3d/cat/cat-happy.gif', 'pets/3d/cat/cat-happy2.gif']
+   }
+ }
 };
 
 function getPetBackgroundImage(pet) {
@@ -4621,30 +4643,59 @@ function getPetBackgroundImage(pet) {
 function is3dPet(pet) {
   return pet && pet.style === '3d';
 }
+function get3dPetType(pet) {
+  var style = PET_STYLES['3d'];
+  if (!style || !style.pets) return 'cat';
+  var p = style.pets[pet.petId];
+  if (!p) return 'cat';
+  if (p.type) return p.type;
+  var parts = (p.image || '').split('/');
+  return parts[parts.length - 2] || 'cat';
+}
 function get3dPetGif(action) {
   var pet = appData.pet;
   if (!is3dPet(pet)) return '';
-  var style = PET_STYLES['3d'];
-  if (!style || !style.actions) return '';
-  var act = style.actions[action];
-  if (Array.isArray(act)) return act[Math.floor(Math.random() * act.length)];
-  return act || '';
+  var type = get3dPetType(pet);
+  var base = 'pets/3d/' + type + '/' + type + '-';
+  var gv = '?v=' + PET_GIF_VER;
+  if (action === 'play') {
+    var plays = [base + 'play.gif' + gv, base + 'play2.gif' + gv];
+    return plays[Math.floor(Math.random() * plays.length)];
+  }
+  if (action === 'happy') {
+    var happys = [base + 'happy.gif' + gv, base + 'happy2.gif' + gv];
+    return happys[Math.floor(Math.random() * happys.length)];
+  }
+  return base + action + '.gif' + gv;
 }
 var petStandTimer = null;
 var petStandPos = 0;
 var petActionTimer = null;
 var PET_STAND_PATTERN = [0, 0, 1];
-var PET_STAND_DURATIONS = [3800, 4000];
 var _skipStandCycle = false;
 var _3dGifPreloaded = false;
+var PET_GIF_VER = 1025;
+var PET_GIF_DURATIONS = {
+  cat:      { stand: 3800, stand2: 4100, eat: 4100, shower: 4100, play: 4100, play2: 4000, happy: 4100, happy2: 4100 },
+  pangding: { stand: 3700, stand2: 3600, eat: 3600, shower: 6200, play: 3600, play2: 3500, happy: 3600, happy2: 3600 }
+};
+var _petIsMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent || '');
+var PET_SPEED_FACTOR = _petIsMobile ? 1.35 : 1.0;
+function getPetGifDuration(action) {
+var type = get3dPetType(appData.pet);
+var d = (PET_GIF_DURATIONS[type] && PET_GIF_DURATIONS[type][action]) || 4000;
+var dur = Math.ceil(d * PET_SPEED_FACTOR);
+ return Math.max(dur - 200, 1000);
+}
 function preload3dPetGifs() {
   if (_3dGifPreloaded || !is3dPet(appData.pet)) return;
   _3dGifPreloaded = true;
-  var style = PET_STYLES['3d'];
-  if (!style || !style.actions) return;
-  var allGifs = [style.actions.stand, style.actions.stand2];
+  var type = get3dPetType(appData.pet);
+  var base = 'pets/3d/' + type + '/' + type + '-';
+  var allGifs = [base+'stand.gif', base+'stand2.gif', base+'eat.gif', base+'shower.gif', base+'play.gif', base+'play2.gif', base+'happy.gif', base+'happy2.gif'];
+  var gv = '?v=' + PET_GIF_VER;
+  allGifs = allGifs.map(function(s) { return s + gv; });
   allGifs.forEach(function(src) {
-    if (!src) return;
     var img = new Image();
     img.src = src;
   });
@@ -4660,31 +4711,64 @@ function startPetStandCycle() {
   playNextPetStand();
 }
 function playNextPetStand() {
-  var img = document.querySelector('.pp-showcase img');
-  if (!img) { stopPetStandCycle(); return; }
-  var style = PET_STYLES['3d'];
-  if (!style || !style.actions) return;
-  var stands = [style.actions.stand, style.actions.stand2 || style.actions.stand];
-  var idx = PET_STAND_PATTERN[petStandPos];
-  img.src = stands[idx];
-  petStandTimer = setTimeout(function() {
-    petStandPos = (petStandPos + 1) % PET_STAND_PATTERN.length;
-    playNextPetStand();
-  }, PET_STAND_DURATIONS[idx] || 3800);
+ var img = document.querySelector('.pp-showcase img');
+ if (!img) { stopPetStandCycle(); return; }
+ var type = get3dPetType(appData.pet);
+ var base = 'pets/3d/' + type + '/' + type + '-';
+ var stands = [base + 'stand.gif?v=' + PET_GIF_VER, base + 'stand2.gif?v=' + PET_GIF_VER];
+ var idx = PET_STAND_PATTERN[petStandPos];
+var targetSrc = stands[idx] || stands[0];
+var dur = getPetGifDuration(idx === 0 ? 'stand' : 'stand2');
+var needSwitch = img.src.indexOf(targetSrc) < 0;
+function scheduleNext() {
+ petStandTimer = setTimeout(function() {
+  petStandPos = (petStandPos + 1) % PET_STAND_PATTERN.length;
+  playNextPetStand();
+ }, dur);
+}
+ img.onload = null;
+ img.src = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
+ void img.offsetWidth;
+ var _started = false;
+ var _fb = setTimeout(function() {
+  if (!_started) { _started = true; scheduleNext(); }
+ }, 500);
+ img.onload = function() {
+  if (!_started) { _started = true; clearTimeout(_fb); img.onload = null; scheduleNext(); }
+ };
+ img.src = targetSrc;
 }
 function play3dPetGif(action, duration) {
-  var img = document.querySelector('.pp-showcase img');
-  if (!img) return;
-  var gif = get3dPetGif(action);
-  if (!gif) return;
-  stopPetStandCycle();
-  if (petActionTimer) clearTimeout(petActionTimer);
-  img.onload = null;
-  img.src = gif + '?v=' + Date.now();
+ var img = document.querySelector('.pp-showcase img');
+ if (!img) return;
+ var gif = get3dPetGif(action);
+ if (!gif) return;
+ stopPetStandCycle();
+ if (petActionTimer) clearTimeout(petActionTimer);
+ var dur = duration || getPetGifDuration(action);
+ img.onload = null;
+ img.src = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
+ void img.offsetWidth;
+ var _started = false;
+ var _fb = setTimeout(function() {
+  if (_started) return;
+  _started = true;
   petActionTimer = setTimeout(function() {
-    petActionTimer = null;
-    if (is3dPet(appData.pet)) startPetStandCycle();
-  }, duration || 8000);
+   petActionTimer = null;
+   if (is3dPet(appData.pet)) startPetStandCycle();
+  }, dur);
+ }, 500);
+ img.onload = function() {
+  if (_started) return;
+  _started = true;
+  clearTimeout(_fb);
+  img.onload = null;
+  petActionTimer = setTimeout(function() {
+   petActionTimer = null;
+   if (is3dPet(appData.pet)) startPetStandCycle();
+  }, dur);
+ };
+ img.src = gif;
 }
 function getPetPosition(pet) {
   return '';
@@ -4761,7 +4845,7 @@ function feedPet() {
   _skipStandCycle = true;
   renderPetPage();
   _skipStandCycle = false;
-  if (is3dPet(pet)) play3dPetGif('eat', 8000);
+  if (is3dPet(pet)) play3dPetGif('eat');
   else animatePetInPage('feed');
   showPetBubble('feed');
   showPetXP(20);
@@ -4784,7 +4868,7 @@ function bathPet() {
   _skipStandCycle = true;
   renderPetPage();
   _skipStandCycle = false;
-  if (is3dPet(pet)) play3dPetGif('shower', 8000);
+  if (is3dPet(pet)) play3dPetGif('shower');
   else animatePetInPage('bath');
   showPetBubble('bath');
   showPetXP(30);
@@ -4803,7 +4887,7 @@ function exercisePet() {
   _skipStandCycle = true;
   renderPetPage();
   _skipStandCycle = false;
-  if (is3dPet(pet)) play3dPetGif('happy', 8000);
+  if (is3dPet(pet)) play3dPetGif('happy');
   else animatePetInPage('exerciseAnim');
   showPetBubble('exercise');
   showPetXP(25);
@@ -4822,7 +4906,7 @@ function playWithPet() {
   _skipStandCycle = true;
   renderPetPage();
   _skipStandCycle = false;
-  if (is3dPet(pet)) play3dPetGif('play', 8000);
+  if (is3dPet(pet)) play3dPetGif('play');
   else animatePetInPage('playAnim');
   showPetBubble('play');
   showPetXP(15);
@@ -4992,7 +5076,7 @@ function renderPetPage() {
    '</div>' +
    // 展示区 - 无边框
    '<div class="' + showcaseClass + '">' +
-    '<img src="' + imgSrc2 + '" alt="' + escHtml(pet.name || '') + '" class="' + imgClass + '" draggable="false" decoding="async">' +
+    '<img src="' + imgSrc2 + '" alt="' + escHtml(pet.name || '') + '" class="' + imgClass + '" draggable="false" decoding="async" onclick="onPetClick()" style="cursor:pointer">' +
   '</div>' +
     // 名字 + 等级
     '<div class="pp-name-row">' +
@@ -5031,9 +5115,10 @@ function renderPetPage() {
         '<span class="ppa-icon">' + playIcon + '</span><span>玩耍</span>' +
         '<span class="ppa-cost">5⭐</span><span class="ppa-xp">+15EXP</span>' +
       '</button>' +
-   '</div>' +
-    // 小贴士 - 强调积分喂养
-    '<div class="pp-tips">' +
+  '</div>' +
+   (is3d ? '<div style="text-align:center;margin:10px 0;"><button onclick="openSwitchPetModal()" style="padding:6px 18px;border:2px solid #e0d4c0;border-radius:20px;background:#faf6f0;color:#8b7355;font-size:13px;cursor:pointer;font-family:inherit;display:inline-flex;align-items:center;gap:5px;"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="filter:drop-shadow(0 0 1px #8b7355);"><path d="M7 4L3 8l4 4"/><path d="M3 8h14"/><path d="M17 20l4-4-4-4"/><path d="M21 16H7"/></svg> 换个伙伴</button></div>' : '') +
+   // 小贴士 - 强调积分喂养
+   '<div class="pp-tips">' +
       '<div class="pp-tips-title">⚠️ 养宠须知</div>' +
       '<div class="pp-tips-list">' +
         '<span>💰</span> <b>每天完成学习任务赚积分</b>，才有粮食喂宠物<br>' +
@@ -5178,9 +5263,10 @@ function confirmPetAction() {
   appData.pet = {
     owned: true, style: selectedPetStyle, petId: selectedPetId, name: name,
     boughtDate: todayStr(), lastFedDate: null, lastBathDate: null,
-    clothes: 'default', alive: true, todayEarned: 0, level: 1, xp: 0,
-    lastExerciseDate: null, lastPlayDate: null,
-  };
+   clothes: 'default', alive: true, todayEarned: 0, level: 1, xp: 0,
+   lastExerciseDate: null, lastPlayDate: null,
+    switchCount: 0,
+ };
   saveData(appData);
   updatePetUI();
   renderHomePage();
@@ -5214,6 +5300,80 @@ document.getElementById('pet-modal-overlay').addEventListener('click', function(
 });
 document.getElementById('adopt-success-overlay').addEventListener('click', function(e) {
   if (e.target === this) closeAdoptSuccess();
+});
+
+// ==================== 切换宠物 ====================
+var swPetId = 0;
+function openSwitchPetModal() {
+  var pet = appData.pet;
+  if (!pet || !pet.owned || !pet.alive) return;
+  var style = PET_STYLES['3d'];
+  if (!style || !style.pets) return;
+  swPetId = pet.petId || 0;
+  var switchCount = pet.switchCount || 0;
+  var isFree = switchCount < 3;
+  var subEl = document.getElementById('swm-sub');
+  subEl.textContent = isFree ? '前3次免费！还可免费切换 ' + (3 - switchCount) + ' 次' : '切换需要 50⭐（当前积分：' + appData.points + '⭐）';
+  var confirmBtn = document.getElementById('sw-confirm');
+  confirmBtn.textContent = isFree ? '确认切换（免费）' : '确认切换（50⭐）';
+  var pickEl = document.getElementById('swm-pick');
+  var html2 = '<div class="pm-pet-grid">';
+  style.pets.forEach(function(p, i) {
+    var sel2 = i === swPetId ? ' selected' : '';
+    html2 += '<div class="pm-pet-grid-item' + sel2 + '" onclick="selectSwitchPet(' + i + ',this)">' +
+      '<img src="' + p.image + '" alt="' + p.name + '" draggable="false">' +
+      '<div class="pet-label">' + p.name + '</div></div>';
+  });
+  html2 += '</div>';
+  html2 += '<div style="margin-top:14px;text-align:center;"><input id="sw-name-input" type="text" maxlength="6" placeholder="取个新名字（留空保留原名）" style="padding:8px 14px;border:2px solid #e0d4c0;border-radius:14px;font-size:14px;width:80%;text-align:center;font-family:inherit;"></div>';
+  pickEl.innerHTML = html2;
+  document.getElementById('switch-pet-overlay').style.display = 'flex';
+}
+function selectSwitchPet(id, el) {
+  swPetId = id;
+  document.querySelectorAll('#swm-pick .pm-pet-grid-item').forEach(function(c) { c.classList.remove('selected'); });
+  el.classList.add('selected');
+}
+function closeSwitchPetModal() {
+  document.getElementById('switch-pet-overlay').style.display = 'none';
+}
+function confirmSwitchPet() {
+  var pet = appData.pet;
+  if (!pet || !pet.owned || !pet.alive) return;
+  if (swPetId === pet.petId) { showToast('选择的还是当前伙伴，无需切换~', 'info'); closeSwitchPetModal(); return; }
+  var switchCount = pet.switchCount || 0;
+  var isFree = switchCount < 3;
+  var cost = isFree ? 0 : 50;
+  if (!isFree && appData.points < cost) { showToast('积分不够！需要' + cost + '⭐才能切换', 'error'); return; }
+  var newPetName = PET_STYLES['3d'].pets[swPetId] ? PET_STYLES['3d'].pets[swPetId].name : '新伙伴';
+  var confirmMsg = isFree ? '确定要切换到「' + newPetName + '」吗？\n本次免费，还剩 ' + (3 - switchCount - 1) + ' 次免费机会' : '确定要切换到「' + newPetName + '」吗？\n将消耗 50⭐（当前积分：' + appData.points + '⭐）';
+  showConfirm(confirmMsg, '确认切换伙伴', '<svg viewBox="0 0 24 24" width="36" height="36" fill="none" stroke="#8b7355" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M7 4L3 8l4 4"/><path d="M3 8h14"/><path d="M17 20l4-4-4-4"/><path d="M21 16H7"/></svg>', _doSwitchPet);
+}
+function _doSwitchPet() {
+  var pet = appData.pet;
+  if (!pet || !pet.owned || !pet.alive) return;
+  var switchCount = pet.switchCount || 0;
+  var isFree = switchCount < 3;
+  var cost = isFree ? 0 : 50;
+  if (!isFree && appData.points < cost) { showToast('积分不够！需要' + cost + '⭐才能切换', 'error'); return; }
+  if (!isFree) appData.points -= cost;
+  var newName = document.getElementById('sw-name-input').value.trim();
+  pet.petId = swPetId;
+  if (newName) pet.name = newName;
+  pet.switchCount = (pet.switchCount || 0) + 1;
+  _3dGifPreloaded = false;
+  saveData(appData);
+  updatePetUI();
+  closeSwitchPetModal();
+  _skipStandCycle = true;
+  renderPetPage();
+  _skipStandCycle = false;
+  startPetStandCycle();
+  updateSidebarProfile();
+  showToast(isFree ? '切换成功！' : '切换成功！消耗50⭐', 'success');
+}
+document.getElementById('switch-pet-overlay').addEventListener('click', function(e) {
+  if (e.target === this) closeSwitchPetModal();
 });
 
 // ==================== 页面路由 ====================
@@ -5694,7 +5854,7 @@ var _confirmCb = null;
 function showConfirm(msg, title, icon, cb) {
   _confirmCb = cb || null;
   document.getElementById('cd-title').textContent = title || '确认操作';
-  document.getElementById('cd-icon').textContent = icon || '❓';
+  document.getElementById('cd-icon').innerHTML = icon || '❓';
   document.getElementById('cd-msg').textContent = msg || '确定要执行此操作吗？';
   document.getElementById('confirm-overlay').classList.add('show');
 }
@@ -6012,6 +6172,7 @@ var brainCat = 'chess';
 var brainGame = 'gomoku';
 
 function renderBrainPage() {
+  updateBrainChances();
   switchBrainCat(brainCat);
 }
 
@@ -6126,6 +6287,7 @@ function setGomokuDiff(d) {
 }
 
 function startGomokuAI() {
+  if (!useBrainChance()) return;
   initGomokuBoard();
   gomokuMyColor = 1;
   renderGomokuBoard();
@@ -6549,6 +6711,7 @@ function unoShuffle(deck) {
 }
 
 function unoStartAIGame() {
+  if (!useBrainChance()) return;
   var deck = unoShuffle(unoCreateDeck());
   var first;
   while (true) {
@@ -7322,6 +7485,7 @@ function unoLoadRooms() {
 }
 
 function unoCreateRoom() {
+  if (!useBrainChance()) return;
   var sel = document.getElementById('uno-player-count');
   var maxP = sel ? parseInt(sel.value) : 2;
   if (maxP <= 2) {
@@ -7370,6 +7534,7 @@ function unoJoinRoom(id) {
 }
 
 function unoJoinById() {
+  if (!useBrainChance()) return;
   var input = document.getElementById('uno-join-id-input');
   if (!input) return;
   var id = parseInt(input.value);
@@ -7647,6 +7812,7 @@ function gomokuLoadRooms() {
 }
 
 function gomokuCreateRoom() {
+  if (!useBrainChance()) return;
   apiCall('POST', '/api/games/create', { type: 'gomoku' }).then(function(res) {
     if (res.error) { showToast(res.error, 'error'); return; }
     gomokuSaveGameId(res.game_id);
@@ -7671,6 +7837,7 @@ function gomokuJoinRoom(id) {
 }
 
 function gomokuJoinById() {
+  if (!useBrainChance()) return;
   var input = document.getElementById('gomoku-join-id-input');
   if (!input) return;
   var id = parseInt(input.value);
@@ -7844,6 +8011,7 @@ function setXqDiff(d) {
 }
 
 function startXqAIGame() {
+  if (!useBrainChance()) return;
   initXqBoard();
   xqMyColor = 'r';
   renderXqBoard();
@@ -8407,6 +8575,7 @@ function xqLoadRooms() {
 }
 
 function xqCreateRoom() {
+  if (!useBrainChance()) return;
   apiCall('POST', '/api/games/create', { type: 'xiangqi' }).then(function(res) {
     if (res.error) { showToast(res.error, 'error'); return; }
     xqSaveGameId(res.game_id);
@@ -8419,6 +8588,7 @@ function xqCreateRoom() {
 }
 
 function xqJoinById() {
+  if (!useBrainChance()) return;
   var input = document.getElementById('xq-join-id-input');
   if (!input) return;
   var id = parseInt(input.value);
@@ -8573,29 +8743,121 @@ var PET_SPEECH = {
   feed: ['吧唧吧唧！这也太好吃了吧！', '哇！是小主人亲手做的吗？爱了爱了！', '嘿嘿，我的肚子圆滚滚的啦！', '再多喂一点点嘛...就一点点！', '这是我吃过最好吃的一顿！'],
   bath: ['咕噜咕噜！泡泡山比我还高啦！', '我现在是不是香香软软的？快抱抱我！', '搓搓搓...变白白啦！我是不是最可爱的？', '嘿嘿，我现在滑溜溜的像条小鱼！', '哇！水好暖和，都不想出来了～'],
   exercise: ['嗖——！你追不上我吧！哈哈！', '一二一！一二一！我是超级运动员！', '跑完了我浑身都在冒烟！呼呼～', '小主人快来比比，谁跑得快！', '嘿嘿，看我的肌肉！变大了吧！'],
-  play: ['哈哈哈！太好玩了！再来再来！', '小主人，我们永远是好朋友好不好？', '蹦蹦蹦！我是弹力小达人！', '今天是我最最最开心的一天！', '嘿嘿，被挠痒痒了！不许再挠了！']
+ play: ['哈哈哈！太好玩了！再来再来！', '小主人，我们永远是好朋友好不好？', '蹦蹦蹦！我是弹力小达人！', '今天是我最最最开心的一天！', '嘿嘿，被挠痒痒了！不许再挠了！'],
+  click: ['嘿嘿，小主人来啦！想我了吗？', '戳我干嘛啦～人家在休息呢！', '哇！是你呀！我最喜欢你了！', '哼哼，再戳我就生气气啦！', '你今天学习了吗？要加油哦！', '抱抱～我最喜欢小主人的抱抱了！', '哎呀呀，别戳啦，我好痒的！', '今天也要开心哦！我们一起加油！']
 };
 var PET_EMOJI = { feed: '🍖', bath: '🛁', exercise: '🏃', play: '🎾' };
+function onPetClick() {
+  showPetBubble('click');
+  if (is3dPet(appData.pet)) {
+   var actions = ['happy', 'play'];
+   play3dPetGif(actions[Math.floor(Math.random() * actions.length)]);
+  }
+}
 function showPetBubble(action) {
   var pool = PET_SPEECH[action];
   if (!pool) return;
   var text = pool[Math.floor(Math.random() * pool.length)];
-  var showcase = document.querySelector('.pp-showcase');
-  if (!showcase) return;
-  var existing = showcase.querySelector('.pet-speech-bubble');
-  if (existing) existing.remove();
-  var bubble = document.createElement('div');
- bubble.className = 'pet-speech-bubble';
-  var emoji = PET_EMOJI[action] || '';
-  if (is3dPet(appData.pet) && action === 'exercise') emoji = '🤗';
-  bubble.innerHTML = '<span class="psb-emoji">' + emoji + '</span>' + text;
- showcase.appendChild(bubble);
-  setTimeout(function() { bubble.classList.add('show'); }, 10);
-  if (petSpeechTimer) clearTimeout(petSpeechTimer);
-  petSpeechTimer = setTimeout(function() {
-    bubble.classList.remove('show');
-    setTimeout(function() { if (bubble.parentNode) bubble.remove(); }, 350);
-  }, 2500);
+ var showcase = document.querySelector('.pp-showcase');
+ if (!showcase) return;
+  var oldBubble = document.querySelector('.pet-speech-bubble');
+  if (oldBubble) oldBubble.remove();
+  document.querySelectorAll('.psb-dot').forEach(function(d) { d.remove(); });
+  var rect = showcase.getBoundingClientRect();
+ var bubble = document.createElement('div');
+  bubble.className = 'pet-speech-bubble';
+ var emoji = PET_EMOJI[action] || '';
+ if (is3dPet(appData.pet) && action === 'exercise') emoji = '🤗';
+ bubble.innerHTML = '<span class="psb-emoji">' + emoji + '</span>' + text;
+  document.body.appendChild(bubble);
+ var styles = [
+    { bg: '#fff5f5', border: '#ffd6d6', radius: '28px 28px 28px 28px' },
+    { bg: '#f0f5ff', border: '#d6e0ff', radius: '24px 32px 24px 32px' },
+    { bg: '#f0fff5', border: '#d6ffd6', radius: '32px 24px 32px 24px' },
+    { bg: '#fff8f0', border: '#ffe0c0', radius: '26px 30px 26px 30px' },
+    { bg: '#f8f0ff', border: '#e0d0ff', radius: '30px 26px 30px 26px' },
+    { bg: '#f0ffff', border: '#d0f0f0', radius: '28px 24px 32px 28px' }
+  ];
+  var st = styles[Math.floor(Math.random() * styles.length)];
+  bubble.style.background = st.bg;
+  bubble.style.borderColor = st.border;
+bubble.style.borderRadius = st.radius;
+ var bw = bubble.offsetWidth;
+ var bh = bubble.offsetHeight;
+var vw = window.innerWidth;
+var vh = window.innerHeight;
+var petMidY = rect.top + rect.height * 0.35;
+var sideGap = 12;
+var topGap = 8;
+var yOffset = 20;
+var sidebarEl = document.querySelector('.nav-sidebar');
+var minX = sidebarEl ? sidebarEl.getBoundingClientRect().right + 8 : 8;
+var maxX = vw - 8;
+var positions = [
+   { x: rect.left - bw - sideGap, y: petMidY - bh / 2 + yOffset, side: 'left', rot: 0, layout: 'side' },
+   { x: rect.right + sideGap, y: petMidY - bh / 2 + yOffset, side: 'right', rot: 0, layout: 'side' },
+   { x: rect.left, y: rect.top - bh - topGap + yOffset, side: 'left', rot: -7, layout: 'top' },
+   { x: rect.right - bw, y: rect.top - bh - topGap + yOffset, side: 'right', rot: 7, layout: 'top' }
+];
+var sideValid = positions.filter(function(p) { return p.layout === 'side' && p.y >= 8 && p.y + bh <= vh - 8 && p.x >= minX && p.x + bw <= maxX; });
+var valid = sideValid.length > 0 ? sideValid : positions.filter(function(p) { return p.layout === 'top' && p.y >= 4 && p.y + bh <= vh - 4 && p.x >= minX && p.x + bw <= maxX; });
+if (valid.length === 0) valid = positions.filter(function(p) { return p.layout === 'top'; });
+if (valid.length === 0) valid = positions;
+var pos = valid[Math.floor(Math.random() * valid.length)];
+pos.x = Math.max(minX, Math.min(pos.x, maxX - bw));
+pos.y = Math.max(8, Math.min(pos.y, vh - bh - 8));
+ var rot = pos.rot;
+ bubble.style.left = pos.x + 'px';
+ bubble.style.top = pos.y + 'px';
+  bubble.style.transformOrigin = pos.layout === 'side' ? (pos.side === 'left' ? 'center right' : 'center left') : (pos.side === 'left' ? 'bottom left' : 'bottom right');
+ bubble.style.transform = 'rotate(' + rot + 'deg) scale(0)';
+var dotSizes = [8, 6, 4];
+ var dsx, dsy, dex, dey;
+if (pos.layout === 'side') {
+   var petY = rect.top + rect.height * 0.4;
+   if (pos.side === 'left') {
+     dsx = pos.x + bw; dsy = pos.y + bh / 2;
+     dex = rect.left; dey = petY;
+   } else {
+     dsx = pos.x; dsy = pos.y + bh / 2;
+     dex = rect.right; dey = petY;
+   }
+} else if (pos.side === 'left') {
+   dsx = pos.x + bw * 0.4; dsy = pos.y + bh;
+    dex = pos.x + bw * 0.6; dey = rect.top;
+} else {
+   dsx = pos.x + bw * 0.6; dsy = pos.y + bh;
+    dex = pos.x + bw * 0.4; dey = rect.top;
+}
+dotSizes.forEach(function(sz, i) {
+   var dot = document.createElement('div');
+   dot.className = 'psb-dot';
+   dot.style.background = st.bg;
+   dot.style.borderColor = st.border;
+   dot.style.width = sz + 'px';
+   dot.style.height = sz + 'px';
+    var frac = (i + 0.5) / dotSizes.length;
+    var dx = dsx + frac * (dex - dsx);
+    var dy = dsy + frac * (dey - dsy);
+    dot.style.left = (dx - sz / 2) + 'px';
+    dot.style.top = (dy - sz / 2) + 'px';
+   document.body.appendChild(dot);
+ });
+ requestAnimationFrame(function() {
+    bubble.style.transform = 'rotate(' + rot + 'deg) scale(1)';
+   bubble.style.opacity = '1';
+   document.querySelectorAll('.psb-dot').forEach(function(d) { d.style.opacity = '1'; });
+ });
+if (petSpeechTimer) clearTimeout(petSpeechTimer);
+petSpeechTimer = setTimeout(function() {
+    bubble.style.transform = 'rotate(' + rot + 'deg) scale(0)';
+   bubble.style.opacity = '0';
+   document.querySelectorAll('.psb-dot').forEach(function(d) { d.style.opacity = '0'; });
+    setTimeout(function() {
+      if (bubble.parentNode) bubble.remove();
+      document.querySelectorAll('.psb-dot').forEach(function(d) { d.remove(); });
+    }, 350);
+ }, 2500);
 }
 function showPetXP(amount) {
   var showcase = document.querySelector('.pp-showcase');
@@ -8859,7 +9121,25 @@ document.querySelectorAll('.nav-item').forEach(function(n){n.addEventListener('c
 
 var mathQuiz = { mode: null, questions: [], idx: 0, score: 0, startTime: 0, timerId: null, answered: false, input: '', results: [] };
 
+function updateBrainChances() {
+  var el = document.getElementById('math-brain-chances');
+  if (el) el.textContent = '🎫×' + (appData.brainChances || 0);
+  var el2 = document.getElementById('brain-chances-display');
+  if (el2) el2.textContent = '🎫×' + (appData.brainChances || 0);
+}
+function useBrainChance() {
+  if ((appData.brainChances || 0) <= 0) {
+    showToast('没有🎫次数了！数学每日计算拿满分可获得', 'error');
+    return false;
+  }
+  appData.brainChances--;
+  saveData(appData);
+  updateBrainChances();
+  showToast('消耗1次🎫，剩余' + appData.brainChances + '次', 'info');
+  return true;
+}
 function renderMathPage() {
+  updateBrainChances();
   if (!appData.mathBest) appData.mathBest = { addsub: 0, mul: 0, div: 0, mixed: 0 };
   var home = document.getElementById('math-home');
   var practice = document.getElementById('math-practice');
@@ -8874,7 +9154,39 @@ function renderMathPage() {
   });
 }
 
-function startMentalMath(mode) {
+function showMixedCountSelect() {
+  var modes = document.querySelector('.math-modes');
+  if (modes) modes.style.display = 'none';
+  var sel = document.getElementById('mixed-count-select');
+  if (!sel) {
+    var home = document.getElementById('math-home');
+    sel = document.createElement('div');
+    sel.id = 'mixed-count-select';
+    sel.innerHTML =
+      '<div style="text-align:center;padding:20px 0 10px;font-size:18px;font-weight:700;color:var(--text);">混合计算</div>' +
+      '<div style="text-align:center;font-size:13px;color:var(--text-secondary);margin-bottom:16px;">选择题量开始练习</div>' +
+      '<div class="math-modes" style="max-width:300px;">' +
+      '<div class="math-mode-card" onclick="startMentalMath(\'mixed\',50)">' +
+      '<div class="mmc-title">50题</div>' +
+      '<div class="mmc-info">满分100分 · 含等号左边留空</div>' +
+      '</div>' +
+      '<div class="math-mode-card" onclick="startMentalMath(\'mixed\',100)">' +
+      '<div class="mmc-title">100题</div>' +
+      '<div class="mmc-info">满分200分 · 含等号左边留空</div>' +
+      '</div>' +
+      '</div>' +
+      '<div style="text-align:center;margin-top:16px;"><button class="mp-btn secondary" onclick="backToMathModes()" style="padding:8px 28px;">返回</button></div>';
+    home.appendChild(sel);
+  }
+  sel.style.display = '';
+}
+function backToMathModes() {
+  var modes = document.querySelector('.math-modes');
+  var sel = document.getElementById('mixed-count-select');
+  if (modes) modes.style.display = '';
+  if (sel) sel.style.display = 'none';
+}
+function startMentalMath(mode, count) {
   mathQuiz.mode = mode;
   mathQuiz.questions = [];
   mathQuiz.idx = 0;
@@ -8882,14 +9194,16 @@ function startMentalMath(mode) {
   mathQuiz.answered = false;
   mathQuiz.input = '';
   mathQuiz.results = [];
-  var totalQ = (mode === 'mixed') ? 100 : 50;
   if (mode === 'mixed') {
-    for (var i = 0; i < 50; i++) mathQuiz.questions.push(generateMixedQuestion());
-    for (var i = 0; i < 50; i++) mathQuiz.questions.push(generateMixedLeftQuestion());
+   mathQuiz.count = count || 100;
+    var halfQ = Math.floor(mathQuiz.count / 2);
+    for (var i = 0; i < halfQ; i++) mathQuiz.questions.push(generateMixedQuestion());
+    for (var i = 0; i < mathQuiz.count - halfQ; i++) mathQuiz.questions.push(generateMixedLeftQuestion());
     mathQuiz.questions.sort(function() { return Math.random() - 0.5; });
-  } else {
-    for (var i = 0; i < 50; i++) mathQuiz.questions.push(generateMathQuestion(mode));
-  }
+ } else {
+    mathQuiz.count = 50;
+    for (var i = 0; i < mathQuiz.count; i++) mathQuiz.questions.push(generateMathQuestion(mode));
+ }
   document.getElementById('math-home').style.display = 'none';
   document.getElementById('math-result').style.display = 'none';
   document.getElementById('math-practice').style.display = '';
@@ -9038,10 +9352,11 @@ function showMathQuestion() {
   document.getElementById('mp-progress').textContent = (mathQuiz.idx + 1) + ' / ' + mathQuiz.questions.length;
   document.getElementById('mp-question').innerHTML =
     '<div class="q-text">' + (q.display ? renderMathDisplay(q.display) : (q.a + ' <span class="q-equal">' + q.op + '</span> ' + q.b + ' <span class="q-equal">=</span><span class="q-mark">?</span>')) + '</div>';
-  var el = document.getElementById('mp-answers');
-  el.innerHTML =
-    '<div class="mp-input-display" id="mp-input-display"></div>' +
-    '<div class="mp-numpad">' +
+ var el = document.getElementById('mp-answers');
+ el.innerHTML =
+    (mathQuiz.idx > 0 ? '<div class="mp-back-btn"><button onclick="prevMathQuestion()">← 上一题</button></div>' : '') +
+   '<div class="mp-input-display" id="mp-input-display"></div>' +
+   '<div class="mp-numpad">' +
     '<div class="mp-key" onclick="inputMathDigit(1)">1</div>' +
     '<div class="mp-key" onclick="inputMathDigit(2)">2</div>' +
     '<div class="mp-key" onclick="inputMathDigit(3)">3</div>' +
@@ -9068,6 +9383,19 @@ function deleteMathDigit() {
   if (mathQuiz.answered) return;
   mathQuiz.input = mathQuiz.input.slice(0, -1);
   document.getElementById('mp-input-display').textContent = mathQuiz.input;
+}
+
+function prevMathQuestion() {
+  if (mathQuiz.idx <= 0 || mathQuiz.answered) return;
+  var prev = mathQuiz.results.pop();
+  if (prev && prev.correct) mathQuiz.score -= 2;
+  mathQuiz.idx--;
+  showMathQuestion();
+  if (prev) {
+    mathQuiz.input = String(prev.user);
+    var display = document.getElementById('mp-input-display');
+    if (display) display.textContent = mathQuiz.input;
+  }
 }
 
 function confirmMathAnswer() {
@@ -9104,8 +9432,14 @@ function finishMathQuiz() {
   document.getElementById('math-practice').style.display = 'none';
   var resultEl = document.getElementById('math-result');
   resultEl.style.display = '';
-  var correctCount = mathQuiz.results.filter(function(r) { return r.correct; }).length;
-  var wrongCount = mathQuiz.questions.length - correctCount;
+ var correctCount = mathQuiz.results.filter(function(r) { return r.correct; }).length;
+ var wrongCount = mathQuiz.questions.length - correctCount;
+  var isPerfect = (correctCount === mathQuiz.questions.length);
+ if (isPerfect) {
+   appData.brainChances = (appData.brainChances || 0) + 1;
+   saveData(appData);
+    updateBrainChances();
+ }
   var reviewHtml = mathQuiz.results.map(function(r, i) {
     return '<div class="mp-review-item ' + (r.correct ? 'ok' : 'no') + '">' +
       '<span class="mp-review-num">' + (i+1) + '</span>' +
@@ -9119,10 +9453,11 @@ function finishMathQuiz() {
     '<div style="font-size:20px;font-weight:700;color:var(--text);margin-bottom:4px;">' + modeNames[mode] + '</div>' +
     '<div class="mp-result-score">' + mathQuiz.score + ' 分</div>' +
     '<div class="mp-result-label">用时 ' + m + ':' + s + ' · 答对 ' + correctCount + '/' + mathQuiz.questions.length + ' 题</div>' +
-    (isBest ? '<div class="mp-result-best">🎉 新纪录！</div>' : '<div class="mp-result-best">最高分: ' + (appData.mathBest[mode] || 0) + '</div>') +
-    '<div class="mp-review-list">' + reviewHtml + '</div>' +
+   (isBest ? '<div class="mp-result-best">🎉 新纪录！</div>' : '<div class="mp-result-best">最高分: ' + (appData.mathBest[mode] || 0) + '</div>') +
+    (isPerfect ? '<div style="color:#7bc043;font-weight:600;font-size:13px;margin:6px 0;">🎫 满分！获得1次脑力游戏机会（当前共' + appData.brainChances + '次）</div>' : '') +
+   '<div class="mp-review-list">' + reviewHtml + '</div>' +
     '<div class="mp-result-btns">' +
-    '<button class="mp-btn primary" onclick="startMentalMath(\'' + mode + '\')">再来一次</button>' +
+    '<button class="mp-btn primary" onclick="startMentalMath(\'' + mode + '\'' + (mathQuiz.count ? ',' + mathQuiz.count : '') + ')">再来一次</button>' +
     '<button class="mp-btn secondary" onclick="renderMathPage()">返回选择</button>' +
     '</div></div>';
 }
@@ -9377,6 +9712,17 @@ function m10DrawLine(path) {
 }
 
 function switchMathTab(tab, el) {
+  var brainTabs = ['sudoku', 'g2048', 'merge10'];
+  if (brainTabs.indexOf(tab) >= 0) {
+    if ((appData.brainChances || 0) <= 0) {
+      showToast('没有脑力次数了！数学每日计算拿满分可获得次数', 'error');
+      return;
+    }
+    appData.brainChances--;
+    saveData(appData);
+    updateBrainChances();
+    showToast('消耗1次脑力次数，剩余' + appData.brainChances + '次', 'info');
+  }
   document.querySelectorAll('#math-sub-tabs .breadcrumb-item').forEach(function(t) { t.classList.remove('active'); });
   if (el) el.classList.add('active');
   document.getElementById('math-sudoku-filters').style.display = tab === 'sudoku' ? '' : 'none';
