@@ -5116,7 +5116,7 @@ function renderPetPage() {
         '<span class="ppa-cost">5⭐</span><span class="ppa-xp">+15EXP</span>' +
       '</button>' +
   '</div>' +
-   (is3d ? '<div style="text-align:center;margin:10px 0;"><button onclick="openSwitchPetModal()" style="padding:6px 18px;border:2px solid #e0d4c0;border-radius:20px;background:#faf6f0;color:#8b7355;font-size:13px;cursor:pointer;font-family:inherit;display:inline-flex;align-items:center;gap:5px;"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="filter:drop-shadow(0 0 1px #8b7355);"><path d="M7 4L3 8l4 4"/><path d="M3 8h14"/><path d="M17 20l4-4-4-4"/><path d="M21 16H7"/></svg> 换个伙伴</button></div>' : '') +
+   '<div style="text-align:center;margin:10px 0;"><button onclick="openSwitchPetModal()" style="padding:6px 18px;border:2px solid #e0d4c0;border-radius:20px;background:#faf6f0;color:#8b7355;font-size:13px;cursor:pointer;font-family:inherit;display:inline-flex;align-items:center;gap:5px;"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="filter:drop-shadow(0 0 1px #8b7355);"><path d="M7 4L3 8l4 4"/><path d="M3 8h14"/><path d="M17 20l4-4-4-4"/><path d="M21 16H7"/></svg> 换个伙伴</button></div>' +
    // 小贴士 - 强调积分喂养
    '<div class="pp-tips">' +
       '<div class="pp-tips-title">⚠️ 养宠须知</div>' +
@@ -5309,7 +5309,7 @@ function openSwitchPetModal() {
   if (!pet || !pet.owned || !pet.alive) return;
   var style = PET_STYLES['3d'];
   if (!style || !style.pets) return;
-  swPetId = pet.petId || 0;
+  swPetId = is3dPet(pet) ? (pet.petId || 0) : -1;
   var switchCount = pet.switchCount || 0;
   var isFree = switchCount < 3;
   var subEl = document.getElementById('swm-sub');
@@ -5340,7 +5340,8 @@ function closeSwitchPetModal() {
 function confirmSwitchPet() {
   var pet = appData.pet;
   if (!pet || !pet.owned || !pet.alive) return;
-  if (swPetId === pet.petId) { showToast('选择的还是当前伙伴，无需切换~', 'info'); closeSwitchPetModal(); return; }
+  if (swPetId < 0) { showToast('请先选择一个伙伴~', 'info'); return; }
+  if (is3dPet(pet) && swPetId === pet.petId) { showToast('选择的还是当前伙伴，无需切换~', 'info'); closeSwitchPetModal(); return; }
   var switchCount = pet.switchCount || 0;
   var isFree = switchCount < 3;
   var cost = isFree ? 0 : 50;
@@ -5358,6 +5359,7 @@ function _doSwitchPet() {
   if (!isFree && appData.points < cost) { showToast('积分不够！需要' + cost + '⭐才能切换', 'error'); return; }
   if (!isFree) appData.points -= cost;
   var newName = document.getElementById('sw-name-input').value.trim();
+  pet.style = '3d';
   pet.petId = swPetId;
   if (newName) pet.name = newName;
   pet.switchCount = (pet.switchCount || 0) + 1;
