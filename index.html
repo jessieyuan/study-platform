@@ -4619,7 +4619,8 @@ var PET_STYLES = {
    icon: '🐱',
    pets: [
       { name: '布偶猫', image: 'pets/3d/cat/cat.gif', type: 'cat' },
-      { name: '胖丁', image: 'pets/3d/pangding/pangding.gif', type: 'pangding' }
+      { name: '胖丁', image: 'pets/3d/pangding/pangding.gif', type: 'pangding' },
+      { name: '皮卡丘', image: 'pets/3d/pkq/pkq.gif', type: 'pkq' }
    ],
    actions: {
      stand: 'pets/3d/cat/cat-stand.gif',
@@ -4674,10 +4675,11 @@ var petActionTimer = null;
 var PET_STAND_PATTERN = [0, 0, 1];
 var _skipStandCycle = false;
 var _3dGifPreloaded = false;
-var PET_GIF_VER = 1025;
+var PET_GIF_VER = 1039;
 var PET_GIF_DURATIONS = {
   cat:      { stand: 3800, stand2: 4100, eat: 4100, shower: 4100, play: 4100, play2: 4000, happy: 4100, happy2: 4100 },
-  pangding: { stand: 3700, stand2: 3600, eat: 3600, shower: 6200, play: 3600, play2: 3500, happy: 3600, happy2: 3600 }
+  pangding: { stand: 3700, stand2: 3600, eat: 3600, shower: 6200, play: 3600, play2: 3500, happy: 3600, happy2: 3600 },
+  pkq:      { stand: 2500, stand2: 2600, eat: 4200, shower: 4600, play: 5000, play2: 5000, happy: 2600, happy2: 2600 }
 };
 var _petIsMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent || '');
 var PET_SPEED_FACTOR = _petIsMobile ? 1.35 : 1.0;
@@ -4692,7 +4694,8 @@ function preload3dPetGifs() {
   _3dGifPreloaded = true;
   var type = get3dPetType(appData.pet);
   var base = 'pets/3d/' + type + '/' + type + '-';
-  var allGifs = [base+'stand.gif', base+'stand2.gif', base+'eat.gif', base+'shower.gif', base+'play.gif', base+'play2.gif', base+'happy.gif', base+'happy2.gif'];
+  var allGifs = [base+'stand.gif', base+'eat.gif', base+'shower.gif', base+'play.gif', base+'play2.gif', base+'happy.gif', base+'happy2.gif'];
+  if (type !== 'pkq') allGifs.splice(1, 0, base+'stand2.gif');
   var gv = '?v=' + PET_GIF_VER;
   allGifs = allGifs.map(function(s) { return s + gv; });
   allGifs.forEach(function(src) {
@@ -4715,24 +4718,25 @@ function playNextPetStand() {
  if (!img) { stopPetStandCycle(); return; }
  var type = get3dPetType(appData.pet);
  var base = 'pets/3d/' + type + '/' + type + '-';
- var stands = [base + 'stand.gif?v=' + PET_GIF_VER, base + 'stand2.gif?v=' + PET_GIF_VER];
- var idx = PET_STAND_PATTERN[petStandPos];
+ var hasStand2 = type !== 'pkq';
+ var stands = hasStand2 ? [base + 'stand.gif?v=' + PET_GIF_VER, base + 'stand2.gif?v=' + PET_GIF_VER] : [base + 'stand.gif?v=' + PET_GIF_VER];
+ var pattern = hasStand2 ? PET_STAND_PATTERN : [0];
+ var idx = pattern[petStandPos % pattern.length];
 var targetSrc = stands[idx] || stands[0];
 var dur = getPetGifDuration(idx === 0 ? 'stand' : 'stand2');
 var needSwitch = img.src.indexOf(targetSrc) < 0;
 function scheduleNext() {
  petStandTimer = setTimeout(function() {
-  petStandPos = (petStandPos + 1) % PET_STAND_PATTERN.length;
+  petStandPos = (petStandPos + 1) % pattern.length;
   playNextPetStand();
  }, dur);
 }
+ if (!needSwitch) { scheduleNext(); return; }
  img.onload = null;
- img.src = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
- void img.offsetWidth;
  var _started = false;
  var _fb = setTimeout(function() {
   if (!_started) { _started = true; scheduleNext(); }
- }, 500);
+ }, 3000);
  img.onload = function() {
   if (!_started) { _started = true; clearTimeout(_fb); img.onload = null; scheduleNext(); }
  };
@@ -4747,8 +4751,6 @@ function play3dPetGif(action, duration) {
  if (petActionTimer) clearTimeout(petActionTimer);
  var dur = duration || getPetGifDuration(action);
  img.onload = null;
- img.src = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
- void img.offsetWidth;
  var _started = false;
  var _fb = setTimeout(function() {
   if (_started) return;
@@ -4757,7 +4759,7 @@ function play3dPetGif(action, duration) {
    petActionTimer = null;
    if (is3dPet(appData.pet)) startPetStandCycle();
   }, dur);
- }, 500);
+ }, 3000);
  img.onload = function() {
   if (_started) return;
   _started = true;
@@ -4841,10 +4843,12 @@ function feedPet() {
   addXP(pet, 20);
   saveData(appData);
   updatePetUI();
-  renderHomePage();
-  _skipStandCycle = true;
-  renderPetPage();
-  _skipStandCycle = false;
+  if (document.getElementById('page-home') && document.getElementById('page-home').classList.contains('active')) renderHomePage();
+  if (!is3dPet(pet)) {
+    _skipStandCycle = true;
+    renderPetPage();
+    _skipStandCycle = false;
+  }
   if (is3dPet(pet)) play3dPetGif('eat');
   else animatePetInPage('feed');
   showPetBubble('feed');
@@ -4864,10 +4868,12 @@ function bathPet() {
   addXP(pet, 30);
   saveData(appData);
   updatePetUI();
-  renderHomePage();
-  _skipStandCycle = true;
-  renderPetPage();
-  _skipStandCycle = false;
+  if (document.getElementById('page-home') && document.getElementById('page-home').classList.contains('active')) renderHomePage();
+  if (!is3dPet(pet)) {
+    _skipStandCycle = true;
+    renderPetPage();
+    _skipStandCycle = false;
+  }
   if (is3dPet(pet)) play3dPetGif('shower');
   else animatePetInPage('bath');
   showPetBubble('bath');
@@ -4883,10 +4889,12 @@ function exercisePet() {
   addXP(pet, 25);
   saveData(appData);
   updatePetUI();
-  renderHomePage();
-  _skipStandCycle = true;
-  renderPetPage();
-  _skipStandCycle = false;
+  if (document.getElementById('page-home') && document.getElementById('page-home').classList.contains('active')) renderHomePage();
+  if (!is3dPet(pet)) {
+    _skipStandCycle = true;
+    renderPetPage();
+    _skipStandCycle = false;
+  }
   if (is3dPet(pet)) play3dPetGif('happy');
   else animatePetInPage('exerciseAnim');
   showPetBubble('exercise');
@@ -4902,20 +4910,66 @@ function playWithPet() {
   addXP(pet, 15);
   saveData(appData);
   updatePetUI();
-  renderHomePage();
-  _skipStandCycle = true;
-  renderPetPage();
-  _skipStandCycle = false;
+  if (document.getElementById('page-home') && document.getElementById('page-home').classList.contains('active')) renderHomePage();
+  if (!is3dPet(pet)) {
+    _skipStandCycle = true;
+    renderPetPage();
+    _skipStandCycle = false;
+  }
   if (is3dPet(pet)) play3dPetGif('play');
   else animatePetInPage('playAnim');
   showPetBubble('play');
   showPetXP(15);
 }
 
+function updatePetPageStats() {
+  var pet = appData.pet;
+  if (!pet || !pet.owned || !pet.alive) return;
+  var level = pet.level || 1;
+  var xp = pet.xp || 0;
+  var xpNeeded = xpForLevel(level);
+  var xpPct = Math.min(100, Math.round(xp / xpNeeded * 100));
+  var lvBadge = document.querySelector('.pp-lv-badge');
+  if (lvBadge) lvBadge.textContent = 'Lv.' + level;
+  var xpLabel = document.querySelector('.pp-xp-label');
+  if (xpLabel) xpLabel.textContent = 'EXP ' + xp + '/' + xpNeeded;
+  var xpFill = document.querySelector('.pp-xp-fill');
+  if (xpFill) xpFill.style.width = xpPct + '%';
+  var health = calcPetHealth(pet);
+  var healthVal = document.querySelector('.pp-health-val');
+  if (healthVal) {
+    healthVal.textContent = health + '/100';
+    healthVal.style.color = health >= 80 ? '#2d6a3f' : health >= 50 ? '#e67e22' : '#c0392b';
+  }
+  var healthFill = document.querySelector('.pp-health-fill');
+  if (healthFill) {
+    healthFill.style.width = health + '%';
+    healthFill.style.background = health >= 80 ? 'linear-gradient(90deg,#4caf50,#8bc34a)' : health >= 50 ? 'linear-gradient(90deg,#ff9800,#ffc107)' : 'linear-gradient(90deg,#f44336,#ff5722)';
+  }
+  var statusBadge = document.querySelector('.pp-status-badge');
+  if (statusBadge) {
+    var fedToday = pet.lastFedDate === todayStr();
+    var todayEarned = pet.todayEarned || 0;
+    var hungerDays = 0;
+    if (pet.lastFedDate) {
+      var last = new Date(pet.lastFedDate + 'T00:00:00');
+      var now2 = new Date(); now2.setHours(0,0,0,0);
+      hungerDays = Math.floor((now2 - last) / (1000*60*60*24));
+    }
+    var statusClass, statusText;
+    if (fedToday || hungerDays === 0) { statusClass = 'full'; statusText = '😊 很饱'; }
+    else if (hungerDays === 1) { statusClass = 'hungry'; statusText = '😐 有点饿了'; }
+    else { statusClass = 'starving'; statusText = '😫 快饿晕了！'; }
+    statusBadge.className = 'pp-status-badge ' + statusClass;
+    statusBadge.textContent = statusText + ' | ' + todayEarned + '⭐今日';
+  }
+}
+
 function updatePetUI() {
   migrateOldPet();
   var pet = appData.pet;
   if (!pet) pet = { owned: false, style: 'pokemon', petId: 0, name: '', alive: true, todayEarned: 0 };
+  updatePetPageStats();
   var emojiEl = document.getElementById('nav-pet-emoji');
   var nameEl = document.getElementById('nav-pet-name');
   var statusEl = document.getElementById('nav-pet-status');
@@ -4940,12 +4994,15 @@ function updatePetUI() {
  var img = getPetBackgroundImage(pet);
  emojiEl.className = 'nav-pet-emoji pet-img alive';
  var clothes = getPetClothesOverlay();
-  if (is3dPet(pet)) {
-    var standImg = get3dPetGif('stand');
-    emojiEl.className = 'nav-pet-emoji pet-img alive';
-    emojiEl.style.animation = 'none';
-    emojiEl.innerHTML = '<img src="' + standImg + '" style="width:50px;height:50px;object-fit:contain;animation:none;" draggable="false">';
-  } else if (clothes) {
+ if (is3dPet(pet)) {
+   var standImg = get3dPetGif('stand');
+   emojiEl.className = 'nav-pet-emoji pet-img alive';
+   emojiEl.style.animation = 'none';
+    var navImg = emojiEl.querySelector('img');
+    if (!navImg || navImg.getAttribute('src') !== standImg) {
+      emojiEl.innerHTML = '<img src="' + standImg + '" style="width:50px;height:50px;object-fit:contain;animation:none;" draggable="false">';
+    }
+ } else if (clothes) {
     emojiEl.innerHTML = '<img src="' + img + '" style="width:50px;height:50px;object-fit:contain;animation:pet-breathe 2.5s ease-in-out infinite;" draggable="false"><span class="clothes-overlay">' + clothes + '</span>';
   } else {
     emojiEl.innerHTML = '<img src="' + img + '" style="width:50px;height:50px;object-fit:contain;animation:pet-breathe 2.5s ease-in-out infinite;" draggable="false">';
