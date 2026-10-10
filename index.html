@@ -2741,6 +2741,23 @@
   .uno-opp-row.uno-seat-side .uno-opp-cards { max-height:220px; }
 }
 
+/* ===== 语法小黑板 ===== */
+.gb-iframe-wrap {
+  position: relative;
+  width: 100%;
+  border-radius: 16px;
+  overflow: hidden;
+  border: 2px solid #e0d0b8;
+  background: #fff;
+}
+.gb-iframe {
+  width: 100%;
+  height: calc(100vh - 260px);
+  min-height: 560px;
+  border: none;
+  display: block;
+}
+
 </style>
 </head>
 <body>
@@ -12710,8 +12727,12 @@ function switchEnglishCat(cat, el) {
     else renderSpellGame();
   } else {
     subTabs.style.display = 'none';
-    var names = { grammar:'语法', reading:'阅读', speaking:'口语' };
-    content.innerHTML = '<div class="task-empty" style="padding:60px 0;">' + (names[cat]||'') + '内容即将上线，敬请期待~</div>';
+    if (cat === 'grammar') {
+      renderGrammarEntry();
+    } else {
+      var names = { reading:'阅读', speaking:'口语' };
+      content.innerHTML = '<div class="task-empty" style="padding:60px 0;">' + (names[cat]||'') + '内容即将上线，敬请期待~</div>';
+    }
   }
   saveData(appData);
 }
@@ -12732,6 +12753,12 @@ function renderEnglishPage() {
   var tabs = document.querySelectorAll('#page-english .cm-cat-tab');
   tabs.forEach(function(t) { t.classList.toggle('active', t.dataset.cat === cat); });
   switchEnglishCat(cat);
+}
+
+function renderGrammarEntry() {
+  var el = document.getElementById('english-content');
+  if (!el) return;
+  el.innerHTML = '<div class="gb-iframe-wrap"><iframe src="/grammar-blackboard.html" class="gb-iframe" title="语法小黑板"></iframe></div>';
 }
 
 function shuffleArr(arr) {

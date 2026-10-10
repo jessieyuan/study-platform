@@ -1,0 +1,1732 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>语法小黑板 · 自选复习（原型 v1）</title>
+<style>
+:root{
+  --ink:#3d3630; --paper:#fffdf6; --bg:#f6efdd;
+  --red:#e74c3c; --blue:#2980b9; --green:#27ae60; --orange:#e67e22; --purple:#8e44ad; --gold:#f1c40f;
+}
+*{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+html,body{margin:0;padding:0;}
+body{
+  background:var(--bg);
+  background-image:
+    repeating-linear-gradient(0deg, rgba(0,0,0,.035) 0 1px, transparent 1px 30px),
+    repeating-linear-gradient(90deg, rgba(0,0,0,.028) 0 1px, transparent 1px 30px);
+  color:var(--ink);
+  font-family:'LXGW WenKai','KaiTi','STKaiti','楷体','Segoe UI',serif;
+  font-size:17px; user-select:none;
+}
+.en{font-family:'Comic Sans MS','Comic Neue',cursive;}
+.wrap{max-width:980px;margin:0 auto;padding:14px 16px 60px;}
+/* ---------- 手绘基础件 ---------- */
+.paper{
+  background:var(--paper); border:2.5px solid var(--ink);
+  border-radius:255px 15px 225px 15px/15px 225px 15px 255px;
+  box-shadow:3px 4px 0 rgba(61,54,48,.18); padding:14px 18px;
+}
+.paper.alt{border-radius:15px 255px 15px 225px/225px 15px 255px 15px;}
+.btn{
+  display:inline-block; background:var(--paper); border:2.5px solid var(--ink);
+  border-radius:225px 12px 255px 12px/12px 255px 12px 225px;
+  padding:8px 18px; font-size:17px; cursor:pointer; font-family:inherit; color:var(--ink);
+  box-shadow:2px 3px 0 rgba(61,54,48,.2); transition:.12s;
+}
+.btn:hover{transform:translate(-1px,-1px) rotate(-.5deg); box-shadow:3px 4px 0 rgba(61,54,48,.25);}
+.btn:active{transform:translate(1px,2px); box-shadow:0 0 0;}
+.btn.primary{background:#ffe3b3; border-color:#b05e00; color:#7a4a00; font-weight:bold;}
+.btn.big{font-size:20px; padding:12px 26px;}
+.btn.small{font-size:14px; padding:4px 12px;}
+.btn:disabled{opacity:.45; cursor:not-allowed; transform:none;}
+/* ---------- 头部 ---------- */
+.hdr{position:sticky; top:0; z-index:50; background:rgba(246,239,221,.94);
+  border-bottom:2px dashed rgba(61,54,48,.25); padding:8px 0; margin-bottom:14px;}
+.hdr .row{max-width:980px;margin:0 auto;display:flex;align-items:center;gap:10px;padding:0 16px;flex-wrap:wrap;}
+.logo{font-size:26px; font-weight:bold; letter-spacing:2px;}
+.logo .chalk{color:var(--orange);}
+.sub{font-size:13px; opacity:.7;}
+.spacer{flex:1;}
+.stars-badge{font-size:18px; color:#b7950b; white-space:nowrap;}
+/* ---------- 模块库 ---------- */
+.tabs{display:flex; gap:8px; margin:12px 0; flex-wrap:wrap;}
+.tab{padding:6px 16px; border:2px solid var(--ink); border-radius:180px 10px 190px 10px/10px 190px 10px 180px;
+  cursor:pointer; background:var(--paper); font-size:16px;}
+.tab.on{background:#ffd9a8; font-weight:bold; box-shadow:2px 2px 0 rgba(61,54,48,.2);}
+.search{width:100%; max-width:420px; padding:9px 14px; font-size:17px; font-family:inherit;
+  border:2.5px solid var(--ink); border-radius:225px 12px 255px 12px/12px 255px 12px 225px; background:var(--paper);}
+.grid{display:flex; flex-wrap:wrap; gap:14px; margin-top:14px;}
+.mcard{width:215px; position:relative; cursor:pointer; transition:.15s;}
+.mcard:hover{transform:translateY(-3px) rotate(-.6deg);}
+.mcard.off{opacity:.5; cursor:not-allowed;}
+.mcard .mid{display:inline-block; border:2px solid var(--ink); border-radius:50% 45% 55% 48%;
+  padding:2px 10px; font-weight:bold; background:#fff3d6; margin-bottom:6px;}
+.mcard .mname{font-size:19px; font-weight:bold; margin:2px 0;}
+.mcard .mdesc{font-size:13px; opacity:.75; line-height:1.4; min-height:36px;}
+.mcard .mstate{margin-top:8px; font-size:14px;}
+.mstate .st-no{color:#8a7f70;} .mstate .st-ok{color:#b7950b; font-weight:bold;}
+.mstate .st-ready{color:var(--green); font-size:12px; margin-left:6px;}
+/* ---------- 模块页 ---------- */
+.mhead{display:flex; align-items:center; gap:12px; margin:16px 0 6px; flex-wrap:wrap;}
+.mtitle{font-size:30px; font-weight:bold;}
+.statestamp{border:3px solid #8a7f70; color:#8a7f70; border-radius:12px 4px 14px 5px/5px 14px 4px 12px;
+  padding:2px 12px; transform:rotate(-4deg); font-size:15px; background:rgba(255,255,255,.6);}
+.statestamp.ok{border-color:#b7950b; color:#b7950b; border-style:double; border-width:4px;}
+.cta-row{display:flex; gap:12px; flex-wrap:wrap; margin:14px 0;}
+/* ---------- 思维导图 ---------- */
+.map-wrap{overflow:auto; position:relative; border:2px dashed rgba(61,54,48,.3);
+  border-radius:18px 6px 20px 8px/8px 20px 6px 18px; background:rgba(255,253,246,.7); padding:10px; max-height:70vh;}
+.map{position:relative; padding:12px 26px 20px 12px; transform-origin:0 0; min-width:760px;}
+.map .rootnode{position:absolute; left:12px; top:50%; transform:translateY(-50%) rotate(-1deg);
+  font-size:22px; font-weight:bold; padding:12px 18px; background:#ffe9c2; border:3px solid var(--ink);
+  border-radius:255px 18px 225px 18px/18px 225px 18px 255px; box-shadow:3px 4px 0 rgba(61,54,48,.2); z-index:2;}
+.branches{margin-left:250px; display:flex; flex-direction:column; gap:20px; padding:6px 0;}
+.brow{display:flex; align-items:center; gap:0;}
+.bnode{min-width:130px; text-align:center; font-size:17px; font-weight:bold; padding:6px 12px;
+  border:2.5px solid; background:#fff; border-radius:180px 12px 190px 12px/12px 190px 12px 180px; z-index:2; position:relative;}
+.leaves{margin-left:26px; display:flex; flex-direction:column; gap:6px;}
+.leaf{font-size:15px; background:#fff; border:1.8px solid rgba(61,54,48,.75);
+  border-radius:140px 10px 150px 10px/10px 150px 10px 140px; padding:3px 12px; position:relative; z-index:2; width:fit-content;}
+.leaf .exen{font-family:'Comic Sans MS','Comic Neue',cursive; font-size:14px; margin-left:6px; cursor:pointer; color:#1d6fa5;}
+.leaf .exzh{font-size:12px; opacity:.65; margin-left:4px;}
+.starnode{background:#fff3ce !important; font-size:17px !important; border-width:3px !important; box-shadow:2px 3px 0 rgba(193,57,43,.25);}
+.brow.hl .bnode{animation:hlblink 1s infinite alternate;}
+.brow.hl .leaf{border-color:#c0392b; color:#7a1f14;}
+@keyframes hlblink{from{box-shadow:0 0 0 4px rgba(243,156,18,.4);}to{box-shadow:0 0 0 9px rgba(243,156,18,.75);}}
+.mapsvg{position:absolute; left:0; top:0; pointer-events:none; z-index:1;}
+.zoomctl{display:flex; gap:8px; margin:8px 0;}
+/* ---------- 题目卡 ---------- */
+.qcard{margin-top:14px; position:relative;}
+.qmeta{display:flex; align-items:center; gap:10px; flex-wrap:wrap; font-size:14px; opacity:.95;}
+.chip{padding:2px 10px; border:2px solid; border-radius:120px 8px 130px 8px/8px 130px 8px 120px; font-size:13px; font-weight:bold;}
+.chip.ann{border-color:var(--red); color:var(--red); background:#fdeceb;}
+.chip.ansf{border-color:var(--blue); color:var(--blue); background:#eaf3fa;}
+.chip.build{border-color:var(--purple); color:var(--purple); background:#f4ecf9;}
+.chip.type{border-color:#8a7f70; color:#5f574d; background:#f3efe6;}
+.banner{margin:10px 0 4px; font-size:19px; font-weight:bold; color:#6b4a12;}
+.banner .hand{color:var(--orange);}
+/* 句子区 */
+.sent-box{position:relative; background:#fff; border:2.5px solid var(--ink);
+  border-radius:225px 14px 255px 14px/14px 255px 14px 225px; padding:48px 22px 56px; margin:10px 0; min-height:110px;}
+.sent-line{line-height:2.1; font-size:25px; text-align:center;}
+.word{display:inline-block; padding:0 6px; margin:0 2px; cursor:pointer; border-radius:9px 3px 11px 4px;
+  border:2px solid transparent; transition:.12s; font-family:'Comic Sans MS','Comic Neue',cursive;}
+.word:hover{background:rgba(243,156,18,.15);}
+.word.sel{background:#ffe9a8; border-color:var(--orange); border-style:dashed;}
+.word.locked{cursor:default;}
+.word.locked.c-主语{background:#fde3e0;} .word.locked.c-谓语{background:#dceefb;} .word.locked.c-宾语{background:#dff3e4;}
+.word.locked.c-标志词{background:#fdebd3;} .word.locked.c-疑问词{background:#eddcf5;}
+.word.locked.c-be动词{background:#dceefb;} .word.locked.c-表语{background:#d9f4ef;}
+.word.locked.c-宾格{background:#eddcf5;} .word.locked.c-数量{background:#fdebd3;} .word.locked.c-频度副词{background:#fdebd3;}
+.word.locked.reusable{cursor:pointer;} .word.locked.reusable.sel{background:#ffe9a8; border-color:var(--orange); border-style:dashed;}
+.word.shake{animation:wshake .5s;}
+@keyframes wshake{0%,100%{transform:translateX(0)}20%{transform:translateX(-6px) rotate(-2deg)}40%{transform:translateX(6px)}60%{transform:translateX(-4px) rotate(2deg)}80%{transform:translateX(4px)}}
+.word.glow{animation:wglow 1s infinite;}
+@keyframes wglow{0%,100%{background:#ffe9a8;}50%{box-shadow:0 0 0 8px rgba(243,156,18,.45); background:#ffd27f;}}
+.word.blank{min-width:88px; border-bottom:3px dashed #8a7f70; color:#8a7f70; text-align:center; padding:0 8px;}
+.word.blank .hintw{font-size:12px; opacity:.7; vertical-align:sub; font-family:inherit;}
+.chipin{display:inline-block; background:#fff3d6; border:2px solid #b05e00; color:#7a4a00;
+  border-radius:10px 4px 12px 5px/5px 12px 4px 10px; padding:0 8px; margin:0 2px; cursor:pointer;}
+.chipin.pending{border-style:dashed; border-color:var(--purple); background:#f6effc;}
+.slot{display:inline-block; min-width:76px; min-height:38px; margin:3px; border-bottom:3px dashed #8a7f70;
+  border-radius:6px; vertical-align:middle;}
+.slot .chipin{margin:1px;}
+.slot.sel{background:#ffe9a8; outline:2px dashed #e67e22; outline-offset:1px;}
+.slot.shake{animation:wshake .5s;}
+.slot.glow{animation:wglow 1s infinite;}
+.slot.locked .chipin{border-style:solid;}
+.slot.locked.c-主语 .chipin{background:#fde3e0; border-color:#e74c3c;}
+.slot.locked.c-谓语 .chipin{background:#dceefb; border-color:#2980b9;}
+.slot.locked.c-宾语 .chipin{background:#dff3e4; border-color:#27ae60;}
+.slot.locked.c-标志词 .chipin{background:#fdebd3; border-color:#e67e22;}
+.slot.locked.c-疑问词 .chipin{background:#eddcf5; border-color:#8e44ad;}
+.slot.locked.c-be动词 .chipin{background:#dceefb; border-color:#2980b9;}
+.slot.locked.c-表语 .chipin{background:#d9f4ef; border-color:#16a085;}
+.slot.locked.c-宾格 .chipin{background:#eddcf5; border-color:#8e44ad;}
+.slot.locked.c-数量 .chipin{background:#fdebd3; border-color:#e67e22;}
+.slot.locked.c-频度副词 .chipin{background:#fdebd3; border-color:#e67e22;}
+.slot.locked.reusable{cursor:pointer;}
+.bsvg{position:absolute; left:0; top:0; pointer-events:none; overflow:visible;}
+.stamp-slot{position:absolute; right:10px; top:2px; z-index:5;}
+.stamp{display:inline-block; border:3px solid var(--purple); color:var(--purple); font-weight:bold;
+  border-radius:14px 5px 16px 6px/6px 16px 5px 14px; padding:2px 12px; font-size:17px;
+  background:rgba(255,255,255,.75); transform:rotate(-7deg); animation:stampin .55s cubic-bezier(.2,.85,.2,1); margin-left:6px;
+  box-shadow:0 6px 12px rgba(61,54,48,.18);}
+@keyframes stampin{
+  0%{transform:scale(3.1) rotate(-24deg); opacity:0; filter:blur(2px);}
+  55%{transform:scale(.84) rotate(-4deg); opacity:1; filter:blur(0);}
+  75%{transform:scale(1.08) rotate(-9deg);}
+  100%{transform:scale(1) rotate(-7deg);}
+}
+.stamp-hit{animation:stamphit .38s;}
+@keyframes stamphit{0%,100%{transform:none;}35%{transform:translateY(4px) scale(.995);}65%{transform:translateY(-1px) scale(1.002);}}
+/* 标注盘 */
+.palette{margin:12px 0 4px; padding:10px 12px; background:#fff8e4; border:2px dashed #c9a227;
+  border-radius:14px 6px 16px 7px/7px 16px 6px 14px;}
+.palette .ptip{font-size:15px; margin-bottom:8px; color:#6b4a12;}
+.label-btn{margin:4px 6px 4px 0; color:#fff; font-weight:bold; border:none;}
+.lbtn-主语{background:var(--red);} .lbtn-谓语{background:var(--blue);} .lbtn-宾语{background:var(--green);}
+.lbtn-标志词{background:var(--orange);} .lbtn-疑问词{background:var(--purple);}
+.stamprow{display:flex; gap:10px; flex-wrap:wrap; margin:10px 0;}
+.stampopt{font-size:16px; padding:6px 14px; color:var(--purple); border-color:var(--purple); background:#f8f2fd;}
+.stampopt:hover{background:#efe1fa;}
+/* 作答区 */
+.anszone{margin:8px 0;}
+.cards{display:flex; flex-wrap:wrap; gap:10px; justify-content:center; margin:10px 0;}
+.cardw{font-size:20px; padding:6px 16px; background:#fff; font-family:'Comic Sans MS','Comic Neue',cursive;}
+.cardw:disabled{opacity:.35; text-decoration:line-through;}
+.opt{font-size:19px; font-family:'Comic Sans MS','Comic Neue',cursive; padding:6px 18px;}
+.opt.on{background:#ffe3b3; border-color:#b05e00; font-weight:bold;}
+.judgebtns{display:flex; gap:16px; justify-content:center; margin:10px 0;}
+.judgebtns .btn{font-size:24px; padding:10px 30px;}
+.actionrow{display:flex; gap:10px; align-items:center; flex-wrap:wrap; margin-top:8px; min-height:44px;}
+.hintline{font-size:14px; opacity:.75;}
+/* 便签 */
+.note{background:#fff7b0; border:2px solid #c9a227; border-radius:6px 16px 8px 18px/16px 6px 18px 8px;
+  padding:10px 14px; margin:10px 0; transform:rotate(-1deg); box-shadow:2px 3px 0 rgba(201,162,39,.3); font-size:16px;}
+/* 反馈 */
+.fb{margin:12px 0; padding:10px 14px; font-size:16px; animation:fadeup .4s;}
+@keyframes fadeup{from{opacity:0; transform:translateY(10px);}to{opacity:1; transform:none;}}
+.fb.ok{background:#e8f7ec; border:2.5px solid var(--green); border-radius:180px 12px 190px 12px/12px 190px 12px 180px;}
+.fb.bad{background:#fdeceb; border:2.5px solid var(--red); border-radius:12px 180px 12px 190px/190px 12px 180px 12px;}
+.fb .tag{display:inline-block; background:#fff; border:1.5px solid currentColor; border-radius:100px 6px 100px 6px/6px 100px 6px 100px;
+  padding:1px 10px; font-size:13px; margin-right:6px;}
+.bigstar{position:absolute; font-size:40px; animation:starfly 1.1s forwards; pointer-events:none; z-index:20;}
+@keyframes starfly{from{opacity:1; transform:translateY(0) scale(.6) rotate(0deg);}to{opacity:0; transform:translateY(-90px) scale(1.4) rotate(30deg);}}
+/* 结果页 */
+.endcard{text-align:center; padding:24px;}
+.endcard .big{font-size:30px; font-weight:bold; margin:8px 0;}
+.reslist{margin:10px 0; font-size:15px; text-align:left;}
+.reslist .r{padding:3px 8px; border-bottom:1px dashed rgba(61,54,48,.2);}
+.mastered{border:5px double #b7950b; color:#b7950b; font-size:26px; font-weight:bold; display:inline-block;
+  padding:8px 24px; transform:rotate(-5deg); border-radius:20px 8px 22px 9px/9px 22px 8px 20px; animation:stampin .5s; margin:12px; background:rgba(255,255,255,.7);}
+/* 错题本 */
+.wrongitem{display:flex; gap:10px; align-items:flex-start; margin:8px 0; cursor:pointer;}
+.wrongitem:hover{transform:translateX(4px);}
+/* toast */
+.toast{position:fixed; top:64px; left:50%; transform:translateX(-50%) rotate(-1deg); z-index:100;
+  background:#4a3f35; color:#fff; padding:8px 20px; border-radius:180px 12px 190px 12px/12px 190px 12px 180px;
+  font-size:16px; box-shadow:2px 3px 0 rgba(0,0,0,.3); animation:fadeup .3s; max-width:80vw; text-align:center;}
+/* 演示 */
+.demobar{display:flex; gap:10px; margin:8px 0; align-items:center; flex-wrap:wrap;}
+.says{font-size:18px; color:#6b4a12; min-height:28px; margin:6px 0;}
+.backline{margin:4px 0 0;}
+.sec-title{font-size:22px; font-weight:bold; margin:18px 0 8px;}
+.divider{border:none; border-top:2px dashed rgba(61,54,48,.3); margin:16px 0;}
+@media (max-width:640px){ .sent-line{font-size:20px;} .mcard{width:100%;} .branches{margin-left:200px;} }
+</style>
+</head>
+<body>
+<div class="hdr"><div class="row">
+  <span class="logo">语法<span class="chalk">小</span>黑板</span>
+  <span class="sub">小学语法 · 自选复习 原型 v1</span>
+  <span class="spacer"></span>
+  <span class="stars-badge" id="starBadge">★ 0</span>
+  <button class="btn small" id="soundBtn">🔊</button>
+  <button class="btn small" id="wrongBtn">错题本</button>
+  <button class="btn small" id="homeBtn">🏠 首页</button>
+  <button class="btn small" id="resetBtn">🗑</button>
+</div></div>
+<div class="wrap" id="app"></div>
+<div id="toastHost"></div>
+
+<script>
+/* =============== 数据：模块库 =============== */
+const MODULES=[
+{id:'T1',cat:'时态',name:'一般现在时',desc:'习惯与事实 · 三单 s/es',alias:['一般现在','三单','does'],ready:true},
+ {id:'T2',cat:'时态',name:'现在进行时',desc:'正在发生 · be + V-ing',alias:['进行时','ing','正在','be doing'],ready:true},
+ {id:'T3',cat:'时态',name:'一般将来时',desc:'will / be going to',alias:['将来','will','going']},
+ {id:'T4',cat:'时态',name:'一般过去时',desc:'ed 与不规则动词',alias:['过去','ed','went','did']},
+ {id:'T5',cat:'时态',name:'四时态辨析',desc:'同句切换 · 标志词辨析',alias:['综合','辨析','切换','四种时态']},
+ {id:'T6',cat:'时态',name:'现在完成时',desc:'have/has + 过去分词（认识）',alias:['完成','have been']},
+ {id:'V1',cat:'词法',name:'be 动词',desc:'am / is / are',alias:['be','am','is','are'],ready:true},
+ {id:'V2',cat:'词法',name:'情态动词 can',desc:'能力与请求 · Can you…?',alias:['can','能','会']},
+ {id:'V3',cat:'词法',name:'情态动词 must',desc:'must / mustn\u2019t 规则与义务',alias:['must','必须','mustn','禁止']},
+ {id:'V4',cat:'词法',name:'情态动词 should',desc:'建议与劝告',alias:['should','应该']},
+ {id:'P1',cat:'词法',name:'人称代词',desc:'主格 / 宾格',alias:['代词','he','she','they'],ready:true},
+ {id:'P2',cat:'词法',name:'物主代词',desc:'形容词性 / 名词性',alias:['my','mine','whose']},
+ {id:'P3',cat:'词法',name:'指示代词',desc:'this / that / these / those',alias:['this','that','these']},
+ {id:'N1',cat:'词法',name:'名词复数',desc:'s / es / ies + 不规则',alias:['复数','plural','s'],ready:true},
+ {id:'N2',cat:'词法',name:'可数与不可数',desc:'much / many',alias:['不可数','much','many']},
+ {id:'N3',cat:'词法',name:'名词所有格',desc:'\u2019s / of',alias:['所有格']},
+ {id:'G1',cat:'词法',name:'冠词',desc:'a / an / the',alias:['冠词','a','an','the']},
+ {id:'D1',cat:'词法',name:'基数词与序数词',desc:'数词、月份、日期',alias:['数词','序数','月份'],ready:true},
+ {id:'D2',cat:'词法',name:'时间与日期表达',desc:'What time / When',alias:['时间','what time','when']},
+ {id:'E1',cat:'词法',name:'形容词的用法',desc:'位置与修饰',alias:['形容词','adjective']},
+ {id:'E2',cat:'词法',name:'频度与 How often',desc:'always… / How often do you…?',alias:['how often','频度','经常','always','usually'],ready:true},
+ {id:'E3',cat:'词法',name:'比较级与最高级',desc:'-er / -est + 不规则',alias:['比较级','最高级','er','est']},
+ {id:'F1',cat:'词法',name:'时间介词',desc:'in / on / at',alias:['介词','in on at']},
+ {id:'F2',cat:'词法',name:'方位介词',desc:'in/on/under/behind',alias:['方位','under','behind']},
+ {id:'J1',cat:'词法',name:'并列连词',desc:'and / but / or',alias:['连词','and','but','or']},
+ {id:'S1',cat:'句法',name:'陈述句与否定句',desc:'肯否转换',alias:['陈述','否定','not']},
+ {id:'S2',cat:'句法',name:'一般疑问句',desc:'be / 情态 / do 三类',alias:['一般疑问','do you','is he']},
+ {id:'S3',cat:'句法',name:'特殊疑问句',desc:'wh 疑问词体系',alias:['特殊疑问','wh','what','where','why']},
+ {id:'S4',cat:'句法',name:'祈使句',desc:'Let\u2019s… / 动词开头',alias:['祈使','let']},
+ {id:'S5',cat:'句法',name:'感叹句',desc:'What a…! / How…!',alias:['感叹','what a','how']},
+ {id:'S6',cat:'句法',name:'there be 句型',desc:'there is/are + was/were',alias:['there','有','there be']},
+ {id:'S7',cat:'句法',name:'some 与 any',desc:'肯否疑搭配',alias:['some','any']},
+];
+const TYPE_NAME={judge:'判断题',choice:'选择题',fill:'填空题',build:'组句题'};
+
+/* =============== 数据：T2 内容包（源自 内容包/T2-现在进行时.json） =============== */
+const T2PKG={
+ meta:{module:'T2',name:'现在进行时'},
+ config:{annotateFirstCount:3,drawSize:5,quizSize:6},
+ mindmap:{
+  root:'T2 现在进行时',
+  branches:[
+   {title:'用法',color:'#9b59b6',leaves:[{text:'此刻正在进行的动作',ex:'Look! The duck is swimming.',zh:'看！鸭子正在游泳。'}]},
+   {title:'构成',color:'#3498db',leaves:[{text:'be (am / is / are) + V-ing'}]},
+   {title:'be 怎么选',color:'#27ae60',leaves:[
+     {text:'I → am',ex:'I → am reading a book.',zh:'我正在读书。'},
+     {text:'一个人 / he / she / it → is',ex:'My mother is cooking.',zh:'妈妈正在做饭。'},
+     {text:'you / we / they / 复数 → are',ex:'They are playing football.',zh:'他们正在踢足球。'}]},
+   {title:'ing 变化',color:'#16a085',leaves:[
+     {text:'直接加：play → playing'},
+     {text:'去 e 加：make → making，dance → dancing'},
+     {text:'双写加：run → running，swim → swimming'},
+     {text:'ie 变 y：lie → lying'}]},
+   {title:'否定与疑问',color:'#e74c3c',leaves:[
+     {text:'否定：be + not',ex:'The dog is not sleeping.',zh:'狗没有在睡觉。'},
+     {text:'一般疑问句：be 提到句首',ex:'Is the dog sleeping?',zh:'狗在睡觉吗？'},
+      {text:'特殊疑问句：疑问词开头',ex:'What are you doing?',zh:'你在做什么？'}]},
+   {title:'标志词',color:'#f39c12',leaves:[{text:'now / Look! / Listen!'}]},
+   {title:'⭐口诀',color:'#c0392b',star:true,leaves:[{text:'正在做，be 加 ing；I 用 am，单数 is，复数 are；now、Look、Listen 来提醒。'}]}
+  ]},
+ demo:{
+  sentence:['Look!','The','duck','is','swimming','now','.'],
+  annotation:{'主语':[1,2],'谓语':[3,4],'标志词':[0,5],tense:'现在进行时'},
+  playback:[
+   {action:'tap',words:[1,2],label:'主语',say:'先找谁——The duck 是主语'},
+   {action:'tap',words:[3,4],label:'谓语',say:'它在做什么——is swimming 是谓语'},
+   {action:'tap',words:[0,5],label:'标志词',say:'Look！和 now 提醒我们：正在发生'},
+   {action:'stamp',value:'现在进行时',say:'所以，盖个章——现在进行时'},
+   {action:'answer',value:true,say:'is 用对了，点「对」！'}
+  ]},
+ questions:[
+ {id:'T2-J1',type:'judge',difficulty:1,sentence:['Look!','The','cat','is','sleeping','.'],annotation:{'主语':[1,2],'谓语':[3,4],'标志词':[0],tense:'现在进行时'},answer:{value:true},explain:'be + V-ing 结构完整，Look! 提示正在发生，句子是对的。',errorTags:['误判正确句子']},
+ {id:'T2-J2',type:'judge',difficulty:1,sentence:['The','boy','are','playing','football','now','.'],annotation:{'主语':[0,1],'谓语':[2,3],'宾语':[4],'标志词':[5],tense:'现在进行时'},answer:{value:false,fix:'are → is'},explain:'The boy 是一个人（三单），be 要用 is。',errorTags:['be 动词选错（三单用 is）']},
+ {id:'T2-J3',type:'judge',difficulty:1,sentence:['She','is','danceing','in','the','room','now','.'],annotation:{'主语':[0],'谓语':[1,2],'标志词':[6],tense:'现在进行时'},answer:{value:false,fix:'danceing → dancing'},explain:'dance 以不发音的 e 结尾，要去 e 再加 ing。',errorTags:['ing 未去 e']},
+ {id:'T2-J4',type:'judge',difficulty:1,sentence:['I','am','reading','a','book','now','.'],annotation:{'主语':[0],'谓语':[1,2],'宾语':[3,4],'标志词':[5],tense:'现在进行时'},answer:{value:true},explain:'I 用 am，read 直接加 ing，句子是对的。',errorTags:['误判正确句子']},
+ {id:'T2-J5',type:'judge',difficulty:1,sentence:['They','is','running','in','the','park','now','.'],annotation:{'主语':[0],'谓语':[1,2],'标志词':[6],tense:'现在进行时'},answer:{value:false,fix:'is → are'},explain:'They 是复数，be 要用 are。',errorTags:['be 动词选错（复数用 are）']},
+ {id:'T2-J6',type:'judge',difficulty:1,sentence:['Listen!','My','friends','are','singing','.'],annotation:{'主语':[1,2],'谓语':[3,4],'标志词':[0],tense:'现在进行时'},answer:{value:true},explain:'friends 是复数用 are；sing 直接加 ing，句子是对的。',errorTags:['误判正确句子']},
+ {id:'T2-J7',type:'judge',difficulty:1,sentence:['I','are','reading','a','book','now','.'],annotation:{'主语':[0],'谓语':[1,2],'宾语':[3,4],'标志词':[5],tense:'现在进行时'},answer:{value:false,fix:'are → am'},explain:'I 永远用 am，不能用 are。',errorTags:['be 动词选错（I 用 am）']},
+ {id:'T2-J8',type:'judge',difficulty:1,sentence:['Look!','He','are','jumping','.'],annotation:{'主语':[1],'谓语':[2,3],'标志词':[0],tense:'现在进行时'},answer:{value:false,fix:'are → is'},explain:'He 是三单，be 要用 is。',errorTags:['be 动词选错（三单用 is）']},
+ {id:'T2-J9',type:'judge',stype:'一般疑问句',difficulty:1,sentence:['Are','the','cat','sleeping','now','?'],annotation:{'主语':[1,2],'谓语':[0,3],'标志词':[4],tense:'现在进行时'},answer:{value:false,fix:'Are → Is'},explain:'一般疑问句把 be 提到句首，语序是对的；但 the cat 是三单，be 要用 Is。',errorTags:['be 动词选错（三单用 is）']},
+ {id:'T2-J10',type:'judge',stype:'否定句',difficulty:1,sentence:['The','ducks','are','not','swimming','.'],annotation:{'主语':[0,1],'谓语':[2,3,4],tense:'现在进行时'},answer:{value:true},explain:'否定句：are + not + swimming，结构完整，句子是对的。',errorTags:['误判正确句子']},
+ {id:'T2-C6',type:'choice',difficulty:2,sentence:['Listen!','The','birds','____','in','the','tree.'],hint:'sing',annotation:{'主语':[1,2],'谓语':[3],'标志词':[0],tense:'现在进行时'},options:['sing','are singing','sings'],answer:{value:'are singing'},explain:'Listen! 提示正在；birds 是复数用 are；sing 直接加 ing。',errorTags:['漏 be 动词','误选三单 sings']},
+ {id:'T2-C7',type:'choice',difficulty:2,sentence:['Look!','The','dog','____','after','the','ball.'],hint:'run',annotation:{'主语':[1,2],'谓语':[3],'标志词':[0],tense:'现在进行时'},options:['runs','is running','running'],answer:{value:'is running'},explain:'Look! 提示正在；The dog 三单用 is；run 要双写成 running。',errorTags:['漏 be 动词（只选 running）','误选三单 runs']},
+ {id:'T2-C8',type:'choice',difficulty:2,sentence:['We','____','having','dinner','now.'],hint:'have',annotation:{'主语':[0],'谓语':[1,2],'宾语':[3],'标志词':[4],tense:'现在进行时'},options:['is','am','are'],answer:{value:'are'},explain:'We 用 are；now 提示正在进行。',errorTags:['be 动词选错']},
+ {id:'T2-C9',type:'choice',difficulty:2,sentence:['My','mother','____','cooking','in','the','kitchen','now.'],hint:'cook',annotation:{'主语':[0,1],'谓语':[2,3],'标志词':[7],tense:'现在进行时'},options:['are','is','am'],answer:{value:'is'},explain:'My mother 是一个人（三单），be 用 is。',errorTags:['be 动词选错']},
+ {id:'T2-C10',type:'choice',difficulty:2,sentence:['The','children','____','playing','games','now.'],hint:'play',annotation:{'主语':[0,1],'谓语':[2,3],'宾语':[4],'标志词':[5],tense:'现在进行时'},options:['is','am','are'],answer:{value:'are'},explain:'children 是复数（child 的复数），be 用 are。',errorTags:['be 动词选错（children 是复数）']},
+ {id:'T2-C11',type:'choice',stype:'一般疑问句',difficulty:2,sentence:['____','the','birds','singing','in','the','tree','?'],hint:'be',annotation:{'主语':[1,2],'谓语':[0,3],tense:'现在进行时'},options:['Is','Are','Am'],answer:{value:'Are'},explain:'一般疑问句把 be 提到句首；birds 是复数，用 Are。',errorTags:['be 动词选错']},
+ {id:'T2-C12',type:'choice',stype:'特殊疑问句',difficulty:2,sentence:['What','____','you','doing','?'],hint:'be',annotation:{'疑问词':[0],'主语':[2],'谓语':[1,3],tense:'现在进行时'},options:['is','am','are'],answer:{value:'are'},explain:'问 you 在做什么，you 用 are。',errorTags:['be 动词选错（you 用 are）']},
+ {id:'T2-F11',type:'fill',difficulty:2,sentence:['Look!','The','boy','____','in','the','park.'],hint:'run',annotation:{'主语':[1,2],'谓语':[3],'标志词':[0],tense:'现在进行时'},cards:['is','running','are','runing'],answer:{value:['is','running']},explain:'The boy 三单 → is；run 双写 → running。',errorTags:['ing 未双写（runing）','be 动词选错（are）']},
+ {id:'T2-F12',type:'fill',difficulty:2,sentence:['She','____','in','the','pool','now.'],hint:'swim',annotation:{'主语':[0],'谓语':[1],'标志词':[5],tense:'现在进行时'},cards:['is','swimming','are','swiming'],answer:{value:['is','swimming']},explain:'She 三单 → is；swim 双写 m → swimming。',errorTags:['ing 未双写（swiming）']},
+ {id:'T2-F13',type:'fill',difficulty:2,sentence:['They','____','a','cake','now.'],hint:'make',annotation:{'主语':[0],'谓语':[1],'宾语':[2,3],'标志词':[4],tense:'现在进行时'},cards:['are','making','is','makeing'],answer:{value:['are','making']},explain:'They → are；make 去 e → making。',errorTags:['ing 未去 e（makeing）','be 动词选错']},
+ {id:'T2-F14',type:'fill',difficulty:2,sentence:['Look!','The','baby','____','now.'],hint:'sleep',annotation:{'主语':[1,2],'谓语':[3],'标志词':[0,4],tense:'现在进行时'},cards:['is','sleeping','are','sleep'],answer:{value:['is','sleeping']},explain:'baby 一个人 → is；sleep 直接加 ing（不双写）。',errorTags:['漏 ing（用了原形 sleep）','be 动词选错']},
+ {id:'T2-F15',type:'fill',difficulty:2,sentence:['The','girls','____','now.'],hint:'dance',annotation:{'主语':[0,1],'谓语':[2],'标志词':[3],tense:'现在进行时'},cards:['are','dancing','is','danceing'],answer:{value:['are','dancing']},explain:'girls 复数 → are；dance 去 e → dancing。',errorTags:['ing 未去 e（danceing）','be 动词选错']},
+ {id:'T2-F16',type:'fill',stype:'一般疑问句',difficulty:2,sentence:['Is','she','____','now','?'],hint:'dance',annotation:{'主语':[1],'谓语':[0,2],'标志词':[3],tense:'现在进行时'},cards:['dancing','danceing','dance'],answer:{value:['dancing']},explain:'she 三单，句首用 Is；dance 去 e → dancing。',errorTags:['ing 未去 e（danceing）','漏 ing（用了原形 dance）']},
+ {id:'T2-B16',type:'build',difficulty:2,cards:['milk','is','drinking','the cat','now'],built:['The cat','is','drinking','milk','now'],annotation:{'主语':[0],'谓语':[1,2],'宾语':[3],'标志词':[4],tense:'现在进行时'},answer:{value:['the cat','is','drinking','milk','now']},explain:'谁（the cat）+ is + doing + 什么（milk）+ now。',errorTags:['组句语序错误']},
+ {id:'T2-B17',type:'build',difficulty:2,cards:['football','are','the children','playing','now'],built:['The children','are','playing','football','now'],annotation:{'主语':[0],'谓语':[1,2],'宾语':[3],'标志词':[4],tense:'现在进行时'},answer:{value:['the children','are','playing','football','now']},explain:'the children 是复数，be 用 are。',errorTags:['组句语序错误','be 动词选错']},
+ {id:'T2-B18',type:'build',stype:'特殊疑问句',difficulty:3,cards:['doing','what','you','are'],built:['What','are','you','doing','?'],annotation:{'疑问词':[0],'谓语':[1,3],'主语':[2],tense:'现在进行时'},answer:{value:['what','are','you','doing']},explain:'疑问句：疑问词开头，be 提前，doing 放最后。',errorTags:['疑问句语序错误']},
+ {id:'T2-B19',type:'build',difficulty:2,cards:['Look!','is','the rabbit','jumping'],built:['Look!','The rabbit','is','jumping'],annotation:{'标志词':[0],'主语':[1],'谓语':[2,3],tense:'现在进行时'},answer:{value:['Look!','the rabbit','is','jumping']},explain:'Look! 开头；the rabbit 三单用 is。',errorTags:['组句语序错误']},
+ {id:'T2-B20',type:'build',stype:'否定句',difficulty:3,cards:['not','the dog','is','sleeping'],built:['The dog','is','not','sleeping'],annotation:{'主语':[0],'谓语':[1,2,3],tense:'现在进行时'},answer:{value:['the dog','is','not','sleeping']},explain:'否定句：not 跟在 is 后面。没有时间词时，看 be + V-ing 判断时态。',errorTags:['否定词 not 位置错误']},
+ {id:'T2-B21',type:'build',stype:'一般疑问句',difficulty:3,cards:['is','the dog','drinking','water'],built:['Is','the dog','drinking','water','?'],annotation:{'主语':[1],'谓语':[0,2],'宾语':[3],tense:'现在进行时'},answer:{value:['is','the dog','drinking','water']},explain:'一般疑问句：把 is 提到 the dog 前面，句尾用问号。',errorTags:['疑问句语序错误']},
+ {id:'T2-B22',type:'build',stype:'特殊疑问句',difficulty:3,cards:['doing','what','the cat','is'],built:['What','is','the cat','doing','?'],annotation:{'疑问词':[0],'主语':[2],'谓语':[1,3],tense:'现在进行时'},answer:{value:['what','is','the cat','doing']},explain:'特殊疑问句：What 开头，is 跟在后面，doing 收尾。',errorTags:['疑问句语序错误']}
+ ]
+};
+T2PKG.questions.forEach(function(q){if(!q.stype)q.stype='陈述句';});
+
+/* =============== 数据：T1 一般现在时 内容包 =============== */
+const T1PKG={
+ meta:{module:'T1',name:'一般现在时'},
+ config:{annotateFirstCount:3,drawSize:5,quizSize:6},
+ mindmap:{
+  root:'T1 一般现在时',
+  branches:[
+   {title:'用法',color:'#9b59b6',leaves:[
+     {text:'习惯性、经常发生的动作',ex:'I play football every day.',zh:'我每天踢足球。'},
+     {text:'客观事实、真理',ex:'The sun rises in the east.',zh:'太阳从东边升起。'}]},
+   {title:'构成',color:'#3498db',leaves:[
+     {text:'I / you / we / they + 动词原形',ex:'They play football.',zh:'他们踢足球。'},
+     {text:'he / she / it + 动词三单',ex:'She plays the piano.',zh:'她弹钢琴。'}]},
+   {title:'三单变化',color:'#16a085',leaves:[
+     {text:'直接加 s：play → plays'},
+     {text:'s / x / ch / sh / o 结尾加 es：watch → watches，go → goes'},
+     {text:'辅音字母 + y → 去 y 加 ies：study → studies'},
+     {text:'不规则：have → has'}]},
+   {title:'否定与疑问',color:'#e74c3c',leaves:[
+     {text:'否定：don\u2019t / doesn\u2019t + 动词原形',ex:'He doesn\u2019t like milk.',zh:'他不喜欢牛奶。'},
+     {text:'一般疑问句：Do / Does 开头',ex:'Does she go to school?',zh:'她去上学吗？'},
+     {text:'特殊疑问句：疑问词 + do / does',ex:'What do you do every day?',zh:'你每天做什么？'}]},
+   {title:'标志词',color:'#f39c12',leaves:[
+     {text:'every day / every week / on Sundays'},
+     {text:'always / usually / often / sometimes / never'}]},
+   {title:'⭐口诀',color:'#c0392b',star:true,leaves:[{text:'习惯用一般现在；三单加 s；否定疑问借 do，动词回原形。'}]}
+  ]},
+ demo:{
+  sentence:['She','plays','the','piano','every','day','.'],
+  annotation:{'主语':[0],'谓语':[1],'宾语':[2,3],'标志词':[4,5],tense:'一般现在时'},
+  playback:[
+   {action:'tap',words:[0],label:'主语',say:'先找谁——She 是主语'},
+   {action:'tap',words:[1],label:'谓语',say:'她做什么——plays 是谓语，三单加 s'},
+   {action:'tap',words:[4,5],label:'标志词',say:'every day 提醒我们：经常做'},
+   {action:'stamp',value:'一般现在时',say:'所以，盖个章——一般现在时'},
+   {action:'answer',value:true,say:'plays 用对了，点「对」！'}
+  ]},
+ questions:[
+ {id:'T1-J1',type:'judge',difficulty:1,sentence:['She','plays','the','piano','every','day','.'],annotation:{'主语':[0],'谓语':[1],'宾语':[2,3],'标志词':[4,5],tense:'一般现在时'},answer:{value:true},explain:'She 三单，play 加 s；every day 提示经常做，句子是对的。',errorTags:['误判正确句子']},
+ {id:'T1-J2',type:'judge',difficulty:1,sentence:['He','play','football','every','Sunday','.'],annotation:{'主语':[0],'谓语':[1],'宾语':[2],'标志词':[3,4],tense:'一般现在时'},answer:{value:false,fix:'play → plays'},explain:'He 是三单，动词要加 s：plays。',errorTags:['漏三单 s']},
+ {id:'T1-J3',type:'judge',difficulty:1,sentence:['My','sister','studies','English','every','day','.'],annotation:{'主语':[0,1],'谓语':[2],'宾语':[3],'标志词':[4,5],tense:'一般现在时'},answer:{value:true},explain:'My sister 三单；study 去 y 加 ies → studies；句子是对的。',errorTags:['误判正确句子']},
+ {id:'T1-J4',type:'judge',difficulty:1,sentence:['He','doesn\u2019t','like','milk','.'],annotation:{'主语':[0],'谓语':[1,2],'宾语':[3],tense:'一般现在时'},answer:{value:true},explain:'否定句 doesn\u2019t + 动词原形，like 没加 s，句子是对的。',errorTags:['误判正确句子']},
+ {id:'T1-J5',type:'judge',difficulty:1,sentence:['She','doesn\u2019t','likes','milk','.'],annotation:{'主语':[0],'谓语':[1,2],'宾语':[3],tense:'一般现在时'},answer:{value:false,fix:'likes → like'},explain:'doesn\u2019t 后面动词回原形，不能加 s。',errorTags:['否定句动词未回原形']},
+ {id:'T1-J6',type:'judge',stype:'一般疑问句',difficulty:1,sentence:['Does','she','go','to','school','by','bus','?'],annotation:{'主语':[1],'谓语':[0,2],'标志词':[5,6],tense:'一般现在时'},answer:{value:true},explain:'Does 开头的一般疑问句，动词用原形 go，句子是对的。',errorTags:['误判正确句子']},
+ {id:'T1-J7',type:'judge',stype:'一般疑问句',difficulty:1,sentence:['Does','he','likes','apples','?'],annotation:{'主语':[1],'谓语':[0,2],'宾语':[3],tense:'一般现在时'},answer:{value:false,fix:'likes → like'},explain:'Does 后面动词回原形，不能加 s。',errorTags:['疑问句动词未回原形']},
+ {id:'T1-J8',type:'judge',difficulty:1,sentence:['We','often','play','games','after','school','.'],annotation:{'主语':[0],'谓语':[2],'宾语':[3],'标志词':[1],tense:'一般现在时'},answer:{value:true},explain:'We 非三单用原形 play；often 提示经常做，句子是对的。',errorTags:['误判正确句子']},
+ {id:'T1-J9',type:'judge',difficulty:1,sentence:['They','plays','basketball','every','week','.'],annotation:{'主语':[0],'谓语':[1],'宾语':[2],'标志词':[3,4],tense:'一般现在时'},answer:{value:false,fix:'plays → play'},explain:'They 是复数（非三单），动词用原形 play。',errorTags:['误加三单 s']},
+ {id:'T1-J10',type:'judge',difficulty:1,sentence:['He','have','a','cat','.'],annotation:{'主语':[0],'谓语':[1],'宾语':[2,3],tense:'一般现在时'},answer:{value:false,fix:'have → has'},explain:'He 三单；have 的三单是 has（不规则变化）。',errorTags:['三单不规则动词（have→has）']},
+ {id:'T1-C1',type:'choice',difficulty:2,sentence:['He','____','football','every','day.'],hint:'play',annotation:{'主语':[0],'谓语':[1],'宾语':[2],'标志词':[3,4],tense:'一般现在时'},options:['play','plays','playing'],answer:{value:'plays'},explain:'every day 提示一般现在时；He 三单 → plays。',errorTags:['漏三单 s']},
+ {id:'T1-C2',type:'choice',stype:'一般疑问句',difficulty:2,sentence:['____','she','like','apples','?'],hint:'do',annotation:{'主语':[1],'谓语':[0,2],'宾语':[3],tense:'一般现在时'},options:['Do','Does','Is'],answer:{value:'Does'},explain:'she 三单，一般疑问句用 Does 开头。',errorTags:['do/does 选错']},
+ {id:'T1-C3',type:'choice',stype:'否定句',difficulty:2,sentence:['He','____','like','milk','.'],hint:'not',annotation:{'主语':[0],'谓语':[1,2],'宾语':[3],tense:'一般现在时'},options:['don\u2019t','doesn\u2019t','isn\u2019t'],answer:{value:'doesn\u2019t'},explain:'He 三单，否定用 doesn\u2019t；后面动词用原形 like。',errorTags:['don\u2019t/doesn\u2019t 选错']},
+ {id:'T1-C4',type:'choice',difficulty:2,sentence:['She','____','English','every','day.'],hint:'study',annotation:{'主语':[0],'谓语':[1],'宾语':[2],'标志词':[3,4],tense:'一般现在时'},options:['study','studys','studies'],answer:{value:'studies'},explain:'study 以辅音字母 + y 结尾，去 y 加 ies → studies。',errorTags:['三单 y 变 ies']},
+ {id:'T1-C5',type:'choice',difficulty:2,sentence:['My','father','____','TV','every','evening.'],hint:'watch',annotation:{'主语':[0,1],'谓语':[2],'宾语':[3],'标志词':[4,5],tense:'一般现在时'},options:['watch','watches','watchs'],answer:{value:'watches'},explain:'watch 以 ch 结尾，加 es → watches。',errorTags:['三单加 es（ch 结尾）']},
+ {id:'T1-C6',type:'choice',difficulty:2,sentence:['She','____','to','school','by','bus.'],hint:'go',annotation:{'主语':[0],'谓语':[1],'标志词':[4,5],tense:'一般现在时'},options:['go','goes','gos'],answer:{value:'goes'},explain:'go 以 o 结尾，加 es → goes。',errorTags:['三单加 es（o 结尾）']},
+ {id:'T1-C7',type:'choice',difficulty:2,sentence:['He','____','a','cat','.'],hint:'have',annotation:{'主语':[0],'谓语':[1],'宾语':[2,3],tense:'一般现在时'},options:['have','haves','has'],answer:{value:'has'},explain:'have 的三单是不规则变化 has。',errorTags:['三单不规则动词（have→has）']},
+ {id:'T1-F1',type:'fill',stype:'一般疑问句',difficulty:2,sentence:['____','he','____','football','?'],hint:'play',annotation:{'主语':[1],'谓语':[0,2],'宾语':[3],tense:'一般现在时'},cards:['Does','play','Do','plays'],answer:{value:['Does','play']},explain:'he 三单 → Does；Does 后动词回原形 → play。',errorTags:['do/does 选错','疑问句动词未回原形']},
+ {id:'T1-F2',type:'fill',stype:'否定句',difficulty:2,sentence:['She','____','____','milk','.'],hint:'like',annotation:{'主语':[0],'谓语':[1,2],'宾语':[3],tense:'一般现在时'},cards:['doesn\u2019t','like','don\u2019t','likes'],answer:{value:['doesn\u2019t','like']},explain:'She 三单 → doesn\u2019t；doesn\u2019t 后动词回原形 → like。',errorTags:['don\u2019t/doesn\u2019t 选错','否定句动词未回原形']},
+ {id:'T1-F3',type:'fill',difficulty:2,sentence:['My','father','____','TV','every','evening.'],hint:'watch',annotation:{'主语':[0,1],'谓语':[2],'宾语':[3],'标志词':[4,5],tense:'一般现在时'},cards:['watches','watchs','watch'],answer:{value:['watches']},explain:'My father 三单；watch 以 ch 结尾加 es → watches。',errorTags:['三单加 es（ch 结尾）']},
+ {id:'T1-F4',type:'fill',difficulty:2,sentence:['She','____','English','every','day.'],hint:'study',annotation:{'主语':[0],'谓语':[1],'宾语':[2],'标志词':[3,4],tense:'一般现在时'},cards:['studies','studys','study'],answer:{value:['studies']},explain:'study 辅音字母 + y 结尾，去 y 加 ies → studies。',errorTags:['三单 y 变 ies']},
+ {id:'T1-F5',type:'fill',stype:'否定句',difficulty:2,sentence:['He','____','____','apples','.'],hint:'like',annotation:{'主语':[0],'谓语':[1,2],'宾语':[3],tense:'一般现在时'},cards:['doesn\u2019t','like','don\u2019t','likes'],answer:{value:['doesn\u2019t','like']},explain:'He 三单 → doesn\u2019t；doesn\u2019t 后动词回原形 → like。',errorTags:['don\u2019t/doesn\u2019t 选错','否定句动词未回原形']},
+ {id:'T1-F6',type:'fill',difficulty:2,sentence:['She','____','to','school','every','day.'],hint:'go',annotation:{'主语':[0],'谓语':[1],'标志词':[4,5],tense:'一般现在时'},cards:['goes','go','gos'],answer:{value:['goes']},explain:'She 三单；go 以 o 结尾加 es → goes。',errorTags:['三单加 es（o 结尾）']},
+ {id:'T1-B1',type:'build',difficulty:2,cards:['football','plays','he','every day'],built:['He','plays','football','every day'],annotation:{'主语':[0],'谓语':[1],'宾语':[2],'标志词':[3],tense:'一般现在时'},answer:{value:['he','plays','football','every day']},explain:'谁（he）+ plays + 什么（football）+ every day。',errorTags:['组句语序错误']},
+ {id:'T1-B2',type:'build',difficulty:2,cards:['TV','watches','she','on Sundays'],built:['She','watches','TV','on Sundays'],annotation:{'主语':[0],'谓语':[1],'宾语':[2],'标志词':[3],tense:'一般现在时'},answer:{value:['she','watches','TV','on Sundays']},explain:'She 三单，watch 加 es → watches。',errorTags:['组句语序错误','三单加 es（ch 结尾）']},
+ {id:'T1-B3',type:'build',stype:'一般疑问句',difficulty:3,cards:['like','does','he','apples'],built:['Does','he','like','apples','?'],annotation:{'主语':[1],'谓语':[0,2],'宾语':[3],tense:'一般现在时'},answer:{value:['does','he','like','apples']},explain:'一般疑问句：Does 开头，动词用原形 like。',errorTags:['疑问句语序错误']},
+ {id:'T1-B4',type:'build',stype:'否定句',difficulty:3,cards:['like','doesn\u2019t','she','milk'],built:['She','doesn\u2019t','like','milk'],annotation:{'主语':[0],'谓语':[1,2],'宾语':[3],tense:'一般现在时'},answer:{value:['she','doesn\u2019t','like','milk']},explain:'否定句：She + doesn\u2019t + 原形 like。',errorTags:['否定句语序错误']},
+ {id:'T1-B5',type:'build',difficulty:2,cards:['to school','go','they','every day'],built:['They','go','to school','every day'],annotation:{'主语':[0],'谓语':[1],'标志词':[3],tense:'一般现在时'},answer:{value:['they','go','to school','every day']},explain:'They 非三单，动词用原形 go。',errorTags:['组句语序错误']},
+ {id:'T1-B6',type:'build',stype:'特殊疑问句',difficulty:3,cards:['do','what','she','does','every morning'],built:['What','does','she','do','every morning','?'],annotation:{'疑问词':[0],'主语':[2],'谓语':[1,3],'标志词':[4],tense:'一般现在时'},answer:{value:['what','does','she','do','every morning']},explain:'特殊疑问句：What + does + she + 原形 do。',errorTags:['疑问句语序错误']},
+ {id:'T1-B7',type:'build',difficulty:3,cards:['a cat','has','he'],built:['He','has','a cat'],annotation:{'主语':[0],'谓语':[1],'宾语':[2],tense:'一般现在时'},answer:{value:['he','has','a cat']},explain:'He 三单，have 的三单是 has（不规则）。',errorTags:['三单不规则动词（have→has）']}
+ ]
+};
+T1PKG.questions.forEach(function(q){if(!q.stype)q.stype='陈述句';});
+
+/* =============== 词法模块内容包 =============== */
+const V1PKG={
+ meta:{module:'V1',name:'be 动词'},
+ config:{annotateFirstCount:3,drawSize:5,quizSize:6},
+ mindmap:{
+  root:'V1 be 动词',
+  branches:[
+   {title:'用法',color:'#9b59b6',leaves:[{text:'说明身份、状态、位置',ex:'I → am a student.',zh:'我是学生。'}]},
+   {title:'be怎么选',color:'#27ae60',leaves:[
+     {text:'I → am',ex:'I → am ten.',zh:'我十岁。'},
+     {text:'一个人 / he / she / it → is',ex:'She is my friend.',zh:'她是我的朋友。'},
+     {text:'you / we / they / 复数 → are',ex:'They are students.',zh:'他们是学生。'}]},
+   {title:'否定与疑问',color:'#e74c3c',leaves:[
+     {text:'否定：be + not',ex:'He is not tall.',zh:'他不高。'},
+     {text:'疑问：把 be 提到句首',ex:'Are you happy?',zh:'你开心吗？'}]},
+   {title:'⭐口诀',color:'#c0392b',star:true,leaves:[{text:'我用 am，你用 are，is 跟着他她它，复数一律用 are。'}]}
+  ]},
+ demo:{
+  sentence:['She','is','my','friend','.'],
+  annotation:{'主语':[0],'be动词':[1],'表语':[2,3],tense:'he / she / it → is'},
+  playback:[
+   {action:'tap',words:[0],label:'主语',say:'先找谁——She'},
+   {action:'tap',words:[1],label:'be动词',say:'她一个人，be 用 is'},
+  {action:'stamp',value:'he / she / it → is',say:'记住：一个人用 is'},
+  {action:'answer',value:true,say:'is 用对了，点「对」！'}
+  ]},
+ questions:[
+ {id:'V1-J1',type:'judge',difficulty:1,sentence:['I','am','a','student','.'],annotation:{'主语':[0],'be动词':[1],'表语':[2,3],tense:'I → am'},answer:{value:true},explain:'I 配 am，句子是对的。',errorTags:['误判正确句子']},
+ {id:'V1-J2',type:'judge',difficulty:1,sentence:['She','are','my','friend','.'],annotation:{'主语':[0],'be动词':[1],'表语':[2,3],tense:'he / she / it → is'},answer:{value:false,fix:'are → is'},explain:'She 一个人（三单），be 用 is。',errorTags:['be动词选错（三单用is）']},
+ {id:'V1-J3',type:'judge',difficulty:1,sentence:['They','is','in','the','classroom','.'],annotation:{'主语':[0],'be动词':[1],'表语':[2,3,4],tense:'you / we / they → are'},answer:{value:false,fix:'is → are'},explain:'They 是复数，be 用 are。',errorTags:['be动词选错（复数用are）']},
+ {id:'V1-J4',type:'judge',difficulty:1,sentence:['He','is','a','teacher','.'],annotation:{'主语':[0],'be动词':[1],'表语':[2,3],tense:'he / she / it → is'},answer:{value:true},explain:'He 三单，be 用 is，句子是对的。',errorTags:['误判正确句子']},
+ {id:'V1-J5',type:'judge',difficulty:1,sentence:['We','am','playing','games','.'],annotation:{'主语':[0],'be动词':[1],'谓语':[1,2],'宾语':[3],tense:'you / we / they → are'},answer:{value:false,fix:'am → are'},explain:'We 复数，be 用 are。',errorTags:['be动词选错（复数用are）']},
+ {id:'V1-J6',type:'judge',difficulty:1,sentence:['You','is','tall','.'],annotation:{'主语':[0],'be动词':[1],'表语':[2],tense:'you / we / they → are'},answer:{value:false,fix:'is → are'},explain:'you 永远配 are。',errorTags:['be动词选错（you用are）']},
+ {id:'V1-J7',type:'judge',difficulty:1,sentence:['The','cat','are','sleeping','.'],annotation:{'主语':[0,1],'be动词':[2],'谓语':[2,3],tense:'he / she / it → is'},answer:{value:false,fix:'are → is'},explain:'The cat 一个人（三单），be 用 is。',errorTags:['be动词选错（三单用is）']},
+ {id:'V1-J8',type:'judge',difficulty:1,sentence:['My','parents','is','at','home','.'],annotation:{'主语':[0,1],'be动词':[2],'表语':[3,4],tense:'you / we / they → are'},answer:{value:false,fix:'is → are'},explain:'parents 是复数，be 用 are。',errorTags:['be动词选错（复数用are）']},
+ {id:'V1-J9',type:'judge',stype:'一般疑问句',difficulty:1,sentence:['Is','she','a','doctor','?'],annotation:{'主语':[1],'be动词':[0],'表语':[2,3],tense:'he / she / it → is'},answer:{value:true},explain:'一般疑问句把 is 提前，she 三单配 is，句子是对的。',errorTags:['误判正确句子']},
+ {id:'V1-J10',type:'judge',stype:'否定句',difficulty:1,sentence:['They','are','not','here','.'],annotation:{'主语':[0],'be动词':[1],'谓语':[1,2,3],tense:'you / we / they → are'},answer:{value:true},explain:'否定句 are + not，they 复数配 are，句子是对的。',errorTags:['误判正确句子']},
+ {id:'V1-C1',type:'choice',difficulty:2,sentence:['I','____','a','boy','.'],hint:'be',annotation:{'主语':[0],'be动词':[1],'表语':[2,3],tense:'I → am'},options:['am','is','are'],answer:{value:'am'},explain:'I 永远配 am。',errorTags:['be动词选错']},
+ {id:'V1-C2',type:'choice',difficulty:2,sentence:['She','____','my','sister','.'],hint:'be',annotation:{'主语':[0],'be动词':[1],'表语':[2,3],tense:'he / she / it → is'},options:['am','is','are'],answer:{value:'is'},explain:'She 三单，be 用 is。',errorTags:['be动词选错']},
+ {id:'V1-C3',type:'choice',difficulty:2,sentence:['They','____','students','.'],hint:'be',annotation:{'主语':[0],'be动词':[1],'表语':[2],tense:'you / we / they → are'},options:['am','is','are'],answer:{value:'are'},explain:'They 复数，be 用 are。',errorTags:['be动词选错']},
+ {id:'V1-C4',type:'choice',stype:'一般疑问句',difficulty:2,sentence:['____','you','a','teacher','?'],hint:'be',annotation:{'主语':[1],'be动词':[0],'表语':[2,3],tense:'you / we / they → are'},options:['Am','Is','Are'],answer:{value:'Are'},explain:'you 配 are，疑问句 Are 开头。',errorTags:['be动词选错']},
+ {id:'V1-C5',type:'choice',difficulty:2,sentence:['The','dog','____','black','.'],hint:'be',annotation:{'主语':[0,1],'be动词':[2],'表语':[3],tense:'he / she / it → is'},options:['am','is','are'],answer:{value:'is'},explain:'The dog 一个人（三单），be 用 is。',errorTags:['be动词选错']},
+ {id:'V1-C6',type:'choice',difficulty:2,sentence:['We','____','in','Class','2','.'],hint:'be',annotation:{'主语':[0],'be动词':[1],'表语':[2,3,4],tense:'you / we / they → are'},options:['am','is','are'],answer:{value:'are'},explain:'We 复数，be 用 are。',errorTags:['be动词选错']},
+ {id:'V1-C7',type:'choice',difficulty:2,sentence:['My','mother','____','a','nurse','.'],hint:'be',annotation:{'主语':[0,1],'be动词':[2],'表语':[3,4],tense:'he / she / it → is'},options:['am','is','are'],answer:{value:'is'},explain:'My mother 一个人（三单），be 用 is。',errorTags:['be动词选错']},
+ {id:'V1-F1',type:'fill',difficulty:2,sentence:['I','____','a','student','.'],hint:'be',annotation:{'主语':[0],'be动词':[1],'表语':[2,3],tense:'I → am'},cards:['am','is','are'],answer:{value:['am']},explain:'I 配 am。',errorTags:['be动词选错']},
+ {id:'V1-F2',type:'fill',difficulty:2,sentence:['She','____','six','years','old','.'],hint:'be',annotation:{'主语':[0],'be动词':[1],'表语':[2,3,4],tense:'he / she / it → is'},cards:['is','are','am'],answer:{value:['is']},explain:'She 三单，be 用 is。',errorTags:['be动词选错']},
+ {id:'V1-F3',type:'fill',difficulty:2,sentence:['They','____','my','friends','.'],hint:'be',annotation:{'主语':[0],'be动词':[1],'表语':[2,3],tense:'you / we / they → are'},cards:['are','is','am'],answer:{value:['are']},explain:'They 复数，be 用 are。',errorTags:['be动词选错']},
+ {id:'V1-F4',type:'fill',stype:'一般疑问句',difficulty:2,sentence:['____','he','your','brother','?'],hint:'be',annotation:{'主语':[1],'be动词':[0],'表语':[2,3],tense:'he / she / it → is'},cards:['Is','Are','Am'],answer:{value:['Is']},explain:'he 三单，疑问句用 Is 开头。',errorTags:['be动词选错']},
+ {id:'V1-F5',type:'fill',difficulty:2,sentence:['The','cat','____','on','the','bed','.'],hint:'be',annotation:{'主语':[0,1],'be动词':[2],'表语':[3,4,5],tense:'he / she / it → is'},cards:['is','are','am'],answer:{value:['is']},explain:'The cat 一个人（三单），be 用 is。',errorTags:['be动词选错']},
+ {id:'V1-F6',type:'fill',stype:'否定句',difficulty:2,sentence:['We','____','not','late','.'],hint:'be',annotation:{'主语':[0],'be动词':[1],'谓语':[1,2,3],tense:'you / we / they → are'},cards:['are','is','am'],answer:{value:['are']},explain:'We 复数，be 用 are；否定 are + not。',errorTags:['be动词选错']},
+ {id:'V1-B1',type:'build',difficulty:2,cards:['a student','am','I'],built:['I','am','a student'],annotation:{'主语':[0],'be动词':[1],'表语':[2],tense:'I → am'},answer:{value:['I','am','a student']},explain:'I + am + a student。',errorTags:['组句语序错误']},
+ {id:'V1-B2',type:'build',difficulty:2,cards:['my friend','is','she'],built:['She','is','my friend'],annotation:{'主语':[0],'be动词':[1],'表语':[2],tense:'he / she / it → is'},answer:{value:['she','is','my friend']},explain:'She + is + my friend。',errorTags:['组句语序错误']},
+ {id:'V1-B3',type:'build',difficulty:2,cards:['in the classroom','are','they'],built:['They','are','in the classroom'],annotation:{'主语':[0],'be动词':[1],'表语':[2],tense:'you / we / they → are'},answer:{value:['they','are','in the classroom']},explain:'They + are + in the classroom。',errorTags:['组句语序错误']},
+ {id:'V1-B4',type:'build',stype:'一般疑问句',difficulty:3,cards:['a teacher','is','he'],built:['Is','he','a teacher','?'],annotation:{'主语':[1],'be动词':[0],'表语':[2],tense:'he / she / it → is'},answer:{value:['is','he','a teacher']},explain:'一般疑问句：Is 开头。',errorTags:['疑问句语序错误']},
+ {id:'V1-B5',type:'build',stype:'否定句',difficulty:3,cards:['late','not','are','we'],built:['We','are','not','late'],annotation:{'主语':[0],'be动词':[1],'谓语':[1,2,3],tense:'you / we / they → are'},answer:{value:['we','are','not','late']},explain:'否定句：are + not + late。',errorTags:['否定句语序错误']},
+ {id:'V1-B6',type:'build',stype:'一般疑问句',difficulty:3,cards:['a student','are','you'],built:['Are','you','a student','?'],annotation:{'主语':[1],'be动词':[0],'表语':[2],tense:'you / we / they → are'},answer:{value:['are','you','a student']},explain:'you 配 are，疑问句 Are 开头。',errorTags:['疑问句语序错误']},
+ {id:'V1-B7',type:'build',difficulty:2,cards:['black','is','the cat'],built:['The cat','is','black'],annotation:{'主语':[0],'be动词':[1],'表语':[2],tense:'he / she / it → is'},answer:{value:['the cat','is','black']},explain:'The cat + is + black。',errorTags:['组句语序错误']}
+ ]
+};
+V1PKG.questions.forEach(function(q){if(!q.stype)q.stype='陈述句';});
+
+const P1PKG={
+ meta:{module:'P1',name:'人称代词'},
+ config:{annotateFirstCount:3,drawSize:5,quizSize:6},
+ mindmap:{
+  root:'P1 人称代词',
+  branches:[
+   {title:'主格',color:'#3498db',leaves:[
+     {text:'I / you / he / she / it / we / they'},
+     {text:'做主语（动作发出者）',ex:'He likes apples.',zh:'他喜欢苹果。'}]},
+   {title:'宾格',color:'#27ae60',leaves:[
+     {text:'me / you / him / her / it / us / them'},
+     {text:'做宾语（动词或介词后面）',ex:'I like him.',zh:'我喜欢他。'}]},
+   {title:'怎么选',color:'#e67e22',leaves:[
+     {text:'主语位置 → 主格',ex:'She is my friend.'},
+     {text:'动词/介词后 → 宾格',ex:'Please help me.'}]},
+   {title:'⭐口诀',color:'#c0392b',star:true,leaves:[{text:'主格在前当老板，宾格在后跟动词。'}]}
+  ]},
+ demo:{
+  sentence:['She','likes','him','.'],
+  annotation:{'主语':[0],'谓语':[1],'宾格':[2],tense:'做主语 → I / we / they'},
+  playback:[
+   {action:'tap',words:[0],label:'主语',say:'谁喜欢——She（主格）'},
+   {action:'tap',words:[2],label:'宾格',say:'喜欢谁——him（宾格）'},
+   {action:'stamp',value:'做主语 → I / we / they',say:'She 在主语位置，用主格'}
+  ]},
+ questions:[
+ {id:'P1-J1',type:'judge',difficulty:1,sentence:['He','is','my','friend','.'],annotation:{'主语':[0],'be动词':[1],'表语':[2,3],tense:'做主语 → I / we / they'},answer:{value:true},explain:'主语位置用主格 He，句子是对的。',errorTags:['误判正确句子']},
+ {id:'P1-J2',type:'judge',difficulty:1,sentence:['Him','is','my','friend','.'],annotation:{'主语':[0],'be动词':[1],'表语':[2,3],tense:'做主语 → I / we / they'},answer:{value:false,fix:'Him → He'},explain:'主语位置用主格 He，不能用宾格 Him。',errorTags:['主格宾格选错']},
+ {id:'P1-J3',type:'judge',difficulty:1,sentence:['I','like','she','.'],annotation:{'主语':[0],'谓语':[1],'宾格':[2],tense:'做宾语 → me / us / them'},answer:{value:false,fix:'she → her'},explain:'like 后面是宾语，用宾格 her。',errorTags:['主格宾格选错']},
+ {id:'P1-J4',type:'judge',difficulty:1,sentence:['She','likes','me','.'],annotation:{'主语':[0],'谓语':[1],'宾格':[2],tense:'做宾语 → me / us / them'},answer:{value:true},explain:'She 是主格，me 是宾格，句子是对的。',errorTags:['误判正确句子']},
+ {id:'P1-J5',type:'judge',difficulty:1,sentence:['They','help','we','.'],annotation:{'主语':[0],'谓语':[1],'宾格':[2],tense:'做宾语 → me / us / them'},answer:{value:false,fix:'we → us'},explain:'help 后面是宾语，用宾格 us。',errorTags:['主格宾格选错']},
+ {id:'P1-J6',type:'judge',difficulty:1,sentence:['We','play','with','them','.'],annotation:{'主语':[0],'谓语':[1,2],'宾格':[3],tense:'做宾语 → me / us / them'},answer:{value:true},explain:'with 后面用宾格 them，句子是对的。',errorTags:['误判正确句子']},
+ {id:'P1-J7',type:'judge',difficulty:1,sentence:['Please','help','I','.'],annotation:{'谓语':[1],'宾格':[2],tense:'做宾语 → me / us / them'},answer:{value:false,fix:'I → me'},explain:'help 后面是宾语，I 的宾格是 me。',errorTags:['主格宾格选错']},
+ {id:'P1-J8',type:'judge',difficulty:1,sentence:['She','gives','him','a','book','.'],annotation:{'主语':[0],'谓语':[1],'宾格':[2],'宾语':[3,4],tense:'做宾语 → me / us / them'},answer:{value:true},explain:'gives 后面 him 是宾格，句子是对的。',errorTags:['误判正确句子']},
+ {id:'P1-J9',type:'judge',stype:'一般疑问句',difficulty:1,sentence:['Does','he','like','her','?'],annotation:{'主语':[1],'谓语':[0,2],'宾格':[3],tense:'做宾语 → me / us / them'},answer:{value:true},explain:'he 主格，her 宾格，句子是对的。',errorTags:['误判正确句子']},
+ {id:'P1-J10',type:'judge',stype:'否定句',difficulty:1,sentence:['They','don\u2019t','like','me','.'],annotation:{'主语':[0],'谓语':[1,2],'宾格':[3],tense:'做宾语 → me / us / them'},answer:{value:true},explain:'don\u2019t like 后面 me 宾格，句子是对的。',errorTags:['误判正确句子']},
+ {id:'P1-C1',type:'choice',difficulty:2,sentence:['____','is','my','best','friend','.'],hint:'pron',annotation:{'主语':[0],'be动词':[1],'表语':[2,3,4],tense:'做主语 → I / we / they'},options:['He','Him','His'],answer:{value:'He'},explain:'主语位置用主格 He。',errorTags:['主格宾格选错']},
+ {id:'P1-C2',type:'choice',difficulty:2,sentence:['I','like','____','.'],hint:'pron',annotation:{'主语':[0],'谓语':[1],'宾格':[2],tense:'做宾语 → me / us / them'},options:['she','her','hers'],answer:{value:'her'},explain:'like 后面是宾语，用宾格 her。',errorTags:['主格宾格选错']},
+ {id:'P1-C3',type:'choice',difficulty:2,sentence:['____','are','playing','football','.'],hint:'pron',annotation:{'主语':[0],'be动词':[1],'谓语':[1,2],'宾语':[3],tense:'做主语 → I / we / they'},options:['They','Them','Theirs'],answer:{value:'They'},explain:'主语位置用主格 They。',errorTags:['主格宾格选错']},
+ {id:'P1-C4',type:'choice',difficulty:2,sentence:['Please','help','____','.'],hint:'pron',annotation:{'谓语':[1],'宾格':[2],tense:'做宾语 → me / us / them'},options:['I','me','my'],answer:{value:'me'},explain:'help 后面是宾语，I 的宾格是 me。',errorTags:['主格宾格选错']},
+ {id:'P1-C5',type:'choice',difficulty:2,sentence:['She','loves','____','.'],hint:'pron',annotation:{'主语':[0],'谓语':[1],'宾格':[2],tense:'做宾语 → me / us / them'},options:['he','him','his'],answer:{value:'him'},explain:'loves 后面是宾语，用宾格 him。',errorTags:['主格宾格选错']},
+ {id:'P1-C6',type:'choice',difficulty:2,sentence:['____','go','to','school','every','day','.'],hint:'pron',annotation:{'主语':[0],'谓语':[1],tense:'做主语 → I / we / they'},options:['We','Us','Ours'],answer:{value:'We'},explain:'主语位置用主格 We。',errorTags:['主格宾格选错']},
+ {id:'P1-C7',type:'choice',difficulty:2,sentence:['The','teacher','helps','____','.'],hint:'pron',annotation:{'主语':[0,1],'谓语':[2],'宾格':[3],tense:'做宾语 → me / us / them'},options:['they','them','theirs'],answer:{value:'them'},explain:'helps 后面是宾语，用宾格 them。',errorTags:['主格宾格选错']},
+ {id:'P1-F1',type:'fill',difficulty:2,sentence:['____','is','a','good','student','.'],hint:'pron',annotation:{'主语':[0],'be动词':[1],'表语':[2,3,4],tense:'做主语 → I / we / they'},cards:['He','Him'],answer:{value:['He']},explain:'主语位置用主格 He。',errorTags:['主格宾格选错']},
+ {id:'P1-F2',type:'fill',difficulty:2,sentence:['I','see','____','at','school','.'],hint:'pron',annotation:{'主语':[0],'谓语':[1],'宾格':[2],tense:'做宾语 → me / us / them'},cards:['her','she'],answer:{value:['her']},explain:'see 后面是宾语，用宾格 her。',errorTags:['主格宾格选错']},
+ {id:'P1-F3',type:'fill',difficulty:2,sentence:['____','are','my','friends','.'],hint:'pron',annotation:{'主语':[0],'be动词':[1],'表语':[2,3],tense:'做主语 → I / we / they'},cards:['They','Them'],answer:{value:['They']},explain:'主语位置用主格 They。',errorTags:['主格宾格选错']},
+ {id:'P1-F4',type:'fill',difficulty:2,sentence:['Dad','takes','____','to','the','park','.'],hint:'pron',annotation:{'主语':[0],'谓语':[1],'宾格':[2],tense:'做宾语 → me / us / them'},cards:['me','I'],answer:{value:['me']},explain:'takes 后面是宾语，I 的宾格是 me。',errorTags:['主格宾格选错']},
+ {id:'P1-F5',type:'fill',difficulty:2,sentence:['____','likes','playing','games','.'],hint:'pron',annotation:{'主语':[0],'谓语':[1,2],'宾语':[3],tense:'做主语 → I / we / they'},cards:['She','Her'],answer:{value:['She']},explain:'主语位置用主格 She。',errorTags:['主格宾格选错']},
+ {id:'P1-F6',type:'fill',difficulty:2,sentence:['Mom','reads','to','____','every','night','.'],hint:'pron',annotation:{'主语':[0],'谓语':[1,2],'宾格':[3],tense:'做宾语 → me / us / them'},cards:['us','we'],answer:{value:['us']},explain:'to 后面是宾语，we 的宾格是 us。',errorTags:['主格宾格选错']},
+ {id:'P1-B1',type:'build',difficulty:2,cards:['apples','likes','he'],built:['He','likes','apples'],annotation:{'主语':[0],'谓语':[1],'宾语':[2],tense:'做主语 → I / we / they'},answer:{value:['he','likes','apples']},explain:'He（主格）+ likes + apples。',errorTags:['组句语序错误']},
+ {id:'P1-B2',type:'build',difficulty:2,cards:['me','helps','she'],built:['She','helps','me'],annotation:{'主语':[0],'谓语':[1],'宾格':[2],tense:'做宾语 → me / us / them'},answer:{value:['she','helps','me']},explain:'She 主格 + helps + me 宾格。',errorTags:['组句语序错误']},
+ {id:'P1-B3',type:'build',difficulty:2,cards:['us','play with','they'],built:['They','play with','us'],annotation:{'主语':[0],'谓语':[1],'宾格':[2],tense:'做宾语 → me / us / them'},answer:{value:['they','play with','us']},explain:'They 主格 + play with + us 宾格。',errorTags:['组句语序错误']},
+ {id:'P1-B4',type:'build',stype:'一般疑问句',difficulty:3,cards:['him','she','does','like'],built:['Does','she','like','him','?'],annotation:{'主语':[1],'谓语':[0,2],'宾格':[3],tense:'做宾语 → me / us / them'},answer:{value:['does','she','like','him']},explain:'Does 开头，she 主格，him 宾格。',errorTags:['疑问句语序错误']},
+ {id:'P1-B5',type:'build',stype:'否定句',difficulty:3,cards:['them','don\u2019t','I','know'],built:['I','don\u2019t','know','them'],annotation:{'主语':[0],'谓语':[1,2],'宾格':[3],tense:'做宾语 → me / us / them'},answer:{value:['I','don\u2019t','know','them']},explain:'I + don\u2019t know + them 宾格。',errorTags:['否定句语序错误']},
+ {id:'P1-B6',type:'build',difficulty:2,cards:['her','we','see','at school'],built:['We','see','her','at school'],annotation:{'主语':[0],'谓语':[1],'宾格':[2],tense:'做宾语 → me / us / them'},answer:{value:['we','see','her','at school']},explain:'We 主格 + see + her 宾格。',errorTags:['组句语序错误']},
+ {id:'P1-B7',type:'build',difficulty:2,cards:['me','help','please'],built:['Please','help','me'],annotation:{'谓语':[1],'宾格':[2],tense:'做宾语 → me / us / them'},answer:{value:['please','help','me']},explain:'Please + help + me 宾格。',errorTags:['组句语序错误']}
+ ]
+};
+P1PKG.questions.forEach(function(q){if(!q.stype)q.stype='陈述句';});
+
+const N1PKG={
+ meta:{module:'N1',name:'名词复数'},
+ config:{annotateFirstCount:3,drawSize:5,quizSize:6},
+ mindmap:{
+  root:'N1 名词复数',
+  branches:[
+   {title:'规则变化',color:'#16a085',leaves:[
+     {text:'直接加 s：cat → cats'},
+     {text:'s/x/ch/sh 结尾加 es：box → boxes，watch → watches'},
+     {text:'辅音字母 + y 去 y 加 ies：baby → babies'}]},
+   {title:'不规则变化',color:'#e74c3c',leaves:[
+     {text:'man → men'},
+     {text:'woman → women'},
+     {text:'child → children'},
+     {text:'foot → feet，tooth → teeth'}]},
+   {title:'怎么用',color:'#f39c12',leaves:[
+     {text:'many + 复数',ex:'many books'},
+     {text:'these / those + 复数',ex:'these cats'}]},
+   {title:'⭐口诀',color:'#c0392b',star:true,leaves:[{text:'一变二看三加：s、es、ies 要分清，男人女人和孩子，脚和牙齿变一变。'}]}
+  ]},
+ demo:{
+  sentence:['I','have','two','cats','.'],
+  annotation:{'主语':[0],'谓语':[1],'宾语':[2,3],tense:'+s'},
+  playback:[
+   {action:'tap',words:[2,3],label:'宾语',say:'有多少——two cats'},
+   {action:'tap',words:[2],label:'数量',say:'two 说明是复数'},
+   {action:'stamp',value:'+s',say:'cat 直接加 s → cats'}
+  ]},
+ questions:[
+ {id:'N1-J1',type:'judge',difficulty:1,sentence:['I','have','two','cats','.'],annotation:{'主语':[0],'谓语':[1],'宾语':[2,3],tense:'+s'},answer:{value:true},explain:'two 说明复数，cat 直接加 s，句子是对的。',errorTags:['误判正确句子']},
+ {id:'N1-J2',type:'judge',difficulty:1,sentence:['She','has','three','book','.'],annotation:{'主语':[0],'谓语':[1],'宾语':[2,3],tense:'+s'},answer:{value:false,fix:'book → books'},explain:'three 说明复数，book 要加 s。',errorTags:['复数漏加s']},
+ {id:'N1-J3',type:'judge',difficulty:1,sentence:['There','are','many','boxs','.'],annotation:{'主语':[0],'谓语':[1],'宾语':[2,3],tense:'+es'},answer:{value:false,fix:'boxs → boxes'},explain:'box 以 x 结尾，要加 es → boxes。',errorTags:['复数加es错误']},
+ {id:'N1-J4',type:'judge',difficulty:1,sentence:['The','babies','are','sleeping','.'],annotation:{'主语':[0,1],'谓语':[2,3],tense:'y→ies'},answer:{value:true},explain:'baby 去 y 加 ies → babies，句子是对的。',errorTags:['误判正确句子']},
+ {id:'N1-J5',type:'judge',difficulty:1,sentence:['I','see','two','childs','.'],annotation:{'主语':[0],'谓语':[1],'宾语':[2,3],tense:'不规则'},answer:{value:false,fix:'childs → children'},explain:'child 的复数是不规则变化 children。',errorTags:['不规则复数错误']},
+ {id:'N1-J6',type:'judge',difficulty:1,sentence:['There','are','five','women','.'],annotation:{'主语':[0],'谓语':[1],'宾语':[2,3],tense:'不规则'},answer:{value:true},explain:'woman → women，句子是对的。',errorTags:['误判正确句子']},
+ {id:'N1-J7',type:'judge',difficulty:1,sentence:['My','foots','hurt','.'],annotation:{'主语':[0,1],'谓语':[2],tense:'不规则'},answer:{value:false,fix:'foots → feet'},explain:'foot 的复数是不规则变化 feet。',errorTags:['不规则复数错误']},
+ {id:'N1-J8',type:'judge',difficulty:1,sentence:['We','have','three','watches','.'],annotation:{'主语':[0],'谓语':[1],'宾语':[2,3],tense:'+es'},answer:{value:true},explain:'watch 以 ch 结尾加 es → watches，句子是对的。',errorTags:['误判正确句子']},
+ {id:'N1-J9',type:'judge',stype:'一般疑问句',difficulty:1,sentence:['Are','there','any','babies','?'],annotation:{'谓语':[0,1],'宾语':[2,3],tense:'y→ies'},answer:{value:true},explain:'baby → babies，句子是对的。',errorTags:['误判正确句子']},
+ {id:'N1-J10',type:'judge',stype:'否定句',difficulty:1,sentence:['These','are','not','my','pens','.'],annotation:{'主语':[0],'谓语':[1,2,3],'宾语':[4],tense:'+s'},answer:{value:true},explain:'these 后接复数 pens，句子是对的。',errorTags:['误判正确句子']},
+ {id:'N1-C1',type:'choice',difficulty:2,sentence:['I','have','two','____','.'],hint:'cat',annotation:{'主语':[0],'谓语':[1],'宾语':[2,3],tense:'+s'},options:['cat','cats','cates'],answer:{value:'cats'},explain:'two 说明复数，cat 直接加 s。',errorTags:['复数漏加s']},
+ {id:'N1-C2',type:'choice',difficulty:2,sentence:['There','are','three','____','.'],hint:'box',annotation:{'主语':[0],'谓语':[1],'宾语':[2,3],tense:'+es'},options:['box','boxs','boxes'],answer:{value:'boxes'},explain:'box 以 x 结尾，加 es → boxes。',errorTags:['复数加es错误']},
+ {id:'N1-C3',type:'choice',difficulty:2,sentence:['She','has','five','____','.'],hint:'baby',annotation:{'主语':[0],'谓语':[1],'宾语':[2,3],tense:'y→ies'},options:['baby','babys','babies'],answer:{value:'babies'},explain:'baby 辅音字母 + y 结尾，去 y 加 ies。',errorTags:['复数y变ies错误']},
+ {id:'N1-C4',type:'choice',difficulty:2,sentence:['I','see','two','____','.'],hint:'man',annotation:{'主语':[0],'谓语':[1],'宾语':[2,3],tense:'不规则'},options:['man','mans','men'],answer:{value:'men'},explain:'man 的复数是不规则变化 men。',errorTags:['不规则复数错误']},
+ {id:'N1-C5',type:'choice',difficulty:2,sentence:['How','many','____','do','you','have','?'],hint:'watch',annotation:{'主语':[3,4],'谓语':[5],'宾语':[1,2],tense:'+es'},options:['watch','watchs','watches'],answer:{value:'watches'},explain:'watch 以 ch 结尾，加 es → watches。',errorTags:['复数加es错误']},
+ {id:'N1-C6',type:'choice',difficulty:2,sentence:['There','are','six','____','.'],hint:'child',annotation:{'主语':[0],'谓语':[1],'宾语':[2,3],tense:'不规则'},options:['child','childs','children'],answer:{value:'children'},explain:'child 的复数是不规则变化 children。',errorTags:['不规则复数错误']},
+ {id:'N1-C7',type:'choice',difficulty:2,sentence:['My','____','are','white','.'],hint:'tooth',annotation:{'主语':[0,1],'谓语':[2],'表语':[3],tense:'不规则'},options:['tooth','tooths','teeth'],answer:{value:'teeth'},explain:'tooth 的复数是不规则变化 teeth。',errorTags:['不规则复数错误']},
+ {id:'N1-F1',type:'fill',difficulty:2,sentence:['I','have','two','____','.'],hint:'cat',annotation:{'主语':[0],'谓语':[1],'宾语':[2,3],tense:'+s'},cards:['cats','cates'],answer:{value:['cats']},explain:'two 说明复数，cat 直接加 s。',errorTags:['复数漏加s']},
+ {id:'N1-F2',type:'fill',difficulty:2,sentence:['There','are','three','____','.'],hint:'box',annotation:{'主语':[0],'谓语':[1],'宾语':[2,3],tense:'+es'},cards:['boxes','boxs'],answer:{value:['boxes']},explain:'box 以 x 结尾，加 es → boxes。',errorTags:['复数加es错误']},
+ {id:'N1-F3',type:'fill',difficulty:2,sentence:['She','has','two','____','.'],hint:'baby',annotation:{'主语':[0],'谓语':[1],'宾语':[2,3],tense:'y→ies'},cards:['babies','babys'],answer:{value:['babies']},explain:'baby 去 y 加 ies → babies。',errorTags:['复数y变ies错误']},
+ {id:'N1-F4',type:'fill',difficulty:2,sentence:['I','see','three','____','.'],hint:'man',annotation:{'主语':[0],'谓语':[1],'宾语':[2,3],tense:'不规则'},cards:['men','mans'],answer:{value:['men']},explain:'man 的复数是 men。',errorTags:['不规则复数错误']},
+ {id:'N1-F5',type:'fill',difficulty:2,sentence:['How','many','____','are','there','?'],hint:'child',annotation:{'谓语':[3,4],'宾语':[1,2],tense:'不规则'},cards:['children','childs'],answer:{value:['children']},explain:'child 的复数是 children。',errorTags:['不规则复数错误']},
+ {id:'N1-F6',type:'fill',difficulty:2,sentence:['My','____','hurt','.'],hint:'foot',annotation:{'主语':[0,1],'谓语':[2],tense:'不规则'},cards:['feet','foots'],answer:{value:['feet']},explain:'foot 的复数是 feet。',errorTags:['不规则复数错误']},
+ {id:'N1-B1',type:'build',difficulty:2,cards:['two cats','have','I'],built:['I','have','two cats'],annotation:{'主语':[0],'谓语':[1],'宾语':[2],tense:'+s'},answer:{value:['I','have','two cats']},explain:'I + have + two cats。',errorTags:['组句语序错误']},
+ {id:'N1-B2',type:'build',difficulty:2,cards:['three boxes','are','there'],built:['There','are','three boxes'],annotation:{'主语':[0],'谓语':[1],'宾语':[2],tense:'+es'},answer:{value:['there','are','three boxes']},explain:'There are + three boxes。',errorTags:['组句语序错误']},
+ {id:'N1-B3',type:'build',difficulty:2,cards:['five babies','has','she'],built:['She','has','five babies'],annotation:{'主语':[0],'谓语':[1],'宾语':[2],tense:'y→ies'},answer:{value:['she','has','five babies']},explain:'She + has + five babies。',errorTags:['组句语序错误']},
+ {id:'N1-B4',type:'build',stype:'一般疑问句',difficulty:3,cards:['any children','are','there'],built:['Are','there','any children','?'],annotation:{'谓语':[0,1],'宾语':[2],tense:'不规则'},answer:{value:['are','there','any children']},explain:'Are there + any children。',errorTags:['疑问句语序错误']},
+ {id:'N1-B5',type:'build',stype:'否定句',difficulty:3,cards:['my books','not','these','are'],built:['These','are','not','my books'],annotation:{'主语':[0],'谓语':[1,2,3],'宾语':[3],tense:'+s'},answer:{value:['these','are','not','my books']},explain:'These + are not + my books。',errorTags:['否定句语序错误']},
+ {id:'N1-B6',type:'build',difficulty:2,cards:['two men','see','I'],built:['I','see','two men'],annotation:{'主语':[0],'谓语':[1],'宾语':[2],tense:'不规则'},answer:{value:['I','see','two men']},explain:'I + see + two men。',errorTags:['组句语序错误']},
+ {id:'N1-B7',type:'build',difficulty:2,cards:['white','are','my teeth'],built:['My teeth','are','white'],annotation:{'主语':[0],'谓语':[1],'表语':[2],tense:'不规则'},answer:{value:['my teeth','are','white']},explain:'My teeth + are + white。',errorTags:['组句语序错误']}
+ ]
+};
+N1PKG.questions.forEach(function(q){if(!q.stype)q.stype='陈述句';});
+
+const D1PKG={
+ meta:{module:'D1',name:'基数词与序数词'},
+ config:{annotateFirstCount:3,drawSize:5,quizSize:6},
+ mindmap:{
+  root:'D1 基数词与序数词',
+  branches:[
+   {title:'基数词',color:'#3498db',leaves:[
+     {text:'one, two, three, four, five…'},
+     {text:'表示数量',ex:'I have three books.',zh:'我有三本书。'}]},
+   {title:'序数词',color:'#27ae60',leaves:[
+     {text:'first, second, third, fourth, fifth…'},
+     {text:'表示顺序',ex:'Monday is the first day.',zh:'周一是第一天。'},
+     {text:'前面通常加 the',ex:'the second floor'}]},
+   {title:'怎么用',color:'#e67e22',leaves:[
+     {text:'基数词 + 名词复数',ex:'two books'},
+     {text:'the + 序数词 + 名词单数',ex:'the first day'}]},
+   {title:'⭐口诀',color:'#c0392b',star:true,leaves:[{text:'数量用基数，顺序用序数，序数前面加 the。'}]}
+  ]},
+ demo:{
+  sentence:['Monday','is','the','first','day','.'],
+  annotation:{'主语':[0],'be动词':[1],'表语':[2,3,4],tense:'序数词'},
+  playback:[
+   {action:'tap',words:[0],label:'主语',say:'说什么——Monday'},
+   {action:'tap',words:[3],label:'序数词',say:'排在第几——first'},
+   {action:'stamp',value:'序数词',say:'表示顺序，用序数词'}
+  ]},
+ questions:[
+ {id:'D1-J1',type:'judge',difficulty:1,sentence:['I','have','two','books','.'],annotation:{'主语':[0],'谓语':[1],'宾语':[2,3],tense:'基数词'},answer:{value:true},explain:'two 表示数量，用基数词，句子是对的。',errorTags:['误判正确句子']},
+ {id:'D1-J2',type:'judge',difficulty:1,sentence:['This','is','my','one','book','.'],annotation:{'主语':[0,1],'be动词':[2],'表语':[3,4],tense:'序数词'},answer:{value:false,fix:'one → first'},explain:'表示「第一本」，用序数词 first。',errorTags:['基数序数选错']},
+ {id:'D1-J3',type:'judge',difficulty:1,sentence:['She','is','the','second','student','.'],annotation:{'主语':[0],'be动词':[1],'表语':[2,3,4],tense:'序数词'},answer:{value:true},explain:'the + second 表示顺序，句子是对的。',errorTags:['误判正确句子']},
+ {id:'D1-J4',type:'judge',difficulty:1,sentence:['February','is','the','two','month','.'],annotation:{'主语':[0],'be动词':[1],'表语':[2,3,4],tense:'序数词'},answer:{value:false,fix:'two → second'},explain:'表示「第二个月」，用序数词 second。',errorTags:['基数序数选错']},
+ {id:'D1-J5',type:'judge',difficulty:1,sentence:['I','have','three','apples','.'],annotation:{'主语':[0],'谓语':[1],'宾语':[2,3],tense:'基数词'},answer:{value:true},explain:'three 表示数量，用基数词，句子是对的。',errorTags:['误判正确句子']},
+ {id:'D1-J6',type:'judge',difficulty:1,sentence:['He','is','my','two','brother','.'],annotation:{'主语':[0],'be动词':[1],'表语':[2,3,4],tense:'序数词'},answer:{value:false,fix:'two → second'},explain:'表示「第二个」，用序数词 second。',errorTags:['基数序数选错']},
+ {id:'D1-J7',type:'judge',difficulty:1,sentence:['Monday','is','the','first','day','.'],annotation:{'主语':[0],'be动词':[1],'表语':[2,3,4],tense:'序数词'},answer:{value:true},explain:'the + first 表示顺序，句子是对的。',errorTags:['误判正确句子']},
+ {id:'D1-J8',type:'judge',difficulty:1,sentence:['I','have','five','pens','.'],annotation:{'主语':[0],'谓语':[1],'宾语':[2,3],tense:'基数词'},answer:{value:true},explain:'five 表示数量，用基数词，句子是对的。',errorTags:['误判正确句子']},
+ {id:'D1-J9',type:'judge',stype:'一般疑问句',difficulty:1,sentence:['Is','this','the','third','floor','?'],annotation:{'主语':[1],'be动词':[0],'表语':[2,3,4],tense:'序数词'},answer:{value:true},explain:'the + third 表示顺序，句子是对的。',errorTags:['误判正确句子']},
+ {id:'D1-J10',type:'judge',stype:'否定句',difficulty:1,sentence:['It','is','not','the','first','time','.'],annotation:{'主语':[0],'be动词':[1,2],'表语':[3,4,5],tense:'序数词'},answer:{value:true},explain:'the + first 表示顺序，句子是对的。',errorTags:['误判正确句子']},
+ {id:'D1-C1',type:'choice',difficulty:2,sentence:['I','have','____','books','.'],hint:'num',annotation:{'主语':[0],'谓语':[1],'宾语':[2,3],tense:'基数词'},options:['two','second'],answer:{value:'two'},explain:'表示数量，用基数词 two。',errorTags:['基数序数选错']},
+ {id:'D1-C2',type:'choice',difficulty:2,sentence:['This','is','the','____','floor','.'],hint:'num',annotation:{'主语':[0,1],'be动词':[2],'表语':[3,4],tense:'序数词'},options:['three','third'],answer:{value:'third'},explain:'the + third 表示第几层。',errorTags:['基数序数选错']},
+ {id:'D1-C3',type:'choice',difficulty:2,sentence:['She','is','the','____','in','line','.'],hint:'num',annotation:{'主语':[0],'be动词':[1],'表语':[2,3,4,5],tense:'序数词'},options:['one','first'],answer:{value:'first'},explain:'排在第一个，用序数词 first。',errorTags:['基数序数选错']},
+ {id:'D1-C4',type:'choice',difficulty:2,sentence:['There','are','____','cats','.'],hint:'num',annotation:{'主语':[0],'谓语':[1],'宾语':[2,3],tense:'基数词'},options:['four','fourth'],answer:{value:'four'},explain:'表示数量，用基数词 four。',errorTags:['基数序数选错']},
+ {id:'D1-C5',type:'choice',difficulty:2,sentence:['March','is','the','____','month','.'],hint:'num',annotation:{'主语':[0],'be动词':[1],'表语':[2,3,4],tense:'序数词'},options:['three','third'],answer:{value:'third'},explain:'the + third 表示第三个月。',errorTags:['基数序数选错']},
+ {id:'D1-C6',type:'choice',difficulty:2,sentence:['I','have','____','pencils','.'],hint:'num',annotation:{'主语':[0],'谓语':[1],'宾语':[2,3],tense:'基数词'},options:['six','sixth'],answer:{value:'six'},explain:'表示数量，用基数词 six。',errorTags:['基数序数选错']},
+ {id:'D1-C7',type:'choice',difficulty:2,sentence:['He','is','the','____','to','arrive','.'],hint:'num',annotation:{'主语':[0],'be动词':[1],'表语':[2,3,4,5],tense:'序数词'},options:['two','second'],answer:{value:'second'},explain:'the second to arrive 表示第二个到。',errorTags:['基数序数选错']},
+ {id:'D1-F1',type:'fill',difficulty:2,sentence:['I','have','____','apples','.'],hint:'num',annotation:{'主语':[0],'谓语':[1],'宾语':[2,3],tense:'基数词'},cards:['three','third'],answer:{value:['three']},explain:'表示数量，用基数词 three。',errorTags:['基数序数选错']},
+ {id:'D1-F2',type:'fill',difficulty:2,sentence:['This','is','the','____','day','.'],hint:'num',annotation:{'主语':[0,1],'be动词':[2],'表语':[3,4],tense:'序数词'},cards:['first','one'],answer:{value:['first']},explain:'the + first 表示第一天。',errorTags:['基数序数选错']},
+ {id:'D1-F3',type:'fill',difficulty:2,sentence:['There','are','____','dogs','.'],hint:'num',annotation:{'主语':[0],'谓语':[1],'宾语':[2,3],tense:'基数词'},cards:['five','fifth'],answer:{value:['five']},explain:'表示数量，用基数词 five。',errorTags:['基数序数选错']},
+ {id:'D1-F4',type:'fill',difficulty:2,sentence:['She','is','the','____','student','.'],hint:'num',annotation:{'主语':[0],'be动词':[1],'表语':[2,3,4],tense:'序数词'},cards:['second','two'],answer:{value:['second']},explain:'the + second 表示第二个。',errorTags:['基数序数选错']},
+ {id:'D1-F5',type:'fill',difficulty:2,sentence:['I','have','____','books','.'],hint:'num',annotation:{'主语':[0],'谓语':[1],'宾语':[2,3],tense:'基数词'},cards:['four','fourth'],answer:{value:['four']},explain:'表示数量，用基数词 four。',errorTags:['基数序数选错']},
+ {id:'D1-F6',type:'fill',difficulty:2,sentence:['Monday','is','the','____','day','.'],hint:'num',annotation:{'主语':[0],'be动词':[1],'表语':[2,3,4],tense:'序数词'},cards:['first','one'],answer:{value:['first']},explain:'the + first 表示第一天。',errorTags:['基数序数选错']},
+ {id:'D1-B1',type:'build',difficulty:2,cards:['three books','have','I'],built:['I','have','three books'],annotation:{'主语':[0],'谓语':[1],'宾语':[2],tense:'基数词'},answer:{value:['I','have','three books']},explain:'I + have + three books。',errorTags:['组句语序错误']},
+ {id:'D1-B2',type:'build',difficulty:2,cards:['the first day','is','this'],built:['This','is','the first day'],annotation:{'主语':[0],'be动词':[1],'表语':[2],tense:'序数词'},answer:{value:['this','is','the first day']},explain:'This + is + the first day。',errorTags:['组句语序错误']},
+ {id:'D1-B3',type:'build',difficulty:2,cards:['the second student','is','she'],built:['She','is','the second student'],annotation:{'主语':[0],'be动词':[1],'表语':[2],tense:'序数词'},answer:{value:['she','is','the second student']},explain:'She + is + the second student。',errorTags:['组句语序错误']},
+ {id:'D1-B4',type:'build',stype:'一般疑问句',difficulty:3,cards:['the third floor','is','this'],built:['Is','this','the third floor','?'],annotation:{'主语':[1],'be动词':[0],'表语':[2],tense:'序数词'},answer:{value:['is','this','the third floor']},explain:'Is + this + the third floor。',errorTags:['疑问句语序错误']},
+ {id:'D1-B5',type:'build',stype:'否定句',difficulty:3,cards:['not','the first time','is','it'],built:['It','is','not','the first time'],annotation:{'主语':[0],'be动词':[1,2],'表语':[3],tense:'序数词'},answer:{value:['it','is','not','the first time']},explain:'It + is not + the first time。',errorTags:['否定句语序错误']},
+ {id:'D1-B6',type:'build',difficulty:2,cards:['five cats','are','there'],built:['There','are','five cats'],annotation:{'主语':[0],'谓语':[1],'宾语':[2],tense:'基数词'},answer:{value:['there','are','five cats']},explain:'There are + five cats。',errorTags:['组句语序错误']},
+ {id:'D1-B7',type:'build',difficulty:2,cards:['the first day','is','Monday','of the week'],built:['Monday','is','the first day','of the week'],annotation:{'主语':[0],'be动词':[1],'表语':[2,3],tense:'序数词'},answer:{value:['Monday','is','the first day','of the week']},explain:'Monday + is + the first day of the week。',errorTags:['组句语序错误']}
+ ]
+};
+D1PKG.questions.forEach(function(q){if(!q.stype)q.stype='陈述句';});
+
+const E2PKG={
+ meta:{module:'E2',name:'频度与 How often'},
+ config:{annotateFirstCount:3,drawSize:5,quizSize:6},
+ mindmap:{
+  root:'E2 频度与 How often',
+  branches:[
+   {title:'频度副词',color:'#3498db',leaves:[
+     {text:'always（总是）> usually（通常）> often（经常）'},
+     {text:'> sometimes（有时）> never（从不）'}]},
+   {title:'位置规则',color:'#27ae60',leaves:[
+     {text:'be 动词后',ex:'She is always happy.'},
+     {text:'实义动词前',ex:'I always get up at seven.'}]},
+   {title:'How often',color:'#e67e22',leaves:[
+     {text:'问频率',ex:'How often do you read?'},
+     {text:'回答用频率副词或次数',ex:'I read every day. / Twice a week.'}]},
+   {title:'⭐口诀',color:'#c0392b',star:true,leaves:[{text:'always 总，usually 常，often 时常，sometimes 偶尔，never 从不；be 后实义前。'}]}
+  ]},
+ demo:{
+  sentence:['I','always','get','up','at','seven','.'],
+  annotation:{'主语':[0],'频度副词':[1],'谓语':[2,3],tense:'实义动词前'},
+  playback:[
+   {action:'tap',words:[0],label:'主语',say:'谁——I'},
+   {action:'tap',words:[1],label:'频度副词',say:'多经常——always'},
+   {action:'tap',words:[2,3],label:'谓语',say:'做什么——get up'},
+   {action:'stamp',value:'实义动词前',say:'always 放在实义动词 get 前面'}
+  ]},
+ questions:[
+ {id:'E2-J1',type:'judge',difficulty:1,sentence:['I','always','get','up','at','seven','.'],annotation:{'主语':[0],'频度副词':[1],'谓语':[2,3],tense:'实义动词前'},answer:{value:true},explain:'always 放在实义动词 get 前面，句子是对的。',errorTags:['误判正确句子']},
+ {id:'E2-J2',type:'judge',difficulty:1,sentence:['She','is','always','happy','.'],annotation:{'主语':[0],'be动词':[1],'频度副词':[2],'表语':[3],tense:'be后'},answer:{value:true},explain:'always 放在 be 动词 is 后面，句子是对的。',errorTags:['误判正确句子']},
+ {id:'E2-J3',type:'judge',difficulty:1,sentence:['He','always','is','late','.'],annotation:{'主语':[0],'频度副词':[1],'be动词':[2],'表语':[3],tense:'be后'},answer:{value:false,fix:'always is → is always'},explain:'频度副词要放在 be 动词后面：is always。',errorTags:['频度副词位置错误']},
+ {id:'E2-J4',type:'judge',difficulty:1,sentence:['They','sometimes','play','games','.'],annotation:{'主语':[0],'频度副词':[1],'谓语':[2],'宾语':[3],tense:'实义动词前'},answer:{value:true},explain:'sometimes 放在实义动词 play 前面，句子是对的。',errorTags:['误判正确句子']},
+ {id:'E2-J5',type:'judge',difficulty:1,sentence:['We','never','eat','fast','food','.'],annotation:{'主语':[0],'频度副词':[1],'谓语':[2],'宾语':[3,4],tense:'实义动词前'},answer:{value:true},explain:'never 放在实义动词 eat 前面，句子是对的。',errorTags:['误判正确句子']},
+ {id:'E2-J6',type:'judge',difficulty:1,sentence:['She','often','watches','TV','.'],annotation:{'主语':[0],'频度副词':[1],'谓语':[2],'宾语':[3],tense:'实义动词前'},answer:{value:true},explain:'often 放在实义动词 watches 前面，句子是对的。',errorTags:['误判正确句子']},
+ {id:'E2-J7',type:'judge',difficulty:1,sentence:['He','plays','always','football','.'],annotation:{'主语':[0],'谓语':[1],'频度副词':[2],'宾语':[3],tense:'实义动词前'},answer:{value:false,fix:'plays always → always plays'},explain:'频度副词要放在实义动词 plays 前面。',errorTags:['频度副词位置错误']},
+ {id:'E2-J8',type:'judge',difficulty:1,sentence:['I','usually','go','to','school','by','bus','.'],annotation:{'主语':[0],'频度副词':[1],'谓语':[2],tense:'实义动词前'},answer:{value:true},explain:'usually 放在实义动词 go 前面，句子是对的。',errorTags:['误判正确句子']},
+ {id:'E2-J9',type:'judge',stype:'一般疑问句',difficulty:1,sentence:['Do','you','often','read','books','?'],annotation:{'主语':[1],'谓语':[0,3],'频度副词':[2],'宾语':[4],tense:'实义动词前'},answer:{value:true},explain:'often 放在实义动词 read 前面，句子是对的。',errorTags:['误判正确句子']},
+ {id:'E2-J10',type:'judge',stype:'否定句',difficulty:1,sentence:['I','don\u2019t','usually','go','out','.'],annotation:{'主语':[0],'谓语':[1,3],'频度副词':[2],tense:'实义动词前'},answer:{value:true},explain:'usually 放在实义动词 go 前面，句子是对的。',errorTags:['误判正确句子']},
+ {id:'E2-C1',type:'choice',difficulty:2,sentence:['I','____','get','up','at','seven','.'],hint:'every day',annotation:{'主语':[0],'频度副词':[1],'谓语':[2,3],tense:'实义动词前'},options:['always','never','sometimes'],answer:{value:'always'},explain:'every day 说明每天如此，用 always。',errorTags:['频度副词选错']},
+ {id:'E2-C2',type:'choice',difficulty:2,sentence:['She','is','____','happy','.'],hint:'usually',annotation:{'主语':[0],'be动词':[1],'频度副词':[2],'表语':[3],tense:'be后'},options:['always','never','usually'],answer:{value:'always'},explain:'be 动词后接频度副词，always 表示总是开心。',errorTags:['频度副词选错']},
+ {id:'E2-C3',type:'choice',stype:'特殊疑问句',difficulty:2,sentence:['How','____','do','you','read','?'],hint:'freq',annotation:{'疑问词':[0,1],'主语':[3],'谓语':[2,4],tense:'实义动词前'},options:['often','much','many'],answer:{value:'often'},explain:'How often 问频率。',errorTags:['How often 疑问词选错']},
+ {id:'E2-C4',type:'choice',difficulty:2,sentence:['I','____','eat','fast','food','.'],hint:'not good',annotation:{'主语':[0],'频度副词':[1],'谓语':[2],'宾语':[3,4],tense:'实义动词前'},options:['never','always','usually'],answer:{value:'never'},explain:'垃圾食品不健康，never 表示从不吃。',errorTags:['频度副词选错']},
+ {id:'E2-C5',type:'choice',difficulty:2,sentence:['He','____','goes','to','the','library','.'],hint:'most days',annotation:{'主语':[0],'频度副词':[1],'谓语':[2],tense:'实义动词前'},options:['usually','never','sometimes'],answer:{value:'usually'},explain:'most days 说明大多数时候，用 usually。',errorTags:['频度副词选错']},
+ {id:'E2-C6',type:'choice',difficulty:2,sentence:['We','____','play','after','school','.'],hint:'not every day',annotation:{'主语':[0],'频度副词':[1],'谓语':[2],tense:'实义动词前'},options:['sometimes','always','never'],answer:{value:'sometimes'},explain:'not every day 说明偶尔，用 sometimes。',errorTags:['频度副词选错']},
+ {id:'E2-C7',type:'choice',difficulty:2,sentence:['She','is','____','late','for','class','.'],hint:'almost never',annotation:{'主语':[0],'be动词':[1],'频度副词':[2],tense:'be后'},options:['never','sometimes','always'],answer:{value:'never'},explain:'almost never 说明几乎从不，用 never。',errorTags:['频度副词选错']},
+ {id:'E2-F1',type:'fill',difficulty:2,sentence:['I','____','get','up','at','seven','.'],hint:'every day',annotation:{'主语':[0],'频度副词':[1],'谓语':[2,3],tense:'实义动词前'},cards:['always','never'],answer:{value:['always']},explain:'every day → always。',errorTags:['频度副词选错']},
+ {id:'E2-F2',type:'fill',difficulty:2,sentence:['She','is','____','happy','.'],hint:'always',annotation:{'主语':[0],'be动词':[1],'频度副词':[2],'表语':[3],tense:'be后'},cards:['always','never'],answer:{value:['always']},explain:'be 后接频度副词。',errorTags:['频度副词选错']},
+ {id:'E2-F3',type:'fill',stype:'特殊疑问句',difficulty:2,sentence:['How','____','do','you','go','swimming','?'],hint:'freq',annotation:{'疑问词':[0,1],'主语':[3],'谓语':[2,4],tense:'实义动词前'},cards:['often','much'],answer:{value:['often']},explain:'How often 问频率。',errorTags:['How often 疑问词选错']},
+ {id:'E2-F4',type:'fill',difficulty:2,sentence:['He','____','eats','vegetables','.'],hint:'most meals',annotation:{'主语':[0],'频度副词':[1],'谓语':[2],'宾语':[3],tense:'实义动词前'},cards:['usually','never'],answer:{value:['usually']},explain:'most meals → usually。',errorTags:['频度副词选错']},
+ {id:'E2-F5',type:'fill',difficulty:2,sentence:['We','____','watch','TV','.'],hint:'not every day',annotation:{'主语':[0],'频度副词':[1],'谓语':[2],'宾语':[3],tense:'实义动词前'},cards:['sometimes','always'],answer:{value:['sometimes']},explain:'not every day → sometimes。',errorTags:['频度副词选错']},
+ {id:'E2-F6',type:'fill',stype:'否定句',difficulty:2,sentence:['They','are','____','busy','.'],hint:'not often',annotation:{'主语':[0],'be动词':[1],'频度副词':[2],'表语':[3],tense:'be后'},cards:['never','often'],answer:{value:['never']},explain:'not often → never。',errorTags:['频度副词选错']},
+ {id:'E2-B1',type:'build',difficulty:2,cards:['at seven','always','get up','I'],built:['I','always','get up','at seven'],annotation:{'主语':[0],'频度副词':[1],'谓语':[2],tense:'实义动词前'},answer:{value:['I','always','get up','at seven']},explain:'I + always + get up + at seven。',errorTags:['组句语序错误']},
+ {id:'E2-B2',type:'build',difficulty:2,cards:['happy','is','she','always'],built:['She','is','always','happy'],annotation:{'主语':[0],'be动词':[1],'频度副词':[2],'表语':[3],tense:'be后'},answer:{value:['she','is','always','happy']},explain:'She + is + always + happy。',errorTags:['组句语序错误']},
+ {id:'E2-B3',type:'build',stype:'特殊疑问句',difficulty:3,cards:['read','how often','do','you'],built:['How often','do','you','read','?'],annotation:{'疑问词':[0],'主语':[2],'谓语':[1,3],tense:'实义动词前'},answer:{value:['how often','do','you','read']},explain:'How often + do + you + read。',errorTags:['疑问句语序错误']},
+ {id:'E2-B4',type:'build',stype:'否定句',difficulty:3,cards:['fast food','never','I','eat'],built:['I','never','eat','fast food'],annotation:{'主语':[0],'频度副词':[1],'谓语':[2],'宾语':[3],tense:'实义动词前'},answer:{value:['I','never','eat','fast food']},explain:'I + never + eat + fast food。',errorTags:['否定句语序错误']},
+ {id:'E2-B5',type:'build',difficulty:2,cards:['to school','usually','goes','he','by bus'],built:['He','usually','goes','to school','by bus'],annotation:{'主语':[0],'频度副词':[1],'谓语':[2],tense:'实义动词前'},answer:{value:['he','usually','goes','to school','by bus']},explain:'He + usually + goes + to school + by bus。',errorTags:['组句语序错误']},
+ {id:'E2-B6',type:'build',difficulty:2,cards:['games','sometimes','play','we'],built:['We','sometimes','play','games'],annotation:{'主语':[0],'频度副词':[1],'谓语':[2],'宾语':[3],tense:'实义动词前'},answer:{value:['we','sometimes','play','games']},explain:'We + sometimes + play + games。',errorTags:['组句语序错误']},
+ {id:'E2-B7',type:'build',stype:'否定句',difficulty:3,cards:['go out','doesn\u2019t','she','often'],built:['She','doesn\u2019t','often','go out'],annotation:{'主语':[0],'谓语':[1,3],'频度副词':[2],tense:'实义动词前'},answer:{value:['she','doesn\u2019t','often','go out']},explain:'She + doesn\u2019t + often + go out。',errorTags:['否定句语序错误']}
+ ]
+};
+E2PKG.questions.forEach(function(q){if(!q.stype)q.stype='陈述句';});
+
+const CONTENT={'T1':T1PKG,'T2':T2PKG,'V1':V1PKG,'P1':P1PKG,'N1':N1PKG,'D1':D1PKG,'E2':E2PKG};
+const DEFAULT_TENSE_OPTIONS=['一般现在时','现在进行时','一般过去时','一般将来时'];
+const STAMP_SPECS={
+ V1:{tip:'主语 → be:',options:['I → am','he / she / it → is','you / we / they → are']},
+ P1:{tip:'做主语还是做宾语？',options:['做主语 → I / we / they','做宾语 → me / us / them']},
+ N1:{tip:'判断复数变化，盖个章：',options:["+s","+es","y→ies","不规则"]},
+ D1:{tip:'判断数词用法，盖个章：',options:['基数词','序数词']},
+ E2:{tip:'判断频度位置，盖个章：',options:['实义动词前','be后']}
+};
+
+/* =============== 状态 =============== */
+const LSKEY='grammar_blackboard_v1';
+let state={stars:0,mastered:{},seen:{},wrong:{},firstPracticeDone:{},soundOn:true};
+try{const s=localStorage.getItem(LSKEY); if(s){state=Object.assign(state,JSON.parse(s));}}catch(e){}
+function save(){try{localStorage.setItem(LSKEY,JSON.stringify(state));}catch(e){}}
+function refreshBadge(){document.getElementById('starBadge').textContent='★ '+state.stars;}
+
+/* =============== 工具 =============== */
+function $(s,p){return (p||document).querySelector(s);}
+function el(tag,cls,html){const d=document.createElement(tag); if(cls)d.className=cls; if(html!==undefined)d.innerHTML=html; return d;}
+function shuffle(a){a=a.slice(); for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1)); const t=a[i]; a[i]=a[j]; a[j]=t;} return a;}
+function toast(msg,ms){const t=el('div','toast',msg); document.getElementById('toastHost').appendChild(t); setTimeout(function(){t.remove();},ms||2200);}
+function copyText(txt){
+  try{
+    const ta=document.createElement('textarea'); ta.value=txt; ta.style.position='fixed'; ta.style.left='-999px';
+    document.body.appendChild(ta); ta.select();
+    const okc=document.execCommand('copy'); ta.remove();
+    if(!okc&&navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(txt);}
+    toast(okc?'已复制报错，可以粘贴发给我':'请手动选中红色文字复制');
+  }catch(e){toast('复制失败：请手动选中红色文字复制');}
+}
+window.onerror=function(msg,src,line,col){
+  try{
+    const txt='⚠️ '+msg+'（第 '+line+' 行）';
+    const t=el('div','toast');
+    t.style.background='#c0392b'; t.style.top='110px'; t.style.zIndex='999'; t.style.maxWidth='92vw';
+    t.style.userSelect='text'; t.style.display='flex'; t.style.alignItems='center'; t.style.gap='10px';
+    const span=el('span','',txt); span.style.userSelect='text';
+    const cp=el('button','btn small','📋 复制报错');
+    cp.onclick=function(){copyText(txt);};
+    const x=el('button','btn small','×'); x.onclick=function(){t.remove();};
+    t.appendChild(span); t.appendChild(cp); t.appendChild(x);
+    document.getElementById('toastHost').appendChild(t);
+  }catch(e){}
+  return false;
+};
+function speak(text,lang){
+  if(!state.soundOn)return;
+  try{const u=new SpeechSynthesisUtterance(text); u.lang=lang||'en-US'; u.rate=0.85; speechSynthesis.cancel(); speechSynthesis.speak(u);}catch(e){}
+}
+function speakZh(t){speak(t,'zh-CN');}
+const LABEL_STYLE={
+ '主语':{c:'#e74c3c',hint:'谁'},
+ '谓语':{c:'#2980b9',hint:'做什么'},
+ '宾语':{c:'#27ae60',hint:'对象'},
+ 'be动词':{c:'#2980b9',hint:'是什么'},
+ '表语':{c:'#16a085',hint:'是什么 / 怎么样'},
+ '宾格':{c:'#8e44ad',hint:'跟在动词后'},
+ '数量':{c:'#e67e22',hint:'多少'},
+ '频度副词':{c:'#e67e22',hint:'多经常',above:true},
+ '标志词':{c:'#e67e22',hint:'时间提示',above:true},
+ '疑问词':{c:'#8e44ad',hint:'问什么'}
+};
+function labelStyle(l){return LABEL_STYLE[l]||{c:'#7f8c8d',hint:''};}
+const TAG_BRANCH=[
+ ['漏 be','构成'],
+ ['be 动词','be 怎么选'],['be动词','be怎么选'],
+ ['ing','ing 变化'],['not 位置','否定与疑问'],
+ ['三单','三单变化'],['回原形','否定与疑问'],
+ ['do/does','否定与疑问'],['don\u2019t','否定与疑问'],
+ ['主格宾格','怎么选'],
+ ['不规则','不规则变化'],['复数','规则变化'],
+ ['基数序数','怎么用'],
+ ['频度副词位置','位置规则'],['How often','How often'],['频度副词','频度副词'],
+ ['语序','否定与疑问'],['误判','用法']
+];
+function branchForTag(tag,mid){
+ for(let i=0;i<TAG_BRANCH.length;i++){if(tag.indexOf(TAG_BRANCH[i][0])>=0)return TAG_BRANCH[i][1];}
+ return ({V1:'be怎么选',P1:'怎么选',N1:'规则变化',D1:'怎么用',E2:'位置规则'})[mid]||'构成';
+}
+
+/* =============== 手绘 SVG =============== */
+function J(){return (Math.random()-0.5)*3;}
+function makeSvg(w,h){const svg=document.createElementNS('http://www.w3.org/2000/svg','svg'); svg.setAttribute('class','bsvg'); svg.setAttribute('width',Math.max(w,10)); svg.setAttribute('height',Math.max(h,10)); return svg;}
+function svgPath(svg,d,color,width,dashed){
+  const p=document.createElementNS('http://www.w3.org/2000/svg','path');
+  p.setAttribute('d',d); p.setAttribute('stroke',color); p.setAttribute('fill','none');
+  p.setAttribute('stroke-width',width||2.4); p.setAttribute('stroke-linecap','round');
+  if(dashed)p.setAttribute('stroke-dasharray','7 5');
+  svg.appendChild(p);
+  try{const len=p.getTotalLength();
+    p.style.strokeDasharray=len; p.style.strokeDashoffset=len;
+    requestAnimationFrame(function(){p.style.transition='stroke-dashoffset .5s'; p.style.strokeDashoffset='0';});
+  }catch(e){}
+  return p;
+}
+function svgText(svg,x,y,txt,color){
+  const t=document.createElementNS('http://www.w3.org/2000/svg','text');
+  t.setAttribute('x',x+J()); t.setAttribute('y',y+J()); t.setAttribute('fill',color);
+  t.setAttribute('font-size','15'); t.setAttribute('text-anchor','middle');
+  t.setAttribute('font-family','KaiTi,STKaiti,serif'); t.setAttribute('font-weight','bold');
+  t.textContent=txt; svg.appendChild(t); return t;
+}
+function bracePath(x1,x2,y,h){
+  const mid=(x1+x2)/2, tip=(h>0?6:-6);
+  return 'M '+(x1+J())+' '+(y+J())+' Q '+(x1+J())+' '+(y+h+J())+' '+(mid-9+J())+' '+(y+h+J())+
+         ' Q '+(mid+J())+' '+(y+h+tip+J())+' '+(mid+9+J())+' '+(y+h+J())+
+         ' Q '+(x2+J())+' '+(y+h+J())+' '+(x2+J())+' '+(y+J());
+}
+/* 在 sent-box 内为词区间画括号 */
+function drawBrace(box,svg,words,els,label,color,dashed){
+  const valid=els.filter(Boolean); if(!valid.length)return;
+  /* 按索引连续性分段：疑问句的谓语（be 提前）被主语隔开时，各画一段括号 */
+  const runs=[]; let cur=[];
+  valid.forEach(function(e){
+    const raw=e.dataset?e.dataset.i:undefined;
+    const i=(raw!==undefined)?parseInt(raw,10):NaN;
+    if(cur.length){
+      const praw=cur[cur.length-1].dataset?cur[cur.length-1].dataset.i:undefined;
+      const pi=(praw!==undefined)?parseInt(praw,10):NaN;
+      if(!isNaN(i)&&!isNaN(pi)&&i-pi!==1){runs.push(cur); cur=[e]; return;}
+    }
+    cur.push(e);
+  });
+  if(cur.length)runs.push(cur);
+  const st=labelStyle(label); const above=!!st.above;
+  runs.forEach(function(run){
+    const first=run[0], last=run[run.length-1];
+    let x1=first.offsetLeft, x2=last.offsetLeft+last.offsetWidth;
+    let wordTop=Infinity, wordBot=-Infinity;
+    run.forEach(function(e){x1=Math.min(x1,e.offsetLeft); x2=Math.max(x2,e.offsetLeft+e.offsetWidth); wordTop=Math.min(wordTop,e.offsetTop); wordBot=Math.max(wordBot,e.offsetTop+e.offsetHeight);});
+    let y,h;
+    if(above){ y=wordTop-10; h=-13; }
+    else { y=wordBot+6; h=13; }
+    svgPath(svg,bracePath(x1,x2,y,h),color,2.6,dashed);
+    const mid=(x1+x2)/2;
+    const ly=above? y+h-8 : y+h+20;
+    svgText(svg,mid,ly,label+(dashed?'（老师标）':''),color);
+  });
+  if(svg.parentNode!==box)box.appendChild(svg);
+  svg.setAttribute('width',box.offsetWidth); svg.setAttribute('height',box.offsetHeight+40);
+}
+
+/* =============== 首页：模块库 =============== */
+let libTab='时态', libQuery='';
+function renderLibrary(){
+  const app=document.getElementById('app'); app.innerHTML='';
+  app.appendChild(el('div','sec-title','🧭 选一块语法，点进去复习'));
+  const search=el('input','search'); search.placeholder='搜索：how often / must / 进行时…'; search.value=libQuery;
+  search.oninput=function(){libQuery=search.value.trim().toLowerCase(); fillGrid();};
+  app.appendChild(search);
+  const tabs=el('div','tabs');
+  ['时态','词法','句法'].forEach(function(c){
+    const n=MODULES.filter(function(m){return m.cat===c;}).length;
+    const t=el('div','tab'+(libTab===c?' on':''),c+'（'+n+'）');
+    t.onclick=function(){libTab=c; renderLibrary();}; tabs.appendChild(t);
+  });
+  app.appendChild(tabs);
+  const grid=el('div','grid'); grid.id='libGrid'; app.appendChild(grid);
+  function fillGrid(){
+    grid.innerHTML='';
+    let list=MODULES.filter(function(m){return m.cat===libTab;});
+    if(libQuery){
+      list=MODULES.filter(function(m){return (m.name+m.id+m.desc+m.alias.join(' ')).toLowerCase().indexOf(libQuery)>=0;});
+    }
+    if(!list.length){grid.appendChild(el('div','hintline','没找到模块，换个词试试～')); return;}
+    list.forEach(function(m){
+      const mastered=state.mastered[m.id];
+      const card=el('div','paper alt mcard'+(m.ready?'':' off'));
+      card.appendChild(el('span','mid',m.id));
+      card.appendChild(el('div','mname',m.name));
+      card.appendChild(el('div','mdesc',m.desc));
+      card.appendChild(el('div','mstate',mastered?'<span class="st-ok">★ 已掌握</span>':'<span class="st-no">未学</span>'+(m.ready?'<span class="st-ready">● 可学习</span>':'')));
+      card.onclick=function(){
+        if(!m.ready){toast('「'+m.name+'」内容准备中，原型先开放 T2 现在进行时'); return;}
+        renderModule(m.id);
+      };
+      grid.appendChild(card);
+    });
+  }
+  fillGrid();
+  app.appendChild(el('div','hintline','已开放 T1、T2 与词法 V1 / P1 / N1 / D1 / E2（各 30 题）；进度存在本机浏览器，右上 🗑 可重置。答对自动攒 ⭐。'));
+}
+
+/* =============== 模块页 =============== */
+function renderModule(mid){
+  const m=MODULES.filter(function(x){return x.id===mid;})[0]; const pkg=CONTENT[mid];
+  const app=document.getElementById('app'); app.innerHTML='';
+  if(!m||!pkg){
+    toast('这个模块的内容还没注册，先回首页');
+    renderLibrary();
+    return;
+  }
+  const head=el('div','mhead');
+  head.appendChild(el('div','mtitle','📖 '+m.name+'（'+mid+'）'));
+  head.appendChild(el('div','statestamp '+(state.mastered[mid]?'ok':''), state.mastered[mid]?'★ 已掌握':'未学'));
+  app.appendChild(head);
+  app.appendChild(el('div','hintline','巩固优先：先「直接挑战」，过了就不用学；不过再来复习。'));
+  const cta=el('div','cta-row');
+  const b1=el('button','btn big primary','✏️ 开始复习（导图 → 练一练）');
+  b1.onclick=function(){showMindmap(pkg,{cta:'开始练一练',onCta:function(){startPractice(mid);}});};
+  const b2=el('button','btn big','🚀 直接挑战（6 题小测）');
+  b2.onclick=function(){startQuiz(mid,'直接挑战');};
+  const b3=el('button','btn','🗺 只看导图');
+  b3.onclick=function(){showMindmap(pkg,{cta:'返回模块',onCta:function(){renderModule(mid);}});};
+  cta.appendChild(b1); cta.appendChild(b2); cta.appendChild(b3);
+  app.appendChild(cta);
+  const wrongIds=Object.keys(state.wrong).filter(function(qid){return state.wrong[qid].mid===mid;});
+  if(wrongIds.length){
+    const wb=el('button','btn','📒 本模块错题（'+wrongIds.length+'）');
+    wb.onclick=renderWrongbook; cta.appendChild(wb);
+  }
+  app.appendChild(el('hr','divider'));
+  app.appendChild(el('div','hintline','题库 30 题 · 每次抽 5 题（未做过的优先、题型+句型覆盖、由易到难）· 每轮保证陈述句 / 一般疑问句 / 特殊疑问句至少各 1 题。'));
+}
+
+/* =============== 思维导图 =============== */
+function showMindmap(pkg,opts){
+  const app=document.getElementById('app'); app.innerHTML='';
+  const back=el('button','btn small','← 返回'); back.onclick=function(){renderModule(pkg.meta.module);};
+  app.appendChild(back);
+  app.appendChild(el('div','sec-title','🗺 规则速览 · 手绘思维导图'));
+  const wrap=el('div','map-wrap'); const map=el('div','map'); wrap.appendChild(map); app.appendChild(wrap);
+  const zoom=el('div','zoomctl');
+  let scale=1;
+  const zin=el('button','btn small','＋'), zout=el('button','btn small','－'), zre=el('button','btn small','复位');
+  zin.onclick=function(){scale=Math.min(1.4,scale+0.15); map.style.transform='scale('+scale+')';};
+  zout.onclick=function(){scale=Math.max(0.6,scale-0.15); map.style.transform='scale('+scale+')';};
+  zre.onclick=function(){scale=1; map.style.transform='scale(1)';};
+  zoom.appendChild(zin); zoom.appendChild(zout); zoom.appendChild(zre); app.appendChild(zoom);
+  const root=el('div','rootnode',pkg.mindmap.root); map.appendChild(root);
+  const branches=el('div','branches');
+  pkg.mindmap.branches.forEach(function(b){
+    const row=el('div','brow'); row.dataset.branch=b.title;
+    const bn=el('div','bnode'+(b.star?' starnode':''),b.title);
+    bn.style.borderColor=b.color; if(!b.star)bn.style.color=b.color;
+    row.appendChild(bn);
+    const lv=el('div','leaves');
+    b.leaves.forEach(function(l){
+      const lf=el('div','leaf',l.text+(l.ex?'<span class="exen" title="点我发音">🔊 '+l.ex+'</span>'+(l.zh?'<span class="exzh">'+l.zh+'</span>':''):''));
+      const exEl=lf.querySelector('.exen'); if(exEl)exEl.onclick=function(e){e.stopPropagation(); speak(l.ex);};
+      lv.appendChild(lf);
+    });
+    row.appendChild(lv); branches.appendChild(row);
+  });
+  map.appendChild(branches);
+  requestAnimationFrame(function(){
+    const svg=document.createElementNS('http://www.w3.org/2000/svg','svg');
+    svg.setAttribute('class','mapsvg');
+    svg.setAttribute('width',map.scrollWidth); svg.setAttribute('height',map.scrollHeight);
+    map.insertBefore(svg,map.firstChild);
+    const mr=root.getBoundingClientRect(), mrect=map.getBoundingClientRect();
+    const rx=mr.right-mrect.left, ry=mr.top+mr.height/2-mrect.top;
+    map.querySelectorAll('.brow').forEach(function(row){
+      const bn=$('.bnode',row), br=bn.getBoundingClientRect();
+      const bx=br.left-mrect.left, by=br.top+br.height/2-mrect.top;
+      const color=bn.style.borderColor||'#3d3630';
+      svgPath(svg,'M '+(rx+J())+' '+(ry+J())+' C '+(rx+70+J())+' '+(ry+J())+', '+(bx-70+J())+' '+(by+J())+', '+(bx+J())+' '+(by+J()),color,2.6);
+      const lr=bn.getBoundingClientRect();
+      const lx=lr.right-mrect.left, lyy=lr.top+lr.height/2-mrect.top;
+      row.querySelectorAll('.leaf').forEach(function(lf){
+        const fr=lf.getBoundingClientRect();
+        const fx=fr.left-mrect.left, fy=fr.top+fr.height/2-mrect.top;
+        svgPath(svg,'M '+(lx+J())+' '+(lyy+J())+' C '+(lx+40+J())+' '+(lyy+J())+', '+(fx-40+J())+' '+(fy+J())+', '+(fx+J())+' '+(fy+J()),color,1.8);
+      });
+    });
+  });
+  const cta=el('div','cta-row');
+  const cb=el('button','btn big primary',opts.cta||'继续');
+  cb.onclick=opts.onCta; cta.appendChild(cb); app.appendChild(cta);
+}
+function highlightBranch(mid,title){
+  const pkg=CONTENT[mid];
+  showMindmap(pkg,{cta:'返回模块',onCta:function(){renderModule(mid);}});
+  setTimeout(function(){
+    const row=document.querySelector('.brow[data-branch="'+title+'"]');
+    if(row){row.classList.add('hl'); row.scrollIntoView({behavior:'smooth',block:'center'});}
+  },150);
+}
+
+/* =============== 抽题 =============== */
+function drawQuestions(pool,n,coverage){
+  const unseen=pool.filter(function(q){return !state.seen[q.id];});
+  const pick=[];
+  if(coverage){
+    const covered={};
+    ['judge','choice','fill','build'].forEach(function(t){
+      const arr=shuffle(unseen.filter(function(q){return q.type===t;}));
+      if(!arr.length)return;
+      /* 优先选还没覆盖到的句型 */
+      let best=arr.filter(function(q){return q.stype&&!covered[q.stype];})[0];
+      if(!best)best=arr[0];
+      pick.push(best); if(best.stype)covered[best.stype]=true;
+    });
+    ['陈述句','一般疑问句','特殊疑问句'].forEach(function(st){
+      if(covered[st]||pick.length>=n)return;
+      const arr=shuffle(unseen.filter(function(q){return q.stype===st&&pick.indexOf(q)<0;}));
+      if(arr.length){pick.push(arr[0]); covered[st]=true;}
+    });
+  }
+  shuffle(unseen).forEach(function(q){ if(pick.length<n && pick.indexOf(q)<0) pick.push(q); });
+  if(pick.length<n){
+    shuffle(pool.filter(function(q){return state.wrong[q.id]&&pick.indexOf(q)<0;})).slice(0,n-pick.length).forEach(function(q){pick.push(q);});
+  }
+  if(pick.length<n){
+    shuffle(pool.filter(function(q){return pick.indexOf(q)<0;})).slice(0,n-pick.length).forEach(function(q){pick.push(q);});
+  }
+  return pick.sort(function(a,b){return a.difficulty-b.difficulty;});
+}
+
+/* =============== 练习会话 =============== */
+let session=null;
+function startPractice(mid){
+  const pkg=CONTENT[mid];
+  const first=!state.firstPracticeDone[mid];
+  session={mid:mid,pkg:pkg,questions:drawQuestions(pkg.questions,5,true),idx:-1,results:[],starsEarned:0,first:first};
+  runDemo(nextPracticeQuestion);
+}
+function nextPracticeQuestion(){
+  session.idx++;
+  if(session.idx>=session.questions.length){endPracticeSession(); return;}
+  const q=session.questions[session.idx];
+  const mode=(session.first&&session.idx<session.pkg.config.annotateFirstCount)?'annotate':'answer';
+  renderQuestionScreen(q,mode,{kind:'practice'});
+}
+function endPracticeSession(){
+  state.firstPracticeDone[session.mid]=true; save();
+  const ok=session.results.filter(function(r){return r.correct;}).length;
+  const app=document.getElementById('app'); app.innerHTML='';
+  const card=el('div','paper endcard');
+  card.appendChild(el('div','big','本轮练习完成！'));
+  card.appendChild(el('div','','答对 '+ok+' / '+session.questions.length+' 题，获得 ⭐ × '+session.starsEarned));
+  const stCount={};
+  session.questions.forEach(function(q){const st=q.stype||'陈述句'; stCount[st]=(stCount[st]||0)+1;});
+  card.appendChild(el('div','hintline','本轮句型：'+Object.keys(stCount).map(function(k){return k+' × '+stCount[k];}).join('　·　')));
+  const wrongs=session.results.filter(function(r){return !r.correct;});
+  if(wrongs.length){
+    const rl=el('div','reslist','<b>要巩固的：</b>');
+    wrongs.forEach(function(r){rl.appendChild(el('div','r','✗ '+r.qid+' · '+r.tag));});
+    card.appendChild(rl);
+  } else card.appendChild(el('div','','全对！可以去找小测盖章了 🎉'));
+  const cta=el('div','cta-row'); cta.style.justifyContent='center';
+  const b1=el('button','btn big primary','🚀 去小测（6 题）'); b1.onclick=function(){startQuiz(session.mid,'小测');};
+  const b2=el('button','btn','再练一轮（抽新题）'); b2.onclick=function(){startPractice(session.mid);};
+  const b3=el('button','btn','返回模块'); b3.onclick=function(){renderModule(session.mid);};
+  cta.appendChild(b1); cta.appendChild(b2); cta.appendChild(b3);
+  card.appendChild(cta); app.appendChild(card);
+}
+
+/* =============== 示范题（自动播放） =============== */
+function runDemo(onDone){
+  const app=document.getElementById('app'); app.innerHTML='';
+  const d=(session&&session.pkg?session.pkg:T2PKG).demo;
+  app.appendChild(el('div','sec-title','🎬 示范题：老师先做一遍'));
+  const card=el('div','paper qcard'); app.appendChild(card);
+  const says=el('div','says','看老师怎么「读题」——'); card.appendChild(says);
+  const box=el('div','sent-box'); const line=el('div','sent-line');
+  const words=[];
+  d.sentence.forEach(function(t){
+    const w=el('span','word',t); words.push(w); line.appendChild(w);
+  });
+  box.appendChild(line); const stampSlot=el('div','stamp-slot'); box.appendChild(stampSlot);
+  card.appendChild(box);
+  const svg=makeSvg(box.offsetWidth,box.offsetHeight);
+  const bar=el('div','demobar');
+  const skip=el('button','btn small','跳过 ⏭'); const replay=el('button','btn small','↻ 重播'); replay.style.display='none';
+  const go=el('button','btn big primary','你来试试！'); go.style.display='none';
+  bar.appendChild(skip); bar.appendChild(replay); bar.appendChild(go);
+  card.appendChild(bar);
+  let timers=[]; let doneFlag=false;
+  function clearTimers(){timers.forEach(function(t){clearTimeout(t);}); timers=[];}
+  function stampHit(){
+    card.classList.remove('stamp-hit'); void card.offsetWidth; card.classList.add('stamp-hit');
+  }
+  function finish(){
+    if(doneFlag)return; doneFlag=true; clearTimers();
+    says.textContent='轮到你啦！按刚才的步骤做～';
+    skip.style.display='none'; replay.style.display='inline-block'; go.style.display='inline-block';
+  }
+  function play(){
+    doneFlag=false; clearTimers();
+    stampSlot.innerHTML=''; svg.innerHTML='';
+    skip.style.display='inline-block'; replay.style.display='none'; go.style.display='none';
+    says.textContent='看老师怎么「读题」——';
+    let t=600;
+    d.playback.forEach(function(step){
+      timers.push(setTimeout(function(){
+        if(step.action==='tap'){
+          says.textContent='👆 '+step.say; speakZh(step.say);
+          step.words.forEach(function(i){words[i].classList.add('sel'); setTimeout(function(){words[i].classList.remove('sel');},700);});
+          drawBrace(box,svg,words,step.words.map(function(i){return words[i];}),step.label,labelStyle(step.label).c,false);
+          speak(d.sentence.filter(function(w){return w!=='.'&&w!=='____';}).join(' '));
+        } else if(step.action==='stamp'){
+          says.textContent='🖨 '+step.say; speakZh(step.say);
+          stampHit();
+          stampSlot.appendChild(el('div','stamp','⏱ '+step.value));
+        } else if(step.action==='answer'){
+          says.textContent='✅ '+step.say; speakZh(step.say);
+          stampHit();
+          const s=el('div','stamp','对！'); s.style.borderColor='#27ae60'; s.style.color='#27ae60';
+          stampSlot.appendChild(s);
+          timers.push(setTimeout(finish,900));
+        }
+      },t));
+      t+=1800;
+    });
+  }
+  skip.onclick=finish; replay.onclick=play; go.onclick=onDone;
+  requestAnimationFrame(play);
+}
+/* =============== 小测 / 直接挑战 =============== */
+function startQuiz(mid,label){
+  const pkg=CONTENT[mid];
+  session={mid:mid,pkg:pkg,questions:drawQuestions(pkg.questions,pkg.config.quizSize,false),idx:-1,results:[],starsEarned:0,quiz:true,label:label};
+  nextQuizQuestion();
+}
+function nextQuizQuestion(){
+  session.idx++;
+  if(session.idx>=session.questions.length){endQuizSession(); return;}
+  renderQuestionScreen(session.questions[session.idx],'answer',{kind:'quiz'});
+}
+function endQuizSession(){
+  const ok=session.results.filter(function(r){return r.correct;}).length;
+  const total=session.questions.length;
+  const pct=Math.round(ok/total*100); const pass=pct>=80;
+  if(pass){state.mastered[session.mid]=true; save();}
+  const app=document.getElementById('app'); app.innerHTML='';
+  const card=el('div','paper endcard');
+  card.appendChild(el('div','big',(session.label||'小测')+'结果'));
+  card.appendChild(el('div','','答对 '+ok+' / '+total+'（正确率 '+pct+'%，过关线 80%）'));
+  if(pass){
+    card.appendChild(el('div','mastered','★ 已掌握'));
+    card.appendChild(el('div','','太棒了！这一块可以随时回来重做复习。'));
+  } else {
+    card.appendChild(el('div','','差一点点！错题已进错题本，先去巩固再挑战。'));
+    const wrongs=session.results.filter(function(r){return !r.correct;});
+    const rl=el('div','reslist','<b>错的题：</b>');
+    wrongs.forEach(function(r){rl.appendChild(el('div','r','✗ '+r.qid+' · '+r.tag));});
+    card.appendChild(rl);
+  }
+  const cta=el('div','cta-row'); cta.style.justifyContent='center';
+  const b1=el('button','btn big primary',pass?'返回模块':'再挑战一次'); b1.onclick=function(){pass?renderModule(session.mid):startQuiz(session.mid,'小测');};
+  const b2=el('button','btn','看错题本'); b2.onclick=renderWrongbook;
+  const b3=el('button','btn','回去复习'); b3.onclick=function(){renderModule(session.mid);};
+  cta.appendChild(b1); cta.appendChild(b2); cta.appendChild(b3);
+  card.appendChild(cta); app.appendChild(card);
+  refreshBadge();
+}
+
+/* =============== 错题本 =============== */
+function renderWrongbook(){
+  const app=document.getElementById('app'); app.innerHTML='';
+  const back=el('button','btn small','← 返回'); back.onclick=renderLibrary; app.appendChild(back);
+  app.appendChild(el('div','sec-title','📒 错题本（做对即移出）'));
+  const ids=Object.keys(state.wrong);
+  if(!ids.length){app.appendChild(el('div','paper','空空如也，一道错题都没有，太厉害了！🎉')); return;}
+  const card=el('div','paper');
+  ids.forEach(function(qid){
+    const w=state.wrong[qid];
+    const pkg=CONTENT[w.mid]; const q=pkg.questions.filter(function(x){return x.id===qid;})[0];
+    const sent=q.sentence?q.sentence.join(' '):q.built.join(' ');
+    const item=el('div','wrongitem');
+    item.appendChild(el('div','','❌'));
+    item.appendChild(el('div','', '<b>'+w.mid+' · '+TYPE_NAME[q.type]+'</b><br><span class="en">'+sent+'</span><br><span class="hintline">错因：'+w.tags[0]+'</span>'));
+    item.onclick=function(){renderQuestionScreen(q,'annotate',{kind:'wrong'});};
+    card.appendChild(item);
+  });
+  app.appendChild(card);
+  app.appendChild(el('div','hintline','回看规则：先自己标注（不计分），标完才展开解析，然后重做；做对就移出错题本。'));
+}
+
+/* =============== 核心：题目渲染 =============== */
+function renderQuestionScreen(q,mode,ctx){
+  const app=document.getElementById('app'); app.innerHTML='';
+  const isBuild=q.type==='build';
+  /* 流程序列 */
+  let flow;
+  if(ctx.kind==='quiz'){ flow=['answer','grade']; }
+  else if(ctx.kind==='wrong'){ flow=['annotate','stamp','reveal','answer','grade']; }
+  else if(isBuild){ flow=['answer','annotate','stamp','grade']; }
+  else if(mode==='annotate'){ flow=['annotate','stamp','answer','grade']; }
+  else { flow=['answer','annotate','stamp','conflict','grade']; }
+  let phaseIdx=0;
+  const annotations={}; const attempts={};
+  let stampVal=null, stampWrongHinted=false, answer=null, revised=false, committed=false, graded=false;
+
+  const card=el('div','paper qcard'); app.appendChild(card);
+  /* meta */
+  const meta=el('div','qmeta');
+  const typeName=TYPE_NAME[q.type]+' '+'★'.repeat(q.difficulty)+'☆'.repeat(3-q.difficulty);
+  meta.appendChild(el('span','chip type',typeName));
+  if(ctx.kind==='practice'){
+    const modeChip=el('span','chip '+(isBuild?'build':(mode==='annotate'?'ann':'ansf')), isBuild?'先组句 · 后标注':(mode==='annotate'?'先标注':'先作答 · 后自查'));
+    meta.appendChild(modeChip);
+    meta.appendChild(el('span','','第 '+(session.idx+1)+' / '+session.questions.length+' 题'));
+  } else if(ctx.kind==='quiz'){
+    meta.appendChild(el('span','chip ansf','小测 · 直接作答'));
+    meta.appendChild(el('span','','第 '+(session.idx+1)+' / '+session.questions.length+' 题'));
+  } else {
+    meta.appendChild(el('span','chip ann','错题回看 · 先标注'));
+  }
+  card.appendChild(meta);
+  const back=el('button','btn small','退出'); back.onclick=function(){renderModule(session&&session.mid?session.mid:'T2');};
+  meta.appendChild(back);
+  const banner=el('div','banner'); card.appendChild(banner);
+  function setBanner(t){banner.innerHTML=t;}
+  const STEM={judge:'📝 判断题：下面这句话说得<b>对</b>还是<b>错</b>？',choice:'📝 选择题：横线里应该填哪一个？',fill:'📝 填空题：把正确的词填进横线里',build:'📝 组句题：把词卡排成一句通顺的话'};
+  card.appendChild(el('div','says',STEM[q.type]));
+
+  /* 句子区 */
+  const box=el('div','sent-box'); const line=el('div','sent-line');
+  const words=[]; const slotEls=[];
+  let blankEl=null;
+  if(isBuild){
+    q.cards.forEach(function(c,i){const s=el('span','slot'); s.dataset.i=i; slotEls.push(s); line.appendChild(s);});
+    /* 结尾标点（? . !）不在词卡里，直接亮出来 */
+    for(let k=q.cards.length;k<q.built.length;k++){
+      const p=el('span','word',q.built[k]); p.style.cursor='default'; p.style.border='none'; words.push(p); line.appendChild(p);
+    }
+  } else {
+    q.sentence.forEach(function(t,i){
+      if(t==='____'){
+        const w=el('span','word blank','____'+(q.hint?'<span class="hintw">('+q.hint+')</span>':''));
+        w.dataset.i=i; blankEl=w; words.push(w); line.appendChild(w);
+      } else {
+        const w=el('span','word',t); w.dataset.i=i; words.push(w); line.appendChild(w);
+      }
+    });
+  }
+  box.appendChild(line);
+  const stampSlot=el('div','stamp-slot'); box.appendChild(stampSlot);
+  const svg=makeSvg(box.offsetWidth,box.offsetHeight);
+  const snd=el('button','btn small','🔊 读题');
+  snd.style.position='absolute'; snd.style.left='10px'; snd.style.top='2px';
+  snd.onclick=function(){speak((q.sentence?q.sentence:q.built).filter(function(w){return w!=='____';}).join(' '));};
+  box.appendChild(snd);
+  card.appendChild(box);
+
+  /* 词点击（标注阶段） */
+  function wordEls(){return isBuild?slotEls:words;}
+  function isReusable(w){
+    if(currentPhase()!=='annotate')return false;
+    const remaining=remainingLabels();
+    if(!remaining.length)return false;
+    if(!isBuild){
+      const idx=parseInt(w.dataset.i,10);
+      return remaining.some(function(l){return q.annotation[l].indexOf(idx)>=0;});
+    }
+    const text=w.textContent.trim().toLowerCase();
+    return remaining.some(function(l){
+      return q.annotation[l].some(function(i){return String(q.built[i]).trim().toLowerCase()===text;});
+    });
+  }
+  function refreshReusable(){
+    wordEls().forEach(function(w){
+      w.classList.toggle('reusable',w.classList.contains('locked')&&isReusable(w));
+    });
+  }
+  function wordClick(e){
+    if(currentPhase()!=='annotate')return;
+    const w=e.currentTarget;
+    if(w.classList.contains('locked')&&!isReusable(w))return;
+    if(w.classList.contains('sel'))w.classList.remove('sel');
+    else w.classList.add('sel');
+    updatePalette();
+  }
+  wordEls().forEach(function(w){w.addEventListener('click',wordClick);});
+
+  /* 标注盘 */
+  const labels=Object.keys(q.annotation).filter(function(k){return k!=='tense'&&k!=='tenseOptions';});
+  const palette=el('div','palette'); card.appendChild(palette);
+  function remainingLabels(){return labels.filter(function(l){return !(l in annotations);});}
+  function selEls(){return wordEls().filter(function(w){return w.classList.contains('sel');});}
+  function updatePalette(){
+    palette.innerHTML='';
+    const rem=remainingLabels();
+    if(currentPhase()!=='annotate'){palette.style.display='none'; return;}
+    palette.style.display='block';
+    const selCount=selEls().length;
+    const tip=el('div','ptip', selCount?('已选 '+selCount+' 个词，它是——'):'✏️ 点句子里的单词，然后选它是什么成分（'+rem.length+' 个待标）');
+    palette.appendChild(tip);
+    rem.forEach(function(l){
+      const st=labelStyle(l);
+      const b=el('button','btn label-btn lbtn-'+l,l+'·'+st.hint);
+      b.style.background=st.c;
+      b.onclick=function(){pickLabel(l);};
+      palette.appendChild(b);
+    });
+    if(selCount){
+      const c=el('button','btn small','取消选择');
+      c.onclick=function(){wordEls().forEach(function(w){w.classList.remove('sel');}); updatePalette();};
+      palette.appendChild(c);
+    }
+    /* 两次失败后给「看正确标注」 */
+    Object.keys(attempts).forEach(function(l){
+      if(attempts[l]>=2 && !(l in annotations)){
+        const b=el('button','btn small','看看「'+l+'」的正确标注');
+        b.onclick=function(){autoAnnotate(l);};
+        palette.appendChild(b);
+      }
+    });
+  }
+  function spanCorrect(l,els){
+    if(isBuild){
+      const target=q.annotation[l].map(function(i){return q.built[i];}).join(' ').toLowerCase().replace(/[.!?,]/g,'').trim();
+      const got=els.map(function(e){return e.textContent.trim();}).join(' ').toLowerCase().replace(/[.!?,]/g,'').trim();
+      return target===got;
+    }
+    const target=q.annotation[l].slice().sort().join(',');
+    const got=els.map(function(e){return parseInt(e.dataset.i,10);}).sort().join(',');
+    return target===got;
+  }
+  function autoAnnotate(l){
+    const st=labelStyle(l);
+    let els;
+    if(isBuild){ els=q.annotation[l].map(function(i){return slotEls[i];}); }
+    else { els=q.annotation[l].map(function(i){return words[i];}); }
+    els.forEach(function(e){e.classList.remove('sel'); e.classList.add('locked','c-'+l);});
+    annotations[l]=true;
+    drawBrace(box,svg,words,els,l,st.c,true);
+    refreshReusable();
+    updatePalette();
+    if(!remainingLabels().length)advance();
+  }
+  function pickLabel(l){
+    const sel=selEls();
+    if(!sel.length){toast('先点单词，再选标签哦'); return;}
+    const st=labelStyle(l);
+    if(spanCorrect(l,sel)){
+      sel.forEach(function(e){e.classList.remove('sel'); e.classList.add('locked','c-'+l);});
+      annotations[l]=true;
+      drawBrace(box,svg,words,sel,l,st.c,false);
+      refreshReusable();
+      toast('✓ 「'+l+'」标对了！');
+      updatePalette();
+      if(!remainingLabels().length)advance();
+    } else {
+      attempts[l]=(attempts[l]||0)+1;
+      sel.forEach(function(e){e.classList.add('shake'); setTimeout(function(){e.classList.remove('shake','sel');},520);});
+      if(attempts[l]>=2){
+        toast('再读读这句话～正确范围亮起来了');
+        let els;
+        if(isBuild){els=q.annotation[l].map(function(i){return slotEls[i];});}
+        else{els=q.annotation[l].map(function(i){return words[i];});}
+        els.forEach(function(e){e.classList.add('glow'); setTimeout(function(){e.classList.remove('glow');},1800);});
+      } else {
+        toast('再读读这句话～');
+      }
+      updatePalette();
+    }
+  }
+
+  /* 盖章 */
+  const stampRow=el('div','stamprow'); card.appendChild(stampRow); stampRow.style.display='none';
+  let stampPicks=0;
+  function showStampRow(){
+    stampRow.style.display='flex'; stampRow.innerHTML='';
+    const spec=STAMP_SPECS[q.id.slice(0,2)]||{tip:'🖨 判断时态，盖个章：',options:q.annotation.tenseOptions||DEFAULT_TENSE_OPTIONS};
+    stampRow.appendChild(el('span','ptip','🖨 '+spec.tip));
+    const opts=spec.options;
+    opts.forEach(function(opt){
+      const b=el('button','btn stampopt',opt.replace('时',''));
+      b.onclick=function(){pickStamp(opt,b);};
+      stampRow.appendChild(b);
+    });
+  }
+  let stampDone=false;
+  function pickStamp(opt,btn){
+    if(stampDone){toast('已经盖过章啦，继续往下'); return;}
+    stampPicks++;
+    stampVal=opt;
+    stampSlot.innerHTML='';
+    card.classList.remove('stamp-hit'); void card.offsetWidth; card.classList.add('stamp-hit');
+    stampSlot.appendChild(el('div','stamp','⏱ '+opt));
+    const correct=opt===q.annotation.tense;
+    if(!correct){
+      if(!stampWrongHinted){stampWrongHinted=true; toast('章好像不太对——再看看橙色的标志词括号👆（可以再盖一次）'); return;}
+      toast('好，就先这样，继续');
+    }
+    stampDone=true;
+    stampRow.querySelectorAll('button').forEach(function(b){b.disabled=true; if(b===btn)b.style.background='#ffe3b3';});
+    setTimeout(function(){stampRow.style.display='none';},700);
+    advance();
+  }
+
+  /* 作答区 */
+  const ansZone=el('div','anszone'); card.appendChild(ansZone);
+  const actionRow=el('div','actionrow'); card.appendChild(actionRow);
+  const fbZone=el('div',''); card.appendChild(fbZone);
+  let placed=[]; /* fill/build 已放入的卡 */
+  let chosenOpt=null; let chosenJudge=null;
+  function buildAnswerUI(){
+    ansZone.innerHTML=''; actionRow.innerHTML='';
+    const commit=el('button','btn big primary', isBuild?'✅ 组好了':'✅ 选好了');
+    commit.disabled=true; commit.id='commitBtn';
+    commit.onclick=function(){commitAnswer();};
+    /* 单选/判断/填满后自动提交，省一次点击；换选项会重新计时 */
+    let autoCommitTimer=null;
+    function armAutoCommit(delay){
+      if(isBuild)return;
+      if(autoCommitTimer)clearTimeout(autoCommitTimer);
+      autoCommitTimer=setTimeout(function(){
+        if(!committed&&document.body.contains(commit)&&!commit.disabled)commit.click();
+      },delay||1300);
+    }
+    if(q.type==='judge'){
+      ansZone.appendChild(el('div','says','👩‍🏫 当小老师：这句话说得<b>对</b>还是<b>错</b>？点完自动批改～'));
+      const row=el('div','judgebtns');
+      [true,false].forEach(function(v){
+        const b=el('button','btn', v?'😊 对':'❌ 错');
+        b.onclick=function(){chosenJudge=v; commit.disabled=false;
+          row.querySelectorAll('.btn').forEach(function(x){x.classList.remove('primary');});
+          b.classList.add('primary'); armAutoCommit(1200);};
+        row.appendChild(b);
+      });
+      ansZone.appendChild(row);
+    } else if(q.type==='choice'){
+      const row=el('div','cards');
+      q.options.forEach(function(o){
+        const b=el('button','btn opt',o);
+        b.onclick=function(){chosenOpt=o; commit.disabled=false;
+          row.querySelectorAll('.opt').forEach(function(x){x.classList.remove('on');});
+          b.classList.add('on');
+          if(blankEl){blankEl.innerHTML='<span class="chipin">'+o+'</span>'; redraw();}
+          armAutoCommit(1300);};
+        row.appendChild(b);
+      });
+      ansZone.appendChild(row);
+    } else if(q.type==='fill'){
+      const row=el('div','cards');
+      const shuffled=shuffle(q.cards);
+      shuffled.forEach(function(c){
+        const b=el('button','btn cardw',c);
+        b.onclick=function(){
+          if(placed.length>=q.answer.value.length)return;
+          placed.push(c); b.disabled=true;
+          renderBlank(); commit.disabled=(placed.length<q.answer.value.length); redraw();
+          if(placed.length>=q.answer.value.length)armAutoCommit(1700);
+        };
+        b.dataset.card=c; row.appendChild(b);
+      });
+      ansZone.appendChild(row);
+    } else if(q.type==='build'){
+      const row=el('div','cards');
+      shuffle(q.cards).forEach(function(c){
+        const b=el('button','btn cardw',c);
+        b.onclick=function(){
+          if(placed.length>=q.cards.length)return;
+          placed.push(c); b.disabled=true;
+          renderSlots(); commit.disabled=(placed.length<q.cards.length);
+        };
+        b.dataset.card=c; row.appendChild(b);
+      });
+      ansZone.appendChild(row);
+    }
+    actionRow.appendChild(commit);
+    let hintTxt;
+    if(isBuild)hintTxt='点词卡组句：点错了点句子里的词可以退回';
+    else if(q.type==='fill')hintTxt='点词卡填进空里；点已填的词可以退回';
+    else if(q.type==='choice')hintTxt='点一个你认为正确的选项';
+    else hintTxt='读读句子，判断对错';
+    const hint=el('span','hintline',hintTxt);
+    actionRow.appendChild(hint);
+  }
+  function renderBlank(){
+    if(!blankEl)return;
+    blankEl.innerHTML='';
+    placed.forEach(function(c,i){
+      const ch=el('span','chipin'+(committed?' pending':''),c);
+      ch.onclick=function(){ if(committed)return; placed.splice(i,1);
+        document.querySelectorAll('.cardw').forEach(function(b){if(b.dataset.card===c)b.disabled=false;});
+        renderBlank(); $('#commitBtn').disabled=(placed.length<q.answer.value.length); redraw();};
+      blankEl.appendChild(ch);
+    });
+    if(!placed.length)blankEl.innerHTML='____'+(q.hint?'<span class="hintw">('+q.hint+')</span>':'');
+  }
+  function capFirst(s){return s.charAt(0).toUpperCase()+s.slice(1);}
+  function sentCase(arr){
+    let out='',cap=true;
+    arr.forEach(function(w){
+      let t=w;
+      if(cap&&/[a-z]/.test(t.charAt(0)))t=capFirst(t);
+      out+=(out?' ':'')+t;
+      cap=/[.!?]$/.test(t);
+    });
+    return out;
+  }
+  function renderSlots(){
+    slotEls.forEach(function(s,i){
+      s.innerHTML='';
+      if(placed[i]!==undefined){
+        let disp=placed[i];
+        if(i===0||/[.!?]$/.test(String(placed[i-1])))disp=capFirst(disp);
+        const ch=el('span','chipin'+(committed?' pending':''),disp);
+        ch.onclick=function(){ if(committed)return;
+          const c=placed.splice(i,1)[0];
+          document.querySelectorAll('.cardw').forEach(function(b){if(b.dataset.card===c)b.disabled=false;});
+          renderSlots(); $('#commitBtn').disabled=(placed.length<q.cards.length);};
+        s.appendChild(ch);
+      }
+    });
+  }
+  function renderAnswerDisplay(){ if(q.type==='fill')renderBlank(); if(q.type==='build')renderSlots(); }
+  function commitAnswer(){
+    committed=true;
+    if(q.type==='judge')answer={value:chosenJudge};
+    else if(q.type==='choice')answer={value:chosenOpt};
+    else if(q.type==='fill')answer={value:placed.slice()};
+    else answer={value:placed.slice()};
+    if(currentPhase()==='answer'){
+      const next=flow[phaseIdx+1];
+      if(next==='annotate'){
+        setPhase('annotate');
+        setBanner('✏️ 答案先放这儿<span class="hand">（虚线 = 待自查）</span>。现在用笔记检查：点单词、选成分');
+        ansZone.style.opacity='.75';
+        $('#commitBtn').style.display='none';
+        renderAnswerDisplay();
+      } else if(next==='grade'){ gradeNow(); }
+    }
+    /* 修改后二次提交（冲突自查后） */
+    if(revised){ gradeNow(); }
+  }
+  function isCorrect(){
+    if(!answer)return false;
+    if(q.type==='judge'||q.type==='choice')return answer.value===q.answer.value;
+    if(answer.value.length!==q.answer.value.length)return false;
+    return answer.value.every(function(v,i){return v===q.answer.value[i];});
+  }
+  function answerText(){
+    if(q.type==='judge')return q.answer.value?'对':'错';
+    if(q.type==='choice')return q.answer.value;
+    if(q.type==='build')return sentCase(q.built).replace(/\s+([?.!,])/g,'$1');
+    return q.answer.value.join(' ');
+  }
+
+  /* 阶段机 */
+  function currentPhase(){return flow[phaseIdx];}
+  function setPhase(p){
+    const i=flow.indexOf(p); if(i>=0)phaseIdx=i;
+    if(p==='annotate'){
+      setBanner('✏️ <span class="hand">先标注：</span>点单词 → 选它是什么成分');
+      palette.style.display='block'; updatePalette();
+      refreshReusable();
+      if(!remainingLabels().length){advance(); return;}
+    } else if(p==='stamp'){
+      palette.style.display='none';
+      setBanner('🖨 成分标完了！判断时态：<span class="hand">盖个章</span>');
+      showStampRow();
+    } else if(p==='answer'){
+      if(ctx.kind==='wrong'){ setBanner('🔁 重做一次：这次一定对！'); }
+      else if(isBuild){ setBanner('🧩 <span class="hand">先组句：</span>点词卡，把句子排好'); }
+      else if(flow[flow.indexOf('answer')+1]==='annotate'){ setBanner('✍️ <span class="hand">先作答：</span>凭第一判断选，等会儿用笔记检查'); }
+      else { setBanner('✍️ 现在作答！'); }
+      buildAnswerUI();
+    } else if(p==='reveal'){
+      setBanner('💡 标注完成！看看正确答案');
+      palette.style.display='none'; stampRow.style.display='none';
+      const fb=el('div','fb ok');
+      fb.innerHTML='正确答案：<b class="en">'+answerText()+'</b><br>'+'<span class="hintline">'+q.explain+'</span>';
+      fbZone.appendChild(fb);
+      const b=el('button','btn big primary','开始重做');
+      b.onclick=function(){fbZone.innerHTML=''; setPhase('answer');};
+      actionRow.appendChild(b);
+    } else if(p==='conflict'){
+      const ansOK=isCorrect(), stampOK=(stampVal===q.annotation.tense);
+      if(ansOK&&stampOK){ gradeNow(); return; }
+      if(revised){ gradeNow(); return; }
+      const note=el('div','note');
+      let msg;
+      if(!stampOK&&ansOK){msg='你的章盖的是「'+stampVal+'」，可句子像是「'+q.annotation.tense+'」——再看看橙色的标志词括号？';}
+      else if(stampOK&&!ansOK){msg='章盖对了！但答案里好像有个小问题，再检查检查？';}
+      else {msg='你的笔记和答案好像对不上哦——再想想？';}
+      note.innerHTML='📝 <b>冲突自查</b><br>'+msg;
+      const b1=el('button','btn primary','再想想，改一改');
+      const b2=el('button','btn','就这样提交');
+      b1.onclick=function(){
+        note.remove(); revised=true; committed=false;
+        setBanner('✍️ 改一改再交（<span class="hand">改这次就提交咯</span>）');
+        ansZone.style.opacity='1';
+        const btn=$('#commitBtn'); if(btn){btn.style.display='inline-block'; btn.disabled=false;}
+        renderAnswerDisplay();
+        /* 重设组句/填空可编辑 */
+        document.querySelectorAll('.cardw').forEach(function(b){b.disabled=false;});
+        placed=answer.value.slice();
+        if(q.type==='build')renderSlots(); if(q.type==='fill')renderBlank();
+      };
+      b2.onclick=function(){note.remove(); gradeNow();};
+      const bar=el('div','actionrow'); bar.appendChild(b1); bar.appendChild(b2);
+      note.appendChild(bar);
+      fbZone.appendChild(note);
+    }
+  }
+  function advance(){ /* 标注/盖章完成后的推进 */
+    const next=flow[phaseIdx+1];
+    if(next==='grade'){gradeNow(); return;}
+    if(next)setPhase(next);
+  }
+
+  /* 判分与反馈 */
+  function starPop(){
+    const s=el('div','bigstar','⭐');
+    s.style.left=(30+Math.random()*40)+'%'; s.style.top='40%';
+    card.appendChild(s); setTimeout(function(){s.remove();},1200);
+  }
+  function gradeNow(){
+    if(graded)return; graded=true;
+    state.seen[q.id]=true;
+    const ok=isCorrect();
+    palette.style.display='none'; stampRow.style.display='none';
+    const fb=el('div','fb '+(ok?'ok':'bad'));
+    if(ok){
+      state.stars++; if(ctx.kind==='practice')session.starsEarned++;
+      if(ctx.kind==='wrong'){delete state.wrong[q.id];}
+      save(); refreshBadge(); starPop();
+      fb.innerHTML='🌟 答对了！+1 ⭐';
+      if(ctx.kind!=='practice'&&ctx.kind!=='quiz')fb.innerHTML+=' 做对即移出错题本！';
+    } else {
+      state.wrong[q.id]={mid:(session?session.mid:'T2'),tags:q.errorTags,explain:q.explain}; save();
+      fb.innerHTML='❌ <span class="tag">'+q.errorTags[0]+'</span>'+(q.answer.fix?' 应该是：'+q.answer.fix:'')+'<br><span class="hintline">'+q.explain+'</span>';
+    }
+    fbZone.appendChild(fb);
+    const bar=el('div','actionrow');
+    if(!ok){
+      const branch=branchForTag(q.errorTags[0],q.id.slice(0,2));
+      const bm=el('button','btn','🗺 看导图（高亮「'+branch+'」）');
+      bm.onclick=function(){highlightBranch(session?session.mid:q.id.slice(0,2),branch);};
+      bar.appendChild(bm);
+    }
+    if(ctx.kind==='wrong'&&ok){
+      const bw=el('button','btn big primary','✓ 返回错题本');
+      bw.onclick=renderWrongbook; bar.appendChild(bw);
+    } else if(ok||ctx.kind==='quiz'||ctx.kind==='practice'){
+      const bn=el('button','btn big primary','下一题 →');
+      let advanced=false;
+      bn.onclick=function(){
+        if(advanced)return; advanced=true;
+        if(ctx.kind==='practice'){
+          session.results.push({correct:ok,qid:q.id,tag:q.errorTags[0],explain:q.explain});
+          nextPracticeQuestion();
+        } else if(ctx.kind==='quiz'){
+          session.results.push({correct:ok,qid:q.id,tag:q.errorTags[0],explain:q.explain});
+          nextQuizQuestion();
+        }
+      };
+      /* 答对后 1.4 秒自动下一题；若期间页面已翻走（按钮已不在页面上）则放弃，防止跳题 */
+      if(ok&&(ctx.kind==='practice'||ctx.kind==='quiz'))setTimeout(function(){if(document.body.contains(bn))bn.click();},1400);
+      bar.appendChild(bn);
+    } else {
+      const br=el('button','btn big primary','再试一次');
+      br.onclick=function(){
+        graded=false; committed=false; answer=null; placed=[]; fbZone.innerHTML='';
+        stampDone=false; stampRow.style.display='none'; stampSlot.innerHTML='';
+        if(q.type==='judge'||q.type==='choice'){chosenOpt=null; chosenJudge=null;}
+        setPhase('answer');
+      };
+      bar.appendChild(br);
+      const bk=el('button','btn','先回错题本'); bk.onclick=renderWrongbook; bar.appendChild(bk);
+    }
+    fbZone.appendChild(bar);
+  }
+
+  /* 组句题：句子区点击退词（在组句阶段） */
+  slotEls.forEach(function(s,i){
+    s.addEventListener('click',function(){
+      if(currentPhase()!=='answer'||committed)return;
+      if(placed[i]!==undefined){
+        const c=placed.splice(i,1)[0];
+        document.querySelectorAll('.cardw').forEach(function(b){if(b.dataset.card===c)b.disabled=false;});
+        renderSlots(); const btn=$('#commitBtn'); if(btn)btn.disabled=(placed.length<q.cards.length);
+      }
+    });
+  });
+
+  function redraw(){ /* 卡片变化后重画括号（尺寸变了） */
+    svg.innerHTML='';
+    Object.keys(annotations).forEach(function(l){
+      let els;
+      if(isBuild){els=q.annotation[l].map(function(i){return slotEls[i];});}
+      else{els=q.annotation[l].map(function(i){return words[i];});}
+      drawBrace(box,svg,words,els,l,labelStyle(l).c,false);
+    });
+  }
+
+  /* 启动 */
+  setPhase(flow[0]);
+  if(ctx.kind==='quiz'){ setBanner('🚀 小测：直接作答，看看真本事！'); }
+  refreshBadge();
+}
+
+/* =============== 顶栏 =============== */
+document.getElementById('homeBtn').onclick=renderLibrary;
+document.getElementById('wrongBtn').onclick=renderWrongbook;
+document.getElementById('soundBtn').onclick=function(){
+  state.soundOn=!state.soundOn; save();
+  this.textContent=state.soundOn?'🔊':'🔇';
+  toast(state.soundOn?'语音已开（用浏览器发音）':'语音已关');
+};
+document.getElementById('resetBtn').onclick=function(){
+  if(confirm('重置所有进度（星星/已掌握/错题本）？')){
+    state={stars:0,mastered:{},seen:{},wrong:{},firstPracticeDone:{},soundOn:state.soundOn};
+    save(); refreshBadge(); renderLibrary(); toast('已重置');
+  }
+};
+document.getElementById('soundBtn').textContent=state.soundOn?'🔊':'🔇';
+
+/* =============== 启动 =============== */
+refreshBadge();
+renderLibrary();
+
+</script>
+</body>
+</html>
